@@ -42,7 +42,7 @@ namespace NFinput {
 	};
 
 
-	XMLStructures* loadXMLDataStructures(string filename, bool verbose);
+	XMLStructures* loadXMLDataStructures(string filename, bool verbose, TiXmlDocument*);
 
 	//! Maintains information about a component of a TemplateMolecule.
 	/*!

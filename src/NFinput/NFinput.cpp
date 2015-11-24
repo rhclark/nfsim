@@ -42,33 +42,28 @@ component::~component()
 }
 
 
-XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose)
+XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose, TiXmlDocument* doc)
 {
 	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
 	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
-	TiXmlDocument doc(filename.c_str());
-	bool loadOkay = doc.LoadFile();
-	if (loadOkay){
+	doc = new TiXmlDocument(filename.c_str());
+	bool loadOkay = doc->LoadFile();
 
+	if (loadOkay){
+		XMLStructures* xmlstructures = new XMLStructures();
 		//First declare our system
 
 		//Read in the root node, which should give us the system's name
-		TiXmlHandle hDoc(&doc);
+		TiXmlHandle hDoc(doc);
 		TiXmlElement *pModel = hDoc.FirstChildElement().Node()->FirstChildElement("model");
 		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
-
-		//Make sure the basics are there
-		string modelName;
-
-		XMLStructures* xmlstructures = new XMLStructures();
-
 
 		if(!pModel->Attribute("id"))  {
 			xmlstructures->modelName = "nameless";
 			if(verbose) cout<<"\tNo System name given, so I'm calling your system: "<< xmlstructures->modelName;
 		}
 		else  {
-			modelName=pModel->Attribute("id");
+			xmlstructures->modelName=pModel->Attribute("id");
 			if(verbose) cout<<"\tCreating system: "<< xmlstructures->modelName;
 		}
 
@@ -94,7 +89,7 @@ XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose)
 	else{
 		cout<<"\nError reading the file.  I could not find / open it, or it is not valid xml."<<endl;
 	}
-	return 0;
+	return NULL;
 
 }
 
@@ -107,9 +102,12 @@ System * NFinput::initializeFromXML(
 		bool evaluateComplexScopedLocalFunctions )
 {
 
-	XMLStructures* xmlDataStructures= loadXMLDataStructures(filename, verbose);
+	XMLStructures* xmlDataStructures= NULL;
+	TiXmlDocument* tixmlelement = NULL;
+	xmlDataStructures = loadXMLDataStructures(filename, verbose, tixmlelement);
 
-	if (xmlDataStructures != 0)
+
+	if (xmlDataStructures != NULL)
 	{
 		System *s;
 		if(!blockSameComplexBinding) s=new System(xmlDataStructures->modelName,false,globalMoleculeLimit);
