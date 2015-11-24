@@ -31,6 +31,19 @@ using namespace NFcore;
  */
 namespace NFinput {
 
+	struct XMLStructures{
+		string modelName;
+		TiXmlElement *pListOfParameters;
+		TiXmlElement *pListOfFunctions;
+		TiXmlElement *pListOfMoleculeTypes;
+		TiXmlElement *pListOfSpecies;
+		TiXmlElement *pListOfReactionRules;
+		TiXmlElement *pListOfObservables;
+	};
+
+
+	XMLStructures* loadXMLDataStructures(string filename, bool verbose);
+
 	//! Maintains information about a component of a TemplateMolecule.
 	/*!
     	@author Michael Sneddon
@@ -60,6 +73,14 @@ namespace NFinput {
     	@author Michael Sneddon
 	 */
 	System * initializeFromXML(
+			string filename,
+			bool blockSameComplexBinding,
+			int globalMoleculeLimit,
+			bool verbose,
+			int &suggestedTraversalLimit,
+			bool evaluateComplexScopedLocalFunctions=false );
+
+	System * initializeFromXML2(
 			string filename,
 			bool blockSameComplexBinding,
 			int globalMoleculeLimit,
