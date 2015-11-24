@@ -1,2 +1,2 @@
-Testing for multiple assignments per rule per molecule agent.
--sim 5 -oSteps 50
+Testing for component handling with basic reactions in molecules with symmetric components 
+-sim 5 -oSteps 50 cb
