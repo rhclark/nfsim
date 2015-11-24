@@ -4,6 +4,7 @@ import numpy as np
 import subprocess
 import re
 import fnmatch
+import sys
 
 bngPath = os.path.join('.', 'BioNetGen-2.2.6-stable', 'BNG2.pl')
 #bngPath = '/home/proto/workspace/bionetgen/bng2/BNG2.pl'  # <<< SET YOUR BIONETGEN PATH HERE <<<
@@ -115,4 +116,8 @@ if __name__ == "__main__":
     tests = getTests(testFolder)
     for index in tests:
         suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 30}))
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    ret = not (result.failures is [] or result.errors is [])
+    ret = 0 if ret else 1
+    print ret
+    sys.exit(ret)
