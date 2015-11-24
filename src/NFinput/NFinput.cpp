@@ -75,26 +75,18 @@ XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose)
 		// set evaluation of complex-scoped local functions (true or false)
 
 		//Read the key lists needed for the simulation and make sure they exist...
-		TiXmlElement *pListOfParameters = pModel->FirstChildElement("ListOfParameters");
-		if(!pListOfParameters) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; return NULL; }
-		TiXmlElement *pListOfFunctions = pModel->FirstChildElement("ListOfFunctions");
+		xmlstructures->pListOfParameters = pModel->FirstChildElement("ListOfParameters");
+		if(!xmlstructures->pListOfParameters) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; return NULL; }
+		xmlstructures->pListOfFunctions = pModel->FirstChildElement("ListOfFunctions");
 		//(we do not enforce that functions must exist... yet)  if(!pListOfFunctions) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; delete s; return NULL; }
-		TiXmlElement *pListOfMoleculeTypes = pListOfParameters->NextSiblingElement("ListOfMoleculeTypes");
-		if(!pListOfMoleculeTypes) { cout<<"\tNo 'ListOfMoleculeTypes' tag found.  Quitting."; return NULL; }
-		TiXmlElement *pListOfSpecies = pListOfMoleculeTypes->NextSiblingElement("ListOfSpecies");
-		if(!pListOfSpecies) { cout<<"\tNo 'ListOfSpecies' tag found.  Quitting."; return NULL; }
-		TiXmlElement *pListOfReactionRules = pListOfSpecies->NextSiblingElement("ListOfReactionRules");
-		if(!pListOfReactionRules) { cout<<"\tNo 'ListOfReactionRules' tag found.  Quitting."; return NULL; }
-		TiXmlElement *pListOfObservables = pListOfReactionRules->NextSiblingElement("ListOfObservables");
-		if(!pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; return NULL; }
-
-
-		xmlstructures->pListOfParameters = pListOfParameters;
-		xmlstructures->pListOfFunctions = pListOfFunctions;
-		xmlstructures->pListOfMoleculeTypes = pListOfMoleculeTypes;
-		xmlstructures->pListOfSpecies = pListOfSpecies;
-		xmlstructures->pListOfReactionRules = pListOfReactionRules;
-		xmlstructures->pListOfObservables = pListOfObservables;
+		xmlstructures->pListOfMoleculeTypes = xmlstructures->pListOfParameters->NextSiblingElement("ListOfMoleculeTypes");
+		if(!xmlstructures->pListOfMoleculeTypes) { cout<<"\tNo 'ListOfMoleculeTypes' tag found.  Quitting."; return NULL; }
+		xmlstructures->pListOfSpecies = xmlstructures->pListOfMoleculeTypes->NextSiblingElement("ListOfSpecies");
+		if(!xmlstructures->pListOfSpecies) { cout<<"\tNo 'ListOfSpecies' tag found.  Quitting."; return NULL; }
+		xmlstructures->pListOfReactionRules = xmlstructures->pListOfSpecies->NextSiblingElement("ListOfReactionRules");
+		if(!xmlstructures->pListOfReactionRules) { cout<<"\tNo 'ListOfReactionRules' tag found.  Quitting."; return NULL; }
+		xmlstructures->pListOfObservables = xmlstructures->pListOfReactionRules->NextSiblingElement("ListOfObservables");
+		if(!xmlstructures->pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; return NULL; }
 
 		return xmlstructures;
 
