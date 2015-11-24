@@ -5,6 +5,8 @@ sudo: false
 addons:
   apt:
     packages:
+    - python-dev
+    - python-numpy
     - libxml2-dev
 compiler:
   - g++
