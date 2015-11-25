@@ -53,9 +53,11 @@ def loadResults(fileName, split):
         print 'no file'
         return [], []
 
+# don't raise an exception on division by zero
+np.seterr(divide='ignore', invalid='ignore')
+
 
 class TestNFSimFile(ParametrizedTestCase):
-    
 
     # XXX:ideally this should be done through the console but I'm doing the quick and dirty version right now
     def BNGtrajectoryGeneration(self, outputDirectory, fileNumber):
@@ -91,10 +93,11 @@ class TestNFSimFile(ParametrizedTestCase):
             nfDiff += pow(sum(pow(ode[:, 1:] - nf[:, 1:], 2)), 0.5)
             #nfDiff += sum(abs(ode[:, 1:] - nf[:, 1:]))
 
-        ssaDiff = ssaDiff / self.param['iterations']
-        nfDiff = nfDiff / self.param['iterations']
-
-        rdiff = (nfDiff - ssaDiff) / nfDiff
+        ssaDiff = np.divide(ssaDiff, self.param['iterations'])
+        nfDiff = np.divide(nfDiff, self.param['iterations'])
+        rdiff = np.divide((nfDiff - ssaDiff), nfDiff)
+        # nan from division by zero to zero
+        rdiff = np.nan_to_num(rdiff)
         # relative difference should be less than 15%
         for element in rdiff:
             self.assertTrue(element < 0.15)
@@ -114,6 +117,7 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     testFolder = './basicModels'
     tests = getTests(testFolder)
+    #tests = ['10']
     for index in tests:
         suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 30}))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
