@@ -1,2 +1,2 @@
-Testing for component handling with basic reactions in molecules with symmetric components 
--sim 5 -oSteps 50 cb
+Testing for handling of reactions with symmetry in the context and in the reaction center
+-sim 5 -oSteps 50 -cb

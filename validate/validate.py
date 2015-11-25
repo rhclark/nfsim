@@ -77,7 +77,7 @@ class TestNFSimFile(ParametrizedTestCase):
             return f.readlines()
 
     def test_nfsim(self):
-        tol = 0.35 # this is the error tolerance when comparing nfsim's run to the ssa where 0.35 = 35%
+        tol = 0.15 # this is the error tolerance when comparing nfsim's run to the ssa where 0.35 = 35%
         (modelName, runOptions) = self.loadConfigurationFile(self.param['odir'], self.param['num'])
         print('Processing model "{0}"'.format(modelName.strip()))
         ssaDiff = nfDiff = 0
@@ -87,22 +87,25 @@ class TestNFSimFile(ParametrizedTestCase):
             odeh, ode = loadResults(os.path.join(self.param['odir'], 'v{0}_ode.gdat'.format(self.param['num'])), ' ')
             ssah, ssa = loadResults(os.path.join(self.param['odir'], 'v{0}_ssa.gdat'.format(self.param['num'])), ' ')
             nfh, nf = loadResults(os.path.join(self.param['odir'], 'v{0}_nf.gdat'.format(self.param['num'])), ' ')
-
-            #square root difference
+            # square root difference
             ssaDiff += pow(sum(pow(ode[:, 1:] - ssa[:, 1:], 2)), 0.5)
             nfDiff += pow(sum(pow(ode[:, 1:] - nf[:, 1:], 2)), 0.5)
+            #ssaDiff = sum(abs(ode[:,1:] - ssa[:,1:]))
             #nfDiff += sum(abs(ode[:, 1:] - nf[:, 1:]))
 
         ssaDiff = np.divide(ssaDiff, self.param['iterations'])
         nfDiff = np.divide(nfDiff, self.param['iterations'])
         #print ssaDiff, nfDiff
-        rdiff = np.abs(np.divide((nfDiff - ssaDiff), nfDiff))
-        #print rdiff
+        #rdiff = np.abs(np.divide((nfDiff - ssaDiff), nfDiff))
         # nan from division by zero to zero
-        rdiff = np.nan_to_num(rdiff)
+        #rdiff = np.nan_to_num(rdiff)
+        #print rdiff
+        rdiff = nfDiff - ssaDiff - (tol * ssaDiff)
+        #print rdiff
         # relative difference should be less than 15%
         for element in rdiff:
-            self.assertTrue(element < 0.15)
+            self.assertTrue(element <= 0)
+            #self.assertTrue(element < tol)
 
 
 def getTests(directory):
@@ -119,9 +122,11 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     testFolder = './basicModels'
     tests = getTests(testFolder)
-    #tests = ['13']
+    #tests =['17']
+    #print tests
+    #sys.exit()
     for index in tests:
-        suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 50}))
+        suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 60}))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     #print '++++', result, result.failures, result.errors, list(result.errors) == []
     ret = (list(result.failures) == [] and list(result.errors) == [])
