@@ -95,9 +95,9 @@ class TestNFSimFile(ParametrizedTestCase):
 
         ssaDiff = np.divide(ssaDiff, self.param['iterations'])
         nfDiff = np.divide(nfDiff, self.param['iterations'])
-        print ssaDiff, nfDiff
+        #print ssaDiff, nfDiff
         rdiff = np.abs(np.divide((nfDiff - ssaDiff), nfDiff))
-        print rdiff
+        #print rdiff
         # nan from division by zero to zero
         rdiff = np.nan_to_num(rdiff)
         # relative difference should be less than 15%
