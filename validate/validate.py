@@ -95,7 +95,9 @@ class TestNFSimFile(ParametrizedTestCase):
 
         ssaDiff = np.divide(ssaDiff, self.param['iterations'])
         nfDiff = np.divide(nfDiff, self.param['iterations'])
-        rdiff = np.divide((nfDiff - ssaDiff), nfDiff)
+        print ssaDiff, nfDiff
+        rdiff = np.abs(np.divide((nfDiff - ssaDiff), nfDiff))
+        print rdiff
         # nan from division by zero to zero
         rdiff = np.nan_to_num(rdiff)
         # relative difference should be less than 15%
@@ -117,9 +119,9 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     testFolder = './basicModels'
     tests = getTests(testFolder)
-    #tests = ['10']
+    #tests = ['13']
     for index in tests:
-        suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 30}))
+        suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 50}))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     #print '++++', result, result.failures, result.errors, list(result.errors) == []
     ret = (list(result.failures) == [] and list(result.errors) == [])
