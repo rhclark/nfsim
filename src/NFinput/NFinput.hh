@@ -42,7 +42,12 @@ namespace NFinput {
 	};
 
 
+	// JJT: Extracts information relevant to NFSim from a BNG-XML
 	XMLStructures* loadXMLDataStructures(string filename, bool verbose, TiXmlDocument*);
+
+	// JJT: Initializes the NFSim:system object from an XMLStructures object
+	System* initializeNFSimSystem(XMLStructures*, bool, int, bool, int &, bool);
+
 
 	//! Maintains information about a component of a TemplateMolecule.
 	/*!

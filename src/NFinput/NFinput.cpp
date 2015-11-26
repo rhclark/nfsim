@@ -93,6 +93,102 @@ XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose, TiX
 
 }
 
+System* NFinput::initializeNFSimSystem(
+		XMLStructures* xmlDataStructures,
+		bool blockSameComplexBinding,
+		int globalMoleculeLimit,
+		bool verbose,
+		int &suggestedTraversalLimit,
+		bool evaluateComplexScopedLocalFunctions )
+{
+	System *s;
+	if(!blockSameComplexBinding) s=new System(xmlDataStructures->modelName,false,globalMoleculeLimit);
+	else s=new System(xmlDataStructures->modelName,true,globalMoleculeLimit);
+
+	s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
+
+	//Now retrieve the parameters, so they are easy to look up in the future
+	//and save the parameters in a map we call parameter
+	if(!verbose) cout<<"-";
+	else cout<<"\n\tReading parameter list..."<<endl;
+	map<string, double> parameter;
+	if(!initParameters(xmlDataStructures->pListOfParameters, s, parameter, verbose))
+	{
+		cout<<"\n\nI failed at parsing your Parameters.  Check standard error for a report."<<endl;
+		if(s!=NULL) delete s;
+		return NULL;
+	}
+
+	if(!verbose) cout<<"-";
+	else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
+	map<string,int> allowedStates;
+	if(!initMoleculeTypes(xmlDataStructures->pListOfMoleculeTypes, s, allowedStates, verbose))
+	{
+		cout<<"\n\nI failed at parsing your MoleculeTypes.  Check standard error for a report."<<endl;
+		if(s!=NULL) delete s;
+		return NULL;
+	}
+
+
+	if(!verbose) cout<<"-";
+	else cout<<"\n\tReading list of Species..."<<endl;
+	if(!initStartSpecies(xmlDataStructures->pListOfSpecies, s, parameter, allowedStates, verbose))
+	{
+		cout<<"\n\nI failed at parsing your species.  Check standard error for a report."<<endl;
+		if(s!=NULL) delete s;
+		return NULL;
+	}
+
+
+	if(!verbose) cout<<"-";
+	else cout<<"\n\tReading list of Observables..."<<endl;
+	if(!initObservables(xmlDataStructures->pListOfObservables, s, parameter, allowedStates, verbose, suggestedTraversalLimit))
+	{
+		cout<<"\n\nI failed at parsing your observables.  Check standard error for a report."<<endl;
+		if(s!=NULL) delete s;
+		return NULL;
+	}
+
+
+
+	if(!verbose) cout<<"-";
+	else if(xmlDataStructures->pListOfFunctions) cout<<"\n\tReading list of Functions..."<<endl;
+	if(xmlDataStructures->pListOfFunctions)
+	{
+		if(!initFunctions(xmlDataStructures->pListOfFunctions, s, parameter, xmlDataStructures->pListOfObservables,allowedStates,verbose)) {
+			cout<<"\n\nI failed at parsing your Global Functions.  Check standard error for a report."<<endl;
+			if(s!=NULL) delete s;
+			return NULL;
+		}
+	}
+
+
+
+	//We have to read reactionRules AFTER observables because sometimes reactions
+	//might depend on some observable...
+	if(!verbose) cout<<"-";
+	else cout<<"\n\tReading list of Reaction Rules..."<<endl;
+
+	if(!initReactionRules(xmlDataStructures->pListOfReactionRules, s, parameter, allowedStates, blockSameComplexBinding, verbose, suggestedTraversalLimit))
+	{
+		cout<<"\n\nI failed at parsing your reaction rules.  Check standard error for a report."<<endl;
+		if(s!=NULL) delete s;
+		return NULL;
+	}
+
+	/////////////////////////////////////////
+	// Parse is finally over!  Now we just have to take care of some final details.
+
+	//Finish up the output message
+	if(!verbose) cout<<"-]\n";
+
+	//We no longer prepare the simulation here!  You have to do it yourself
+
+	return s;
+
+
+}
+
 System * NFinput::initializeFromXML(
 		string filename,
 		bool blockSameComplexBinding,
@@ -104,93 +200,15 @@ System * NFinput::initializeFromXML(
 
 	XMLStructures* xmlDataStructures= NULL;
 	TiXmlDocument* tixmlelement = NULL;
+	System *s = NULL;
 	xmlDataStructures = loadXMLDataStructures(filename, verbose, tixmlelement);
 
 
 	if (xmlDataStructures != NULL)
 	{
 		System *s;
-		if(!blockSameComplexBinding) s=new System(xmlDataStructures->modelName,false,globalMoleculeLimit);
-		else s=new System(xmlDataStructures->modelName,true,globalMoleculeLimit);
-
-		s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
-
-		//Now retrieve the parameters, so they are easy to look up in the future
-		//and save the parameters in a map we call parameter
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading parameter list..."<<endl;
-		map<string, double> parameter;
-		if(!initParameters(xmlDataStructures->pListOfParameters, s, parameter, verbose))
-		{
-			cout<<"\n\nI failed at parsing your Parameters.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
-		map<string,int> allowedStates;
-		if(!initMoleculeTypes(xmlDataStructures->pListOfMoleculeTypes, s, allowedStates, verbose))
-		{
-			cout<<"\n\nI failed at parsing your MoleculeTypes.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of Species..."<<endl;
-		if(!initStartSpecies(xmlDataStructures->pListOfSpecies, s, parameter, allowedStates, verbose))
-		{
-			cout<<"\n\nI failed at parsing your species.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of Observables..."<<endl;
-		if(!initObservables(xmlDataStructures->pListOfObservables, s, parameter, allowedStates, verbose, suggestedTraversalLimit))
-		{
-			cout<<"\n\nI failed at parsing your observables.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-
-
-		if(!verbose) cout<<"-";
-		else if(xmlDataStructures->pListOfFunctions) cout<<"\n\tReading list of Functions..."<<endl;
-		if(xmlDataStructures->pListOfFunctions)
-		{
-			if(!initFunctions(xmlDataStructures->pListOfFunctions, s, parameter, xmlDataStructures->pListOfObservables,allowedStates,verbose)) {
-				cout<<"\n\nI failed at parsing your Global Functions.  Check standard error for a report."<<endl;
-				if(s!=NULL) delete s;
-				return NULL;
-			}
-		}
-
-
-
-		//We have to read reactionRules AFTER observables because sometimes reactions
-		//might depend on some observable...
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of Reaction Rules..."<<endl;
-
-		if(!initReactionRules(xmlDataStructures->pListOfReactionRules, s, parameter, allowedStates, blockSameComplexBinding, verbose, suggestedTraversalLimit))
-		{
-			cout<<"\n\nI failed at parsing your reaction rules.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-		/////////////////////////////////////////
-		// Parse is finally over!  Now we just have to take care of some final details.
-
-		//Finish up the output message
-		if(!verbose) cout<<"-]\n";
-
-		//We no longer prepare the simulation here!  You have to do it yourself
+		s = initializeNFSimSystem(xmlDataStructures, blockSameComplexBinding, globalMoleculeLimit, verbose, 
+			                      suggestedTraversalLimit, evaluateComplexScopedLocalFunctions);
 
 		return s;
 	}
