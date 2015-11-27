@@ -42,14 +42,9 @@ component::~component()
 }
 
 
-XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose, TiXmlDocument* doc)
+XMLStructures* NFinput::loadXMLDataStructures(TiXmlDocument* doc, bool verbose)
 {
-	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
-	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
-	doc = new TiXmlDocument(filename.c_str());
-	bool loadOkay = doc->LoadFile();
 
-	if (loadOkay){
 		XMLStructures* xmlstructures = new XMLStructures();
 		//First declare our system
 
@@ -85,11 +80,6 @@ XMLStructures* NFinput::loadXMLDataStructures(string filename, bool verbose, TiX
 
 		return xmlstructures;
 
-	}
-	else{
-		cout<<"\nError reading the file.  I could not find / open it, or it is not valid xml."<<endl;
-	}
-	return NULL;
 
 }
 
@@ -189,6 +179,28 @@ System* NFinput::initializeNFSimSystem(
 
 }
 
+XMLStructures* NFinput::loadXMLFile(string filename, bool verbose)
+{
+	TiXmlDocument* doc = NULL;
+	XMLStructures* xmlDataStructures = NULL;
+	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
+	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
+	doc = new TiXmlDocument(filename.c_str());
+	bool loadOkay = doc->LoadFile();
+
+	if (loadOkay)
+	{
+		xmlDataStructures = loadXMLDataStructures(doc, verbose);
+	}
+	else{
+		cout<<"\nError reading the file.  I could not find / open it, or it is not valid xml."<<endl;
+		return NULL;
+	}
+
+	return xmlDataStructures;
+
+}
+
 System * NFinput::initializeFromXML(
 		string filename,
 		bool blockSameComplexBinding,
@@ -198,12 +210,12 @@ System * NFinput::initializeFromXML(
 		bool evaluateComplexScopedLocalFunctions )
 {
 
-	XMLStructures* xmlDataStructures= NULL;
-	TiXmlDocument* tixmlelement = NULL;
+	
+	//loads XML from file and obtains relevant pointers to different sections in the xml file
+	XMLStructures* xmlDataStructures= loadXMLFile(filename, verbose);
 	System *s = NULL;
-	xmlDataStructures = loadXMLDataStructures(filename, verbose, tixmlelement);
 
-
+	//Populates the system data structure
 	if (xmlDataStructures != NULL)
 	{
 		System *s;
@@ -220,157 +232,6 @@ System * NFinput::initializeFromXML(
 
 	return 0;
 }
-
-
-
-System * NFinput::initializeFromXML2(
-		string filename,
-		bool blockSameComplexBinding,
-		int globalMoleculeLimit,
-		bool verbose,
-		int &suggestedTraversalLimit,
-		bool evaluateComplexScopedLocalFunctions )
-{
-	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
-	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
-
-
-	TiXmlDocument doc(filename.c_str());
-	bool loadOkay = doc.LoadFile();
-	if (loadOkay)
-	{
-		if(verbose) cout<<"\t\tread was successful... beginning parse..."<<endl<<endl;
-
-		//First declare our system
-		System *s;
-
-		//Read in the root node, which should give us the system's name
-		TiXmlHandle hDoc(&doc);
-		TiXmlElement *pModel = hDoc.FirstChildElement().Node()->FirstChildElement("model");
-		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
-
-		//Make sure the basics are there
-		string modelName;
-		if(!pModel->Attribute("id"))  {
-			if(!blockSameComplexBinding) s=new System("nameless",false,globalMoleculeLimit);
-			else s=new System("nameless",true,globalMoleculeLimit);
-			if(verbose) cout<<"\tNo System name given, so I'm calling your system: "<<s->getName()<<endl;
-		}
-		else  {
-			modelName=pModel->Attribute("id");
-			//We have to add complex bookkeeping if we are blocking same complex binding
-			if(!blockSameComplexBinding) s=new System(modelName,false,globalMoleculeLimit);
-			else s=new System(modelName,true,globalMoleculeLimit);
-			if(verbose) cout<<"\tCreating system: "<<s->getName()<<endl;
-		}
-
-		// set evaluation of complex-scoped local functions (true or false)
-		s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
-
-		//Read the key lists needed for the simulation and make sure they exist...
-		TiXmlElement *pListOfParameters = pModel->FirstChildElement("ListOfParameters");
-		if(!pListOfParameters) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; delete s; return NULL; }
-		TiXmlElement *pListOfFunctions = pModel->FirstChildElement("ListOfFunctions");
-		//(we do not enforce that functions must exist... yet)  if(!pListOfFunctions) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; delete s; return NULL; }
-		TiXmlElement *pListOfMoleculeTypes = pListOfParameters->NextSiblingElement("ListOfMoleculeTypes");
-		if(!pListOfMoleculeTypes) { cout<<"\tNo 'ListOfMoleculeTypes' tag found.  Quitting."; delete s; return NULL; }
-		TiXmlElement *pListOfSpecies = pListOfMoleculeTypes->NextSiblingElement("ListOfSpecies");
-		if(!pListOfSpecies) { cout<<"\tNo 'ListOfSpecies' tag found.  Quitting."; delete s; return NULL; }
-		TiXmlElement *pListOfReactionRules = pListOfSpecies->NextSiblingElement("ListOfReactionRules");
-		if(!pListOfReactionRules) { cout<<"\tNo 'ListOfReactionRules' tag found.  Quitting."; delete s; return NULL; }
-		TiXmlElement *pListOfObservables = pListOfReactionRules->NextSiblingElement("ListOfObservables");
-		if(!pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; delete s; return NULL; }
-
-
-		//Now retrieve the parameters, so they are easy to look up in the future
-		//and save the parameters in a map we call parameter
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading parameter list..."<<endl;
-		map<string, double> parameter;
-		if(!initParameters(pListOfParameters, s, parameter, verbose))
-		{
-			cout<<"\n\nI failed at parsing your Parameters.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
-		map<string,int> allowedStates;
-		if(!initMoleculeTypes(pListOfMoleculeTypes, s, allowedStates, verbose))
-		{
-			cout<<"\n\nI failed at parsing your MoleculeTypes.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of Species..."<<endl;
-		if(!initStartSpecies(pListOfSpecies, s, parameter, allowedStates, verbose))
-		{
-			cout<<"\n\nI failed at parsing your species.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of Observables..."<<endl;
-		if(!initObservables(pListOfObservables, s, parameter, allowedStates, verbose, suggestedTraversalLimit))
-		{
-			cout<<"\n\nI failed at parsing your observables.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-
-
-		if(!verbose) cout<<"-";
-		else if(pListOfFunctions) cout<<"\n\tReading list of Functions..."<<endl;
-		if(pListOfFunctions)
-		{
-			if(!initFunctions(pListOfFunctions, s, parameter, pListOfObservables,allowedStates,verbose)) {
-				cout<<"\n\nI failed at parsing your Global Functions.  Check standard error for a report."<<endl;
-				if(s!=NULL) delete s;
-				return NULL;
-			}
-		}
-
-
-
-		//We have to read reactionRules AFTER observables because sometimes reactions
-		//might depend on some observable...
-		if(!verbose) cout<<"-";
-		else cout<<"\n\tReading list of Reaction Rules..."<<endl;
-
-		if(!initReactionRules(pListOfReactionRules, s, parameter, allowedStates, blockSameComplexBinding, verbose, suggestedTraversalLimit))
-		{
-			cout<<"\n\nI failed at parsing your reaction rules.  Check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-		}
-
-		/////////////////////////////////////////
-		// Parse is finally over!  Now we just have to take care of some final details.
-
-		//Finish up the output message
-		if(!verbose) cout<<"-]\n";
-
-		//We no longer prepare the simulation here!  You have to do it yourself
-
-		return s;
-	}
-	else
-	{
-		cout<<"\nError reading the file.  I could not find / open it, or it is not valid xml."<<endl;
-	}
-
-
-	return 0;
-}
-
-
 
 
 bool NFinput::initParameters(TiXmlElement *pListOfParameters, System *s, map <string,double> &parameter, bool verbose)

@@ -49,6 +49,7 @@
 #include  "NFtest/agentcell/agentcell.hh"
 
 
+using NFinput::XMLStructures;
 
 //! Runs a given System with the specified arguments
 /*!
@@ -57,12 +58,20 @@
 bool runFromArgs(System *s, map<string,string> argMap, bool verbose);
 
 
+
+//! Given a System object it initialzies different execution variables
+/*!
+  @author Jose Juan Tapia
+*/
+bool setSystemVariables(map<string,string> argMap, bool verbose, int suggestedTraveralLimit, System* s);
+
+
 //! Initialize a system from command line flags
 /*!
   @author Michael Sneddon
 */
 System *initSystemFromFlags(map<string,string> argMap, bool verbose);
-
+XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose);
 
 
 

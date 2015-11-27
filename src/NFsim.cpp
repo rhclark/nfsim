@@ -243,9 +243,19 @@ int main(int argc, char *argv[])
 			parsed = true;
 		}
 
+
 		//  Main entry point for a basic XML file...
 		else if (argMap.find("xml")!=argMap.end())
 		{
+
+			// Run NFSim as a reaction lookup table
+			if (argMap.find("server")!= argMap.end())
+			{
+				NFinput::XMLStructures* xmlStructures;
+				//getXMLStructureFromFlags(argMap, verbose);
+
+			}
+
 			System *s = initSystemFromFlags(argMap, verbose);
 			if(s!=NULL) {
 				runFromArgs(s,argMap,verbose);
@@ -344,6 +354,129 @@ bool runRNFscript(map<string,string> argMap, bool verbose)
 	return false;
 }
 
+bool setSystemVariables(map<string,string> argMap, bool verbose, int suggestedTraveralLimit, System* s){
+	if(verbose) {cout<<endl;}
+
+	//If requested, be sure to output the values of global functions
+	if (argMap.find("ogf")!=argMap.end()) {
+		s->turnOnGlobalFuncOut();
+		if(verbose) cout<<"\tGlobal function output (-ogf) flag detected."<<endl<<endl;
+	}
+
+	// Also set the dumper to output at specified time intervals
+	if (argMap.find("dump")!=argMap.end()) {
+		if(!NFinput::createSystemDumper(argMap.find("dump")->second, s, verbose)) {
+			cout<<endl<<endl<<"Error when creating system dump outputters.  Quitting."<<endl;
+			delete s;
+			return 0;
+		}
+	}
+
+	// Set the universal traversal limit
+	if (argMap.find("utl")!=argMap.end()) {
+		int utl = -1;
+		utl = NFinput::parseAsInt(argMap,"utl",utl);
+		s->setUniversalTraversalLimit(utl);
+		if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set manually to: "<<utl<<endl<<endl;
+	} else {
+		s->setUniversalTraversalLimit(suggestedTraveralLimit);
+		if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set automatically to: "<<suggestedTraveralLimit<<endl<<endl;
+	}
+
+	if (verbose){
+		// report status of complex-scoped local functions
+		if ( s->getEvaluateComplexScopedLocalFunctions() ) {
+			cout<<"\tComplex-scoped local function evaluation is enabled."<<endl<<endl;
+		}
+		else {
+			cout<<"\tComplex-scoped local function evaluation is DISABLED!"<<endl<<endl;
+		}
+	}
+
+
+
+	// turn on the event counter, if need be
+	if (argMap.find("oec")!=argMap.end()) {
+		s->turnOnOutputEventCounter();
+		if(verbose) cout<<"\tEvent counter output (-oec) flag detected."<<endl<<endl;
+	}
+
+	// set the output to binary
+	if (argMap.find("b")!=argMap.end()) {
+		s->setOutputToBinary();
+		if(verbose) cout<<"\tStandard output is switched to binary format."<<endl<<endl;
+	}
+
+
+	if(argMap.find("csv")!=argMap.end()) {
+		s->turnOnCSVformat();
+	}
+
+
+	// tag any reactions that were tagged
+	if (argMap.find("rtag")!=argMap.end()) {
+		vector <int> sequence;
+		NFinput::parseAsCommaSeparatedSequence(argMap,"rtag",sequence);
+
+		if(verbose) {
+			cout<<"\tTagging reactions by id (from the -rtag flag):";
+			for(unsigned int k=0; k<sequence.size(); k++) cout<<" "<<sequence.at(k);
+			cout<<endl;
+		}
+		for(unsigned int k=0; k<sequence.size(); k++) s->tagReaction(sequence.at(k));
+
+	}
+
+
+	//Register the output file location, if given
+	if (argMap.find("o")!=argMap.end()) {
+		string outputFileName = argMap.find("o")->second;
+		s->registerOutputFileLocation(outputFileName);
+		s->outputAllObservableNames();
+	} else {
+		if(s->isOutputtingBinary()) {
+			s->registerOutputFileLocation(s->getName()+"_nf.dat");
+		    if(verbose) { cout<<"\tStandard output will be written to: "<< s->getName()+"_nf.dat" <<endl<<endl; }
+		}
+		else {
+			s->registerOutputFileLocation(s->getName()+"_nf.gdat");
+			s->outputAllObservableNames();
+			if(verbose) cout<<"\tStandard output will be written to: "<< s->getName()+"_nf.gdat" <<endl<<endl;
+		}
+	}
+
+	//turn off on the fly calculation of observables
+	if(argMap.find("notf")!=argMap.end()) {
+		s->turnOff_OnTheFlyObs();
+		if(verbose) cout<<"\tOn-the-fly observables is turned on (detected -notf flag)."<<endl<<endl;
+	}
+	return 1;
+}
+
+XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose)
+{
+	//Find the xml file that defines the system
+	if (argMap.find("xml")!=argMap.end())
+	{
+		string filename = argMap.find("xml")->second;
+		if(!filename.empty())
+		{
+			XMLStructures* xmlDataStructures = NFinput::loadXMLFile(filename, verbose);
+
+			return xmlDataStructures;
+
+
+
+
+		} else {
+			cout<<"-xml flag given, but no file was specified, so no system was created."<<endl;
+		}
+	} else {
+		cout<<"Couldn't create a system from your XML file.  No -xml [filename] flag given."<<endl;
+	}
+	return 0;
+
+}
 
 System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 {
@@ -388,108 +521,15 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 
 			if(s!=NULL)
 			{
-				if(verbose) {cout<<endl;}
-
-				//If requested, be sure to output the values of global functions
-				if (argMap.find("ogf")!=argMap.end()) {
-					s->turnOnGlobalFuncOut();
-					if(verbose) cout<<"\tGlobal function output (-ogf) flag detected."<<endl<<endl;
+				if (setSystemVariables(argMap, verbose, suggestedTraveralLimit, s)){
+					//Finally, return the system if we made it here without problems
+					return s;
 				}
-
-				// Also set the dumper to output at specified time intervals
-				if (argMap.find("dump")!=argMap.end()) {
-					if(!NFinput::createSystemDumper(argMap.find("dump")->second, s, verbose)) {
-						cout<<endl<<endl<<"Error when creating system dump outputters.  Quitting."<<endl;
-						delete s;
-						return 0;
-					}
+				else
+				{
+					return 0;
 				}
-
-				// Set the universal traversal limit
-				if (argMap.find("utl")!=argMap.end()) {
-					int utl = -1;
-					utl = NFinput::parseAsInt(argMap,"utl",utl);
-					s->setUniversalTraversalLimit(utl);
-					if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set manually to: "<<utl<<endl<<endl;
-				} else {
-					s->setUniversalTraversalLimit(suggestedTraveralLimit);
-					if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set automatically to: "<<suggestedTraveralLimit<<endl<<endl;
-				}
-
-				if (verbose){
-					// report status of complex-scoped local functions
-					if ( s->getEvaluateComplexScopedLocalFunctions() ) {
-						cout<<"\tComplex-scoped local function evaluation is enabled."<<endl<<endl;
-					}
-					else {
-						cout<<"\tComplex-scoped local function evaluation is DISABLED!"<<endl<<endl;
-					}
-				}
-
-
-
-				// turn on the event counter, if need be
-				if (argMap.find("oec")!=argMap.end()) {
-					s->turnOnOutputEventCounter();
-					if(verbose) cout<<"\tEvent counter output (-oec) flag detected."<<endl<<endl;
-				}
-
-				// set the output to binary
-				if (argMap.find("b")!=argMap.end()) {
-					s->setOutputToBinary();
-					if(verbose) cout<<"\tStandard output is switched to binary format."<<endl<<endl;
-				}
-
-
-				if(argMap.find("csv")!=argMap.end()) {
-					s->turnOnCSVformat();
-				}
-
-
-				// tag any reactions that were tagged
-				if (argMap.find("rtag")!=argMap.end()) {
-					vector <int> sequence;
-					NFinput::parseAsCommaSeparatedSequence(argMap,"rtag",sequence);
-
-					if(verbose) {
-						cout<<"\tTagging reactions by id (from the -rtag flag):";
-						for(unsigned int k=0; k<sequence.size(); k++) cout<<" "<<sequence.at(k);
-						cout<<endl;
-					}
-					for(unsigned int k=0; k<sequence.size(); k++) s->tagReaction(sequence.at(k));
-
-				}
-
-
-				//Register the output file location, if given
-				if (argMap.find("o")!=argMap.end()) {
-					string outputFileName = argMap.find("o")->second;
-					s->registerOutputFileLocation(outputFileName);
-					s->outputAllObservableNames();
-				} else {
-					if(s->isOutputtingBinary()) {
-						s->registerOutputFileLocation(s->getName()+"_nf.dat");
-					    if(verbose) { cout<<"\tStandard output will be written to: "<< s->getName()+"_nf.dat" <<endl<<endl; }
-					}
-					else {
-						s->registerOutputFileLocation(s->getName()+"_nf.gdat");
-						s->outputAllObservableNames();
-						if(verbose) cout<<"\tStandard output will be written to: "<< s->getName()+"_nf.gdat" <<endl<<endl;
-					}
-				}
-
-				//turn off on the fly calculation of observables
-				if(argMap.find("notf")!=argMap.end()) {
-					s->turnOff_OnTheFlyObs();
-					if(verbose) cout<<"\tOn-the-fly observables is turned on (detected -notf flag)."<<endl<<endl;
-				}
-
-
-
-
-
-				//Finally, return the system if we made it here without problems
-				return s;
+				
 			}
 			else  {
 				cout<<"Couldn't create a system from your XML file.  I don't know what you did."<<endl;

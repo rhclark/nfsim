@@ -43,11 +43,18 @@ namespace NFinput {
 
 
 	// JJT: Extracts information relevant to NFSim from a BNG-XML
-	XMLStructures* loadXMLDataStructures(string filename, bool verbose, TiXmlDocument*);
+	XMLStructures* loadXMLDataStructures(TiXmlDocument*, bool verbose);
 
 	// JJT: Initializes the NFSim:system object from an XMLStructures object
 	System* initializeNFSimSystem(XMLStructures*, bool, int, bool, int &, bool);
 
+
+	//! Loads an XML file from I/O into memory. This is isolated so that we can reuse 
+	//! the system specification later without reloading from disk
+	/*!
+		@author Jose Juan Tapia
+	*/
+	XMLStructures* loadXMLFile(string filename, bool verbose);
 
 	//! Maintains information about a component of a TemplateMolecule.
 	/*!
@@ -78,14 +85,6 @@ namespace NFinput {
     	@author Michael Sneddon
 	 */
 	System * initializeFromXML(
-			string filename,
-			bool blockSameComplexBinding,
-			int globalMoleculeLimit,
-			bool verbose,
-			int &suggestedTraversalLimit,
-			bool evaluateComplexScopedLocalFunctions=false );
-
-	System * initializeFromXML2(
 			string filename,
 			bool blockSameComplexBinding,
 			int globalMoleculeLimit,
