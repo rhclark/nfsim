@@ -8,6 +8,8 @@ addons:
     - python-dev
     - python-numpy
     - libxml2-dev
+    - libxmlrpc-core-c3-dev
+    - libxmlrpc-c++8-dev
 compiler:
   - g++
 notifications:
