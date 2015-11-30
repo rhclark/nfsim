@@ -293,6 +293,12 @@ namespace NFinput {
 	void walk(System *s);
 
 
+	//! Allows the user to walk through the system through remote XML-RPC calls
+	/*!
+    	@author Jose Juan Tapia
+	 */
+	void remoteWalk(System *s);
+
 
 	//! Parses the cmd line arg that specifies system dumps, and schedules them.
 	/*!

@@ -251,9 +251,12 @@ int main(int argc, char *argv[])
 			// Run NFSim as a reaction lookup table
 			if (argMap.find("server")!= argMap.end())
 			{
-				NFinput::XMLStructures* xmlStructures;
-				//getXMLStructureFromFlags(argMap, verbose);
+				//NFinput::XMLStructures* xmlStructures = getXMLStructureFromFlags(argMap, verbose);
+				System *s = initSystemFromFlags(argMap, verbose);
+				s->prepareForSimulation();
+				NFinput::remoteWalk(s);
 
+				
 			}
 
 			System *s = initSystemFromFlags(argMap, verbose);
