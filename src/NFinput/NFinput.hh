@@ -1,7 +1,6 @@
 #ifndef NFINPUT_HH_
 #define NFINPUT_HH_
 
-#include <iostream>
 #include <map>
 #include <vector>
 #include <stdio.h>
@@ -15,6 +14,22 @@
 #include "../NFfunction/NFfunction.hh"
 #include "../NFreactions/reactions/reaction.hh"
 #include "TinyXML/tinyxml.h"
+
+#define WIN32_LEAN_AND_MEAN  /* required by xmlrpc-c/server_abyss.hpp */
+
+#include <stdexcept>
+#ifdef _WIN32
+#  include <windows.h>
+#else
+#  include <unistd.h>
+#endif
+
+
+#include <iostream>
+#include <stdint.h>
+#include <xmlrpc-c/base.hpp>
+#include <xmlrpc-c/registry.hpp>
+#include <xmlrpc-c/server_abyss.hpp>
 
 using namespace NFcore;
 
@@ -330,6 +345,43 @@ namespace NFinput {
    // bool runRNFscript(System *s, string filename);
 }
 
+/*
+	namespace for the definition of objects we use for the NFSim XML-RPC server
+	@author: Jose Juan Tapia
+*/
+namespace RPCServer{
+	extern System* system;
 
+	//define one class for each rpc service we offer
+
+	class nfsimEquilibrate;
+	class nfsimSimulate;
+	class nfsimPrint;
+
+	class nfsimEquilibrate: public xmlrpc_c::method
+	{
+	public:
+		nfsimEquilibrate();
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	};
+
+	class nfsimSimulate: public xmlrpc_c::method
+	{
+	public:
+		nfsimSimulate();
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	};
+
+	class nfsimPrint: public xmlrpc_c::method
+	{
+	public:
+		nfsimPrint();
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	};
+
+}
 
 #endif /*NFINPUT_HH_*/
