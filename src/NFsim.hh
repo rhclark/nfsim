@@ -80,10 +80,10 @@ XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose)
   @author Jose Juan Tapia
 */
 struct XMLFlags{
-    int suggestedTraveralLimit = ReactionClass::NO_LIMIT;
-    bool evaluateComplexScopedLocalFunctions = true;
-    int globalMoleculeLimit = 200000;
-    bool cb = false;
+    int suggestedTraveralLimit;
+    bool evaluateComplexScopedLocalFunctions;
+    int globalMoleculeLimit;
+    bool cb;
 };
 
 //! returns a set of initialization parameters to be used within an xml initialization routine

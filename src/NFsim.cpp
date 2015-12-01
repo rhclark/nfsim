@@ -483,6 +483,11 @@ XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose)
 
 XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool verbose){
 	XMLFlags xmlflags;
+    xmlflags.suggestedTraveralLimit = ReactionClass::NO_LIMIT;
+    xmlflags.evaluateComplexScopedLocalFunctions = true;
+    xmlflags.globalMoleculeLimit = 200000;
+    xmlflags.cb = false;
+
 	//Create the system from the XML file
 	// flag for blocking same complex binding.  If given,
 	// then a molecule is blocked from binding another if
