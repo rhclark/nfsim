@@ -16,7 +16,7 @@ notifications:
   slack: faederlab:bJ2pu0hViE70sbIKASmmT74r
 
 before_script:
-    - cd lib
+    - cd dep
     - tar xfz xmlrpc-c-1.33.18.tgz
     - cd xmlrpc-c-1.33.18
     - ./configure --prefix=$PWD/xmlrpc; make; make install
