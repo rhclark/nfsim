@@ -20,7 +20,9 @@ before_script:
     - tar xfz xmlrpc-c-1.33.18.tgz
     - cd xmlrpc-c-1.33.18
     - ./configure --prefix=$PWD/xmlrpc; make; make install
-    - mv xmlrpc ..
-    - cd ../..
+    - cd xmlrpc
+    - mv include ../../..
+    - mv lib ../../..
+    - cd ../../..
 
 script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
