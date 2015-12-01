@@ -19,7 +19,7 @@ int remotegetInput(int min, int max);
 double remotegetInput(double min);
 
 
-RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* xmlStructures) {
+RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlags xmlflags) {
     // signature and help strings are documentation -- the client
     // can query this information with a system.methodSignature and
     // system.methodHelp RPC.
@@ -28,6 +28,7 @@ RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* xmlStructures) {
     this->_help = "This method simulates a chemical system given a simulation time and number of output steps";
 
     this->xmlStructures = xmlStructures;
+    this->xmlflags = xmlflags;
 
 
 }
@@ -35,8 +36,16 @@ RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* xmlStructures) {
 void RPCServer::nfsimReset::execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP) {
         
-		//RPCServer::system = NFInput::initializeNFSimSystem(this->xmlStructures, blockSameComplexBinding, globalMoleculeLimit, verbose, 
-		//	                      suggestedTraversalLimit, evaluateComplexScopedLocalFunctions);
+
+	//RPCServer::system = NFinput::initializeFromXML(xmlflags.filename,xmlflags.cb,xmlflags.globalMoleculeLimit,xmlflags.verbose,
+	//										xmlflags.suggestedTraversalLimit,xmlflags.evaluateComplexScopedLocalFunctions);
+	paramList.verifyEnd(0);
+
+	RPCServer::system = initializeNFSimSystem(xmlStructures, xmlflags.cb, xmlflags.globalMoleculeLimit, xmlflags.verbose, 
+			                      xmlflags.suggestedTraversalLimit, xmlflags.evaluateComplexScopedLocalFunctions);
+
+	
+	//if (RPCServer::system) == NULL:
 
 
 
@@ -119,4 +128,23 @@ void NFinput::remoteWalk(System *s)
     }
 }
 
+void NFinput::remoteWalk(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlags xmlFlags)
+{
+    try {
+        xmlrpc_c::registry myRegistry;
+
+        xmlrpc_c::methodPtr const nfsimResetO(new RPCServer::nfsimReset(xmlStructures, xmlFlags));
+
+        myRegistry.addMethod("nfsim.reset", nfsimResetO);
+        
+        xmlrpc_c::serverAbyss myAbyssServer(
+            xmlrpc_c::serverAbyss::constrOpt()
+            .registryP(&myRegistry)
+            .portNumber(8080));
+        
+        myAbyssServer.run();
+    } catch (exception const& e) {
+        cerr << "Something failed.  " << e.what() << endl;
+    }
+}
 

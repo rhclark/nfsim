@@ -75,22 +75,11 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose);
 XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose);
 
 
-//! A simple structure containing XML initialization flags
-/*!
-  @author Jose Juan Tapia
-*/
-struct XMLFlags{
-    int suggestedTraveralLimit;
-    bool evaluateComplexScopedLocalFunctions;
-    int globalMoleculeLimit;
-    bool cb;
-};
-
 //! returns a set of initialization parameters to be used within an xml initialization routine
 /*!
   @author Jose Juan Tapia
 */
-XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool);
+NFinput::XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool);
 
 
 

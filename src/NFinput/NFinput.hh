@@ -56,6 +56,20 @@ namespace NFinput {
 		TiXmlElement *pListOfObservables;
 	};
 
+	//! A simple structure containing XML initialization flags
+	/*!
+	  @author Jose Juan Tapia
+	*/
+	struct XMLFlags{
+		std::string filename;
+	    int suggestedTraversalLimit;
+	    bool evaluateComplexScopedLocalFunctions;
+	    int globalMoleculeLimit;
+	    bool cb;
+	    bool verbose;
+	};
+
+
 
 	// JJT: Extracts information relevant to NFSim from a BNG-XML
 	XMLStructures* loadXMLDataStructures(TiXmlDocument*, bool verbose);
@@ -315,6 +329,9 @@ namespace NFinput {
 	void remoteWalk(System *s);
 
 
+	void remoteWalk(NFinput::XMLStructures*, NFinput::XMLFlags);
+
+
 	//! Parses the cmd line arg that specifies system dumps, and schedules them.
 	/*!
 	    This method works by parsing the argument, initializing the class DumpSystem defined
@@ -390,11 +407,12 @@ namespace RPCServer{
 	class nfsimReset: public xmlrpc_c::method
 	{
 	public:
-		nfsimReset(NFinput::XMLStructures*);
+		nfsimReset(NFinput::XMLStructures*, NFinput::XMLFlags);
 		void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
 	private:
 		NFinput::XMLStructures* xmlStructures;
+		NFinput::XMLFlags xmlflags;
 	};
 
 	//! This class receives an XMLStructures* parameter with only the ListOfSpecies field defined

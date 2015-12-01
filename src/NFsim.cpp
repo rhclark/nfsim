@@ -251,10 +251,12 @@ int main(int argc, char *argv[])
 			// Run NFSim as a reaction lookup table
 			if (argMap.find("server")!= argMap.end())
 			{
-				//NFinput::XMLStructures* xmlStructures = getXMLStructureFromFlags(argMap, verbose);
-				System *s = initSystemFromFlags(argMap, verbose);
-				s->prepareForSimulation();
-				NFinput::remoteWalk(s);
+				NFinput::XMLFlags flags = getXMLInitializationParameters(argMap, verbose);
+				NFinput::XMLStructures* xmlStructures = getXMLStructureFromFlags(argMap, verbose);
+				//System *s = initSystemFromFlags(argMap, verbose);
+				//s->prepareForSimulation();
+				//NFinput::remoteWalk(s);
+				NFinput::remoteWalk(xmlStructures, flags);
 
 				
 			}
@@ -357,7 +359,7 @@ bool runRNFscript(map<string,string> argMap, bool verbose)
 	return false;
 }
 
-bool setSystemVariables(map<string,string> argMap, bool verbose, int suggestedTraveralLimit, System* s){
+bool setSystemVariables(map<string,string> argMap, bool verbose, int suggestedTraversalLimit, System* s){
 	if(verbose) {cout<<endl;}
 
 	//If requested, be sure to output the values of global functions
@@ -382,8 +384,8 @@ bool setSystemVariables(map<string,string> argMap, bool verbose, int suggestedTr
 		s->setUniversalTraversalLimit(utl);
 		if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set manually to: "<<utl<<endl<<endl;
 	} else {
-		s->setUniversalTraversalLimit(suggestedTraveralLimit);
-		if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set automatically to: "<<suggestedTraveralLimit<<endl<<endl;
+		s->setUniversalTraversalLimit(suggestedTraversalLimit);
+		if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set automatically to: "<<suggestedTraversalLimit<<endl<<endl;
 	}
 
 	if (verbose){
@@ -481,12 +483,14 @@ XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose)
 
 }
 
-XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool verbose){
-	XMLFlags xmlflags;
-    xmlflags.suggestedTraveralLimit = ReactionClass::NO_LIMIT;
+NFinput::XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool verbose){
+	NFinput::XMLFlags xmlflags;
+    xmlflags.suggestedTraversalLimit = ReactionClass::NO_LIMIT;
     xmlflags.evaluateComplexScopedLocalFunctions = true;
     xmlflags.globalMoleculeLimit = 200000;
     xmlflags.cb = false;
+    xmlflags.verbose = verbose;
+    xmlflags.filename = argMap.find("xml")->second;
 
 	//Create the system from the XML file
 	// flag for blocking same complex binding.  If given,
@@ -525,15 +529,15 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 		string filename = argMap.find("xml")->second;
 		if(!filename.empty())
 		{
-			XMLFlags flags = getXMLInitializationParameters(argMap, verbose);
+			NFinput::XMLFlags flags = getXMLInitializationParameters(argMap, verbose);
 
-			System *s = NFinput::initializeFromXML(filename,flags.cb,flags.globalMoleculeLimit,verbose,
-													flags.suggestedTraveralLimit,flags.evaluateComplexScopedLocalFunctions);
+			System *s = NFinput::initializeFromXML(flags.filename,flags.cb,flags.globalMoleculeLimit,flags.verbose,
+													flags.suggestedTraversalLimit,flags.evaluateComplexScopedLocalFunctions);
 
 
 			if(s!=NULL)
 			{
-				if (setSystemVariables(argMap, verbose, flags.suggestedTraveralLimit, s)){
+				if (setSystemVariables(argMap, verbose, flags.suggestedTraversalLimit, s)){
 					//Finally, return the system if we made it here without problems
 					return s;
 				}
