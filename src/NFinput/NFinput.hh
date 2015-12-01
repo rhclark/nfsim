@@ -382,6 +382,58 @@ namespace RPCServer{
             xmlrpc_c::value *   const  retvalP);
 	};
 
+	//! An XMLRPC server is initialized with a series of XML structures defining the system's initial state
+	// This method recreates the global system object setting it to factory defaults
+	/*!
+		@author Jose Juan Tapia
+	*/	
+	class nfsimReset: public xmlrpc_c::method
+	{
+	public:
+		nfsimReset(NFinput::XMLStructures*);
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	private:
+		NFinput::XMLStructures* xmlStructures;
+	};
+
+	//! This class receives an XMLStructures* parameter with only the ListOfSpecies field defined
+	/*!
+		@author Jose Juan Tapia
+	*/	
+	class nfsimInit: public xmlrpc_c::method
+	{
+	public:
+		nfsimInit();
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	};
+
+	//! Performs one simulation step on the global XMLRPC system object
+	/*!
+		@author Jose Juan Tapia
+	*/	
+	class nfsimStep: public xmlrpc_c::method
+	{
+	public:
+		nfsimStep();
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	};
+
+	//! Returns the system species state space as a list of species-rate tuples
+	/*!
+		@author Jose Juan Tapia
+	*/	
+	class nfsimSpecies: public xmlrpc_c::method
+	{
+	public:
+		nfsimSpecies();
+		void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+	};
+
+
 }
 
 #endif /*NFINPUT_HH_*/

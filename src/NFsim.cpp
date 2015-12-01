@@ -481,6 +481,37 @@ XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose)
 
 }
 
+XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool verbose){
+	XMLFlags xmlflags;
+	//Create the system from the XML file
+	// flag for blocking same complex binding.  If given,
+	// then a molecule is blocked from binding another if
+	// it is in the same complex
+
+	bool blockSameComplexBinding = false;
+	if (argMap.find("bscb")!=argMap.end()) {
+		if(verbose) cout<<"  Blocking same complex binding...\n";
+
+		blockSameComplexBinding = true;
+	}
+
+	bool turnOnComplexBookkeeping = false;
+	if (argMap.find("cb")!=argMap.end())
+		turnOnComplexBookkeeping = true;
+
+	// enable/disable evaluation of complex scoped local functions
+	if (argMap.find("nocslf")!=argMap.end())
+		xmlflags.evaluateComplexScopedLocalFunctions = false;
+
+	if (argMap.find("gml")!=argMap.end()) {
+		xmlflags.globalMoleculeLimit = NFinput::parseAsInt(argMap,"gml",xmlflags.globalMoleculeLimit);
+	}
+
+	if(turnOnComplexBookkeeping || blockSameComplexBinding) xmlflags.cb=true;
+
+	return xmlflags;
+}
+
 System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 {
 	//Find the xml file that defines the system
@@ -489,42 +520,15 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 		string filename = argMap.find("xml")->second;
 		if(!filename.empty())
 		{
-			//Create the system from the XML file
-			// flag for blocking same complex binding.  If given,
-			// then a molecule is blocked from binding another if
-			// it is in the same complex
-			bool blockSameComplexBinding = false;
-			if (argMap.find("bscb")!=argMap.end()) {
-				if(verbose) cout<<"  Blocking same complex binding...\n";
+			XMLFlags flags = getXMLInitializationParameters(argMap, verbose);
 
-				blockSameComplexBinding = true;
-			}
-
-			bool turnOnComplexBookkeeping = false;
-			if (argMap.find("cb")!=argMap.end())
-				turnOnComplexBookkeeping = true;
-
-			// enable/disable evaluation of complex scoped local functions
-			bool evaluateComplexScopedLocalFunctions = true;
-			if (argMap.find("nocslf")!=argMap.end())
-				evaluateComplexScopedLocalFunctions = false;
-
-			int globalMoleculeLimit = 200000;
-			if (argMap.find("gml")!=argMap.end()) {
-				globalMoleculeLimit = NFinput::parseAsInt(argMap,"gml",globalMoleculeLimit);
-			}
-
-			//Actually create the system
-			bool cb = false;
-			if(turnOnComplexBookkeeping || blockSameComplexBinding) cb=true;
-			int suggestedTraveralLimit = ReactionClass::NO_LIMIT;
-			System *s = NFinput::initializeFromXML(filename,cb,globalMoleculeLimit,verbose,
-													suggestedTraveralLimit,evaluateComplexScopedLocalFunctions);
+			System *s = NFinput::initializeFromXML(filename,flags.cb,flags.globalMoleculeLimit,verbose,
+													flags.suggestedTraveralLimit,flags.evaluateComplexScopedLocalFunctions);
 
 
 			if(s!=NULL)
 			{
-				if (setSystemVariables(argMap, verbose, suggestedTraveralLimit, s)){
+				if (setSystemVariables(argMap, verbose, flags.suggestedTraveralLimit, s)){
 					//Finally, return the system if we made it here without problems
 					return s;
 				}

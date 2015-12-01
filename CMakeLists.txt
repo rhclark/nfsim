@@ -30,7 +30,7 @@ set(SUB_DIRS
 )
 
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} include include/cvode include/xmlrpc-c ${SUB_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} /lib/xmlrpc/include ${SUB_DIRS})
 
 file(GLOB_RECURSE src_files  "${CMAKE_CURRENT_SOURCE_DIR}/src/*cpp")
 file(GLOB_RECURSE c_src_files  "${CMAKE_CURRENT_SOURCE_DIR}/src/*c")
@@ -41,7 +41,7 @@ set(SRC_FILES
     ${c_src_files} 
 )
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/xmlrpc/lib)
 
 link_libraries(xmlrpc_server_abyss++.a xmlrpc_server_abyss.a xmlrpc_server.a xmlrpc_server++.a xmlrpc++.a xmlrpc.a xmlrpc_xmlparse.a xmlrpc_xmltok.a xmlrpc_util.a  xmlrpc_abyss.a libxmlrpc_util.a pthread)
 

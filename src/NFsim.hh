@@ -71,11 +71,26 @@ bool setSystemVariables(map<string,string> argMap, bool verbose, int suggestedTr
   @author Michael Sneddon
 */
 System *initSystemFromFlags(map<string,string> argMap, bool verbose);
+
 XMLStructures* getXMLStructureFromFlags(map<string,string> argMap, bool verbose);
 
 
+//! A simple structure containing XML initialization flags
+/*!
+  @author Jose Juan Tapia
+*/
+struct XMLFlags{
+    int suggestedTraveralLimit = ReactionClass::NO_LIMIT;
+    bool evaluateComplexScopedLocalFunctions = true;
+    int globalMoleculeLimit = 200000;
+    bool cb = false;
+};
 
-
+//! returns a set of initialization parameters to be used within an xml initialization routine
+/*!
+  @author Jose Juan Tapia
+*/
+XMLFlags getXMLInitializationParameters(map<string,string> argMap, bool);
 
 
 

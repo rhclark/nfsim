@@ -19,28 +19,29 @@ int remotegetInput(int min, int max);
 double remotegetInput(double min);
 
 
-
-RPCServer::nfsimEquilibrate::nfsimEquilibrate() {
+RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* xmlStructures) {
     // signature and help strings are documentation -- the client
     // can query this information with a system.methodSignature and
     // system.methodHelp RPC.
-    this->_signature = "i:ii";
+    this->_signature = "i:i";
         // method's result and two arguments are integers
-    this->_help = "This method equilibrates a chemical system given an equilibration time";
+    this->_help = "This method simulates a chemical system given a simulation time and number of output steps";
+
+    this->xmlStructures = xmlStructures;
+
+
 }
 
-void RPCServer::nfsimEquilibrate::execute(xmlrpc_c::paramList const& paramList,
-        xmlrpc_c::value *   const  retvalP) {
-    
-    int const eqtime(paramList.getInt(0));
-    
-    paramList.verifyEnd(1);
-    
-    RPCServer::system->equilibrate(eqtime);
+void RPCServer::nfsimReset::execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP) {
+        
+		//RPCServer::system = NFInput::initializeNFSimSystem(this->xmlStructures, blockSameComplexBinding, globalMoleculeLimit, verbose, 
+		//	                      suggestedTraversalLimit, evaluateComplexScopedLocalFunctions);
 
-    // Sometimes, make it look hard (so client can see what it's like
-    // to do an RPC that takes a while).
+
+
 }
+
 
 
 RPCServer::nfsimSimulate::nfsimSimulate() {
@@ -101,12 +102,9 @@ void NFinput::remoteWalk(System *s)
     	RPCServer::system = s;
         xmlrpc_c::registry myRegistry;
 
-        xmlrpc_c::methodPtr const nfsimEquilibrateO(new RPCServer::nfsimEquilibrate);
         xmlrpc_c::methodPtr const nfsimSimulateO(new RPCServer::nfsimSimulate);
         xmlrpc_c::methodPtr const nfsimPrintO(new RPCServer::nfsimPrint);
 
-
-        myRegistry.addMethod("nfsim.equilibrate", nfsimEquilibrateO);
         myRegistry.addMethod("nfsim.simulate", nfsimSimulateO);
         myRegistry.addMethod("nfsim.print", nfsimPrintO);
         

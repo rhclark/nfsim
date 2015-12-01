@@ -14,4 +14,13 @@ compiler:
   - g++
 notifications:
   slack: faederlab:bJ2pu0hViE70sbIKASmmT74r
+
+before_script:
+    - cd lib
+    - tar xfz xmlrpc-c-1.33.18.tgz
+    - cd xmlrpc-c-1.33.18
+    - mkdir build
+    - ./configure --prefix=$PWD/xmlrpc; make; make install
+    - mv xmlrpc ..
+
 script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
