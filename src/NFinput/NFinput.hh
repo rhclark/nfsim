@@ -69,6 +69,10 @@ namespace NFinput {
 	    bool verbose;
 	};
 
+	//JJT: Contains maps that are used to share information between XML initialization methods
+	// we are extracting them to this namespace so those XML init methods can be used in isolation.
+	extern map<string, double> parameter;
+	extern map<string,int> allowedStates;
 
 
 	// JJT: Extracts information relevant to NFSim from a BNG-XML
@@ -326,9 +330,6 @@ namespace NFinput {
 	/*!
     	@author Jose Juan Tapia
 	 */
-	void remoteWalk(System *s);
-
-
 	void remoteWalk(NFinput::XMLStructures*, NFinput::XMLFlags);
 
 

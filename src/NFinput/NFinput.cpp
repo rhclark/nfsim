@@ -9,6 +9,11 @@ using namespace NFinput;
 using namespace std;
 
 
+namespace NFinput{
+	map<string, double> parameter;
+	map<string,int> allowedStates;
+}
+
 
 component::component(TemplateMolecule *t, string name)
 {
@@ -92,8 +97,13 @@ System* NFinput::initializeNFSimSystem(
 		bool evaluateComplexScopedLocalFunctions )
 {
 	System *s;
+	//clear up maps
+	NFinput::parameter.clear();
+	NFinput::allowedStates.clear();
+
 	if(!blockSameComplexBinding) s=new System(xmlDataStructures->modelName,false,globalMoleculeLimit);
 	else s=new System(xmlDataStructures->modelName,true,globalMoleculeLimit);
+
 
 	s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
 
@@ -101,7 +111,7 @@ System* NFinput::initializeNFSimSystem(
 	//and save the parameters in a map we call parameter
 	if(!verbose) cout<<"-";
 	else cout<<"\n\tReading parameter list..."<<endl;
-	map<string, double> parameter;
+	
 	if(!initParameters(xmlDataStructures->pListOfParameters, s, parameter, verbose))
 	{
 		cout<<"\n\nI failed at parsing your Parameters.  Check standard error for a report."<<endl;
@@ -111,7 +121,7 @@ System* NFinput::initializeNFSimSystem(
 
 	if(!verbose) cout<<"-";
 	else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
-	map<string,int> allowedStates;
+	
 	if(!initMoleculeTypes(xmlDataStructures->pListOfMoleculeTypes, s, allowedStates, verbose))
 	{
 		cout<<"\n\nI failed at parsing your MoleculeTypes.  Check standard error for a report."<<endl;

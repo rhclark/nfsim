@@ -19,61 +19,82 @@ int remotegetInput(int min, int max);
 double remotegetInput(double min);
 
 
-RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlags xmlflags) {
-    // signature and help strings are documentation -- the client
-    // can query this information with a system.methodSignature and
-    // system.methodHelp RPC.
+RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* x, NFinput::XMLFlags f): xmlStructures(x), xmlflags(f)
+{
     this->_signature = "i:i";
-        // method's result and two arguments are integers
     this->_help = "This method simulates a chemical system given a simulation time and number of output steps";
-
-    this->xmlStructures = xmlStructures;
-    this->xmlflags = xmlflags;
-
 
 }
 
 void RPCServer::nfsimReset::execute(xmlrpc_c::paramList const& paramList,
-            xmlrpc_c::value *   const  retvalP) {
+            xmlrpc_c::value *   const  retvalP) 
+{
         
 
 	//RPCServer::system = NFinput::initializeFromXML(xmlflags.filename,xmlflags.cb,xmlflags.globalMoleculeLimit,xmlflags.verbose,
 	//										xmlflags.suggestedTraversalLimit,xmlflags.evaluateComplexScopedLocalFunctions);
 	paramList.verifyEnd(0);
 
+
 	RPCServer::system = initializeNFSimSystem(xmlStructures, xmlflags.cb, xmlflags.globalMoleculeLimit, xmlflags.verbose, 
 			                      xmlflags.suggestedTraversalLimit, xmlflags.evaluateComplexScopedLocalFunctions);
-
 	
-	//if (RPCServer::system) == NULL:
-
-
+	if ((RPCServer::system) == NULL)
+		*retvalP = xmlrpc_c::value_boolean(false);
+	else
+		*retvalP = xmlrpc_c::value_boolean(true);
 
 }
 
+RPCServer::nfsimInit::nfsimInit()
+{
+    this->_signature = "i:iiiii";
+    this->_help = "This method initializes the nfsim system with some speceis starting conditions";
 
-
-RPCServer::nfsimSimulate::nfsimSimulate() {
-    // signature and help strings are documentation -- the client
-    // can query this information with a system.methodSignature and
-    // system.methodHelp RPC.
-    this->_signature = "i:iii";
-        // method's result and two arguments are integers
-    this->_help = "This method simulates a chemical system given a simulation time and number of output steps";
 }
-void RPCServer::nfsimSimulate::execute(xmlrpc_c::paramList const& paramList,
-            xmlrpc_c::value *   const  retvalP) {
+
+void RPCServer::nfsimInit::execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP) 
+{
         
-    int const simtime(paramList.getInt(0));
-    int const nsteps(paramList.getInt(1));
-    
-    paramList.verifyEnd(2);
-    
-    RPCServer::system->sim(simtime,nsteps);
+    std::string const initXML(paramList.getString(0));
+    cout << initXML <<"\n";
+    paramList.verifyEnd(1);
 
-    // Sometimes, make it look hard (so client can see what it's like
-    // to do an RPC that takes a while).
+
+	TiXmlDocument* doc = new TiXmlDocument();
+	doc->Parse(initXML.c_str());
+	TiXmlHandle hDoc(doc);
+	
+	TiXmlElement *	listOfSpecies = hDoc.FirstChildElement().Node()->FirstChildElement("ListOfSpecies");
+
+	bool result = NFinput::initStartSpecies(listOfSpecies, RPCServer::system, NFinput::parameter, NFinput::allowedStates, true);
+
+	RPCServer::system->prepareForSimulation();
+
+	*retvalP = xmlrpc_c::value_boolean(result);
 }
+
+
+RPCServer::nfsimStep::nfsimStep()
+{
+    this->_signature = "i:iiiiii";
+    this->_help = "This method advances the simulation one step";
+
+}
+
+void RPCServer::nfsimStep::execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP) 
+{
+        
+        //Perform a single simulation step
+        RPCServer::system->singleStep();
+
+ 		*retvalP = xmlrpc_c::value_boolean(true);
+
+}
+
+
 
 
 RPCServer::nfsimPrint::nfsimPrint(){
@@ -102,30 +123,11 @@ void RPCServer::nfsimPrint::execute(xmlrpc_c::paramList const& paramList,
     {
     	(RPCServer::system->getAllComplexes()).printAllComplexes();
     }
-	*retvalP = xmlrpc_c::value_int(1);
-}
-
-void NFinput::remoteWalk(System *s)
-{
-    try {
-    	RPCServer::system = s;
-        xmlrpc_c::registry myRegistry;
-
-        xmlrpc_c::methodPtr const nfsimSimulateO(new RPCServer::nfsimSimulate);
-        xmlrpc_c::methodPtr const nfsimPrintO(new RPCServer::nfsimPrint);
-
-        myRegistry.addMethod("nfsim.simulate", nfsimSimulateO);
-        myRegistry.addMethod("nfsim.print", nfsimPrintO);
-        
-        xmlrpc_c::serverAbyss myAbyssServer(
-            xmlrpc_c::serverAbyss::constrOpt()
-            .registryP(&myRegistry)
-            .portNumber(8080));
-        
-        myAbyssServer.run();
-    } catch (exception const& e) {
-        cerr << "Something failed.  " << e.what() << endl;
+    else if(inputParameter == "index")
+    {
+		RPCServer::system->printIndexAndNames();
     }
+	*retvalP = xmlrpc_c::value_int(1);
 }
 
 void NFinput::remoteWalk(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlags xmlFlags)
@@ -134,8 +136,15 @@ void NFinput::remoteWalk(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlag
         xmlrpc_c::registry myRegistry;
 
         xmlrpc_c::methodPtr const nfsimResetO(new RPCServer::nfsimReset(xmlStructures, xmlFlags));
+        xmlrpc_c::methodPtr const nfsimInitO(new RPCServer::nfsimInit);
+        xmlrpc_c::methodPtr const nfsimStepO(new RPCServer::nfsimStep);
+        xmlrpc_c::methodPtr const nfsimPrintO(new RPCServer::nfsimPrint);
+
 
         myRegistry.addMethod("nfsim.reset", nfsimResetO);
+        myRegistry.addMethod("nfsim.init", nfsimInitO);
+        myRegistry.addMethod("nfsim.step", nfsimStepO);
+        myRegistry.addMethod("nfsim.printInfo", nfsimPrintO);
         
         xmlrpc_c::serverAbyss myAbyssServer(
             xmlrpc_c::serverAbyss::constrOpt()
