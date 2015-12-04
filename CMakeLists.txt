@@ -29,7 +29,7 @@ set(SUB_DIRS
     src/NFcore/moleculeLists 
 )
 
-
+add_definitions("-Wno-deprecated-declarations")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
 
 file(GLOB_RECURSE src_files  "${CMAKE_CURRENT_SOURCE_DIR}/src/*cpp")
@@ -46,3 +46,4 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
 link_libraries(xmlrpc_server_abyss++.a xmlrpc_server_abyss.a xmlrpc_server.a xmlrpc_server++.a xmlrpc++.a xmlrpc.a xmlrpc_xmlparse.a xmlrpc_xmltok.a xmlrpc_util.a  xmlrpc_abyss.a libxmlrpc_util.a pthread)
 
 add_executable(NFsim ${SRC_FILES})
+target_compile_features(NFsim PRIVATE cxx_range_for)

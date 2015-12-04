@@ -392,12 +392,15 @@ namespace RPCServer{
             xmlrpc_c::value *   const  retvalP);
 	};
 
-	class nfsimPrint: public xmlrpc_c::method
+	class nfsimQuery: public xmlrpc_c::method
 	{
 	public:
-		nfsimPrint();
+		nfsimQuery();
 		void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
+		void calculateRxnMembership(System*, const int);
+	private:
+		std::map<Molecule*, vector<ReactionClass*> > molMembership;
 	};
 
 	//! An XMLRPC server is initialized with a series of XML structures defining the system's initial state
@@ -432,6 +435,7 @@ namespace RPCServer{
 	/*!
 		@author Jose Juan Tapia
 	*/	
+
 	class nfsimStep: public xmlrpc_c::method
 	{
 	public:

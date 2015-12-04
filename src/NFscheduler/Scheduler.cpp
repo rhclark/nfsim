@@ -577,7 +577,7 @@ void DynamicParallel (map<string, string> argMap,int rank,int size) {
 			slave_work(rank, jnow);
 
 			for (int i = 0; i < slave_filenames.size(); ++i) {
-				sprintf(str, "%d,%s", slave_buffers[i].length()+1, slave_filenames[i].c_str());
+				sprintf(str, "%lu,%s", slave_buffers[i].length()+1, slave_filenames[i].c_str());
 				send_to_master(rank, rpt_pre_data, strlen(str)+1, str);
 				recv_from_master();
 				if (msg.tag != cmd_pre_data_ack) perr("Error: expecting cmd_pre_data_ack");

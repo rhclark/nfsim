@@ -629,6 +629,9 @@ namespace NFcore
 			/* updates a molecules membership (assumes molecule is of type this) */
 			void updateRxnMembership(Molecule * m);
 
+			//JJT: gets the reactions that a given reaction is associated with
+			std::vector<ReactionClass*> getReactionClassMembership(Molecule *m);
+
 			/* auto populate with default molecules */
 			void populateWithDefaultMolecules(int moleculeCount);
 

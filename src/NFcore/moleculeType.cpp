@@ -1,7 +1,6 @@
 #include <iostream>
 #include "NFcore.hh"
 
-
 using namespace std;
 using namespace NFcore;
 
@@ -543,6 +542,26 @@ void MoleculeType::updateRxnMembership(Molecule * m)
 		rxn->tryToAdd(m, reactionPositions.at(r));
 		this->system->update_A_tot(rxn,oldA,rxn->update_a());
   	}
+}
+
+std::vector<ReactionClass*> MoleculeType::getReactionClassMembership(Molecule *m)
+{
+	
+	std::vector<ReactionClass*> rxnMembership;
+	for( unsigned int r=0; r<reactions.size(); r++ )
+	{
+		ReactionClass * rxn=reactions.at(r);
+		if (r < reactionPositions.size()){
+			int rxnIndex = m->getMoleculeType()->getRxnIndex(rxn,reactionPositions.at(r));
+			if (m->getRxnListMappingId(rxnIndex) >=0){
+				rxnMembership.push_back(rxn);
+			}
+		}
+		
+
+	}
+
+	return rxnMembership;
 }
 
 
