@@ -1,10 +1,18 @@
 os:
   - linux
 language: c++
+compiler:
+  - gcc
+  - clang
 sudo: false
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
+    - gcc-4.8
+    - g++-4.8
+    - clang
     - python-dev
     - python-numpy
     - libxml2-dev
@@ -24,5 +32,7 @@ before_script:
     - mv include ../../..
     - mv lib ../../..
     - cd ../../..
+install:
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
