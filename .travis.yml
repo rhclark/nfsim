@@ -1,7 +1,7 @@
 os:
   - linux
 language: c++
-sudo: false
+sudo: true
 addons:
   apt:
     packages:
@@ -25,5 +25,8 @@ before_script:
     - mv include ../../..
     - mv lib ../../..
     - cd ../../..
+    - sudo add-apt-repository ppa:george-edison55/precise-backports --ye
+    - sudo apt-get update
+    - sudo apt-get install cmake
 
 script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
