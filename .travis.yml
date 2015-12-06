@@ -18,6 +18,7 @@ addons:
     - libxml2-dev
     - libxmlrpc-core-c3-dev
     - libxmlrpc-c++8-dev
+    - libboost-all-dev
 compiler:
   - g++
 notifications:
