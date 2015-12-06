@@ -10,6 +10,7 @@ addons:
     - libxml2-dev
     - libxmlrpc-core-c3-dev
     - libxmlrpc-c++8-dev
+    - cmake
 compiler:
   - g++
 notifications:
