@@ -1,7 +1,7 @@
 os:
   - linux
 language: c++
-sudo: true
+sudo: false
 addons:
   apt:
     packages:
@@ -10,7 +10,6 @@ addons:
     - libxml2-dev
     - libxmlrpc-core-c3-dev
     - libxmlrpc-c++8-dev
-    - cmake
 compiler:
   - g++
 notifications:
@@ -25,8 +24,5 @@ before_script:
     - mv include ../../..
     - mv lib ../../..
     - cd ../../..
-    - sudo add-apt-repository ppa:george-edison55/precise-backports --ye
-    - sudo apt-get update
-    - sudo apt-get install cmake
 
 script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
