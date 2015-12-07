@@ -26,10 +26,13 @@
 
 
 #include <iostream>
+
+//xml-rcp libraries
 #include <stdint.h>
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
+
 
 using namespace NFcore;
 
@@ -399,8 +402,14 @@ namespace RPCServer{
 		void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
 		void calculateRxnMembership(System*, const int);
+		string serializeOutput();
+		string serializeJsonOutput();
+		
+
+
 	private:
-		std::map<Molecule*, vector<ReactionClass*> > molMembership;
+		std::map<Complex*, vector<ReactionClass*>> molMembership;
+		std::set<ReactionClass*> activeRxnList;
 	};
 
 	//! An XMLRPC server is initialized with a series of XML structures defining the system's initial state

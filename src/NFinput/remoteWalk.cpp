@@ -1,9 +1,12 @@
 #include "NFinput.hh"
 #include <boost/range/irange.hpp>
 
+//json serialization libraries
+#include "json/json.h"
+
 
 namespace RPCServer {
-System* system = NULL;
+System* system = nullptr;
 }
 
 
@@ -12,12 +15,6 @@ using namespace NFcore;
 using namespace boost;
 
 //function declarations
-int remoteenterMainMenuLoop(System *s);
-void remoteenterStepLoop(System *s);
-
-void remotegetPrintout(System *s) ;
-int remotegetInput(int min, int max);
-double remotegetInput(double min);
 
 
 RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* x, NFinput::XMLFlags f): xmlStructures(x), xmlflags(f)
@@ -110,9 +107,16 @@ void RPCServer::nfsimQuery::execute(xmlrpc_c::paramList const& paramList,
     int const numOfReactants(paramList.getInt(0));
     paramList.verifyEnd(1);
 
-
+    //stores data in this->molMembership about the molecules in the system that are associated with reactions
+    // with numOfReactants reactants.
     calculateRxnMembership(RPCServer::system, numOfReactants);
-    *retvalP = xmlrpc_c::value_int(1);
+
+
+    string serializedJson = serializeOutput();
+    //XXX: one detail is that this uncoupling by #ofreactants operation may not necessarely be best done in here. it might be worth it 
+    //to just pass the map object along to be processed by someone else
+    *retvalP = xmlrpc_c::value_string(serializedJson);
+
 }
 
 void RPCServer::nfsimQuery::calculateRxnMembership(System *s, const int numOfReactants)
@@ -124,29 +128,51 @@ void RPCServer::nfsimQuery::calculateRxnMembership(System *s, const int numOfRea
             for(auto m: irange(0, s->getMoleculeType(i)->getMoleculeCount())){
 
                 Molecule* mol = s->getMoleculeType(i)->getMolecule(m);
+                Complex* complex = mol->getComplex();
                 std::vector<ReactionClass*> rxnMembership = s->getMoleculeType(i)->getReactionClassMembership(mol);
 
                 //keep only those reactions that match the number of reactants we are interested in
                 rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
                               [numOfReactants](ReactionClass* p){
-                                return p->getNumOfReactants() == numOfReactants; 
+                                return p->getNumOfReactants() != numOfReactants || p->get_a() == 0; 
                               }), rxnMembership.end() );
 
-                // if there's any reactions we qualify for store them
+                // if there's any reactions we qualify for store that molecule
                 if ((rxnMembership.size()) > 0){
-                    mol->printDetails();
-                    cout << "associated rates:\n";
-                    for (auto rxn: rxnMembership){
-                        cout<< rxn->getBaseRate() << " ";
-                    }
-                    cout <<"\n";
-                    molMembership.emplace(std::make_pair(mol, rxnMembership));
+                    molMembership[complex].reserve( molMembership[complex].size() + distance(rxnMembership.begin(),rxnMembership.end()));
+                    molMembership[complex].insert( molMembership[complex].end(),rxnMembership.begin(),rxnMembership.end());
 
                 }
 
 
             }
         }
+
+}
+
+std::string RPCServer::nfsimQuery::serializeJsonOutput(){
+    Json::Value root;
+    for (auto cpx: molMembership){
+        Json::Value vec(Json::arrayValue);
+        for (auto rxn: cpx.second)
+            vec.append(Json::Value(rxn->getBaseRate()));
+        root[cpx.first->getCanonicalLabel()] = vec;
+
+
+    }
+
+    //string s = string(root);
+
+    //cout << root << "\n";
+    return root.toStyledString();
+
+
+}
+
+
+std::string RPCServer::nfsimQuery::serializeOutput(){
+    return serializeJsonOutput();
+
 }
 
 
@@ -177,5 +203,3 @@ void NFinput::remoteWalk(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlag
         cerr << "Something failed.  " << e.what() << endl;
     }
 }
-
-

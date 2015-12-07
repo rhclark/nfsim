@@ -22,6 +22,7 @@ set(SUB_DIRS
     src/NFoutput 
     src/NFinput 
     src/NFinput/TinyXML 
+    src/NFinput/json 
     src/NFfunction/muParser 
     src/NFfunction 
     src/NFcore 
