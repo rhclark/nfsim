@@ -191,8 +191,12 @@ std::string RPCServer::nfsimQuery::serializeJsonOutput(){
     Json::Value root;
     for (auto cpx: molMembership){
         Json::Value vec(Json::arrayValue);
-        for (auto rxn: cpx.second)
-            vec.append(Json::Value(rxn->getBaseRate()));
+        for (auto rxn: cpx.second){
+            Json::Value entry(Json::objectValue);
+            entry["rate"] = rxn->getBaseRate();
+            entry["name"] = rxn->getName();
+            vec.append(entry);
+        }
         root[cpx.first->getCanonicalLabel()] = vec;
 
 
