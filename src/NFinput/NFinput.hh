@@ -379,6 +379,8 @@ namespace RPCServer{
 	class nfsimSimulate;
 	class nfsimPrint;
 
+ 	void calculateRxnMembership(System*, std::map<Complex*, vector<ReactionClass*>> &molMembership, const int);
+
 	class nfsimEquilibrate: public xmlrpc_c::method
 	{
 	public:
@@ -401,7 +403,6 @@ namespace RPCServer{
 		nfsimQuery();
 		void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
-		void calculateRxnMembership(System*, const int);
 		string serializeOutput();
 		string serializeJsonOutput();
 		
@@ -409,7 +410,6 @@ namespace RPCServer{
 
 	private:
 		std::map<Complex*, vector<ReactionClass*>> molMembership;
-		std::set<ReactionClass*> activeRxnList;
 	};
 
 	//! An XMLRPC server is initialized with a series of XML structures defining the system's initial state
@@ -451,6 +451,11 @@ namespace RPCServer{
 		nfsimStep();
 		void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
+		ReactionClass* getNextReaction();
+	private:
+		std::map<Complex*, vector<ReactionClass*>> molMembership;
+		std::set<ReactionClass*> activeRxnList;
+
 	};
 
 	//! Returns the system species state space as a list of species-rate tuples

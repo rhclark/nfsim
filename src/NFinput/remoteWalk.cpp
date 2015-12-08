@@ -15,7 +15,41 @@ using namespace NFcore;
 using namespace boost;
 
 //function declarations
+void RPCServer::calculateRxnMembership(System *s, std::map<Complex*, vector<ReactionClass*>> &molMembership, const int numOfReactants)
+{
+        Molecule* mol = nullptr;
+        Complex* complex = nullptr;
 
+        molMembership.clear();
+        //iterate over all molecule types...
+        for(auto i: irange(0, s->getNumOfMoleculeTypes())){
+            // and all molecule agents associated with those molecule types...
+            for(auto m: irange(0, s->getMoleculeType(i)->getMoleculeCount())){
+
+                mol = s->getMoleculeType(i)->getMolecule(m);
+                complex = mol->getComplex();
+                std::vector<ReactionClass*> rxnMembership = s->getMoleculeType(i)->getReactionClassMembership(mol);
+
+                //keep only those reactions that match the number of reactants we are interested in
+                rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
+                              [numOfReactants](ReactionClass* p){
+                                return p->getNumOfReactants() != numOfReactants || p->get_a() == 0; 
+                              }), rxnMembership.end() );
+
+                // if there's any reactions we qualify for store that molecule
+                if ((rxnMembership.size()) > 0){
+                    molMembership[complex].reserve( molMembership[complex].size() + distance(rxnMembership.begin(),rxnMembership.end()));
+                    molMembership[complex].insert( molMembership[complex].end(),rxnMembership.begin(),rxnMembership.end());
+
+                }
+
+
+            }
+        }
+
+}
+
+//class declarations
 
 RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* x, NFinput::XMLFlags f): xmlStructures(x), xmlflags(f)
 {
@@ -84,14 +118,47 @@ void RPCServer::nfsimStep::execute(xmlrpc_c::paramList const& paramList,
                                    xmlrpc_c::value *   const  retvalP)
 {
 
-    //Perform a single simulation step
-    RPCServer::system->singleStep();
+ 
+    //get a map containing those bimolecular reactions that are active at a given step
+    calculateRxnMembership(RPCServer::system, this->molMembership, 2);
+    activeRxnList.clear();
+
+    for (auto cpx: molMembership){
+        for (auto rxn: cpx.second)
+            activeRxnList.emplace(rxn);
+    }
+    auto nextReaction = this->getNextReaction();
+    (RPCServer::system->getAllComplexes()).printAllComplexes();
+    cout <<";;;;;;;;;;\n";
+    //fire the selected reaction
+    RPCServer::system->singleStep(nextReaction);
+    (RPCServer::system->getAllComplexes()).printAllComplexes();
+
+    // perform a simulation step based only on bidirectional reactions.
 
     *retvalP = xmlrpc_c::value_boolean(true);
-
 }
 
+ReactionClass* RPCServer::nfsimStep::getNextReaction()
+{
+    double atot = 0.0;
+    for(auto rxn: activeRxnList) 
+        atot += rxn->get_a();
 
+    double randNum = NFutil::RANDOM(atot);
+
+    double a_sum=0, last_a_sum=0;
+
+    for(auto rxn: activeRxnList) {
+        a_sum += rxn->get_a();
+        if(randNum <= a_sum)
+        {
+            return rxn;
+        }
+    }
+
+    return nullptr;
+}
 
 
 RPCServer::nfsimQuery::nfsimQuery() {
@@ -109,7 +176,7 @@ void RPCServer::nfsimQuery::execute(xmlrpc_c::paramList const& paramList,
 
     //stores data in this->molMembership about the molecules in the system that are associated with reactions
     // with numOfReactants reactants.
-    calculateRxnMembership(RPCServer::system, numOfReactants);
+    RPCServer::calculateRxnMembership(RPCServer::system, molMembership, numOfReactants);
 
 
     string serializedJson = serializeOutput();
@@ -119,36 +186,6 @@ void RPCServer::nfsimQuery::execute(xmlrpc_c::paramList const& paramList,
 
 }
 
-void RPCServer::nfsimQuery::calculateRxnMembership(System *s, const int numOfReactants)
-{
-        this->molMembership.clear();
-        //iterate over all molecule types...
-        for(auto i: irange(0, s->getNumOfMoleculeTypes())){
-            // and all molecule agents associated with those molecule types...
-            for(auto m: irange(0, s->getMoleculeType(i)->getMoleculeCount())){
-
-                Molecule* mol = s->getMoleculeType(i)->getMolecule(m);
-                Complex* complex = mol->getComplex();
-                std::vector<ReactionClass*> rxnMembership = s->getMoleculeType(i)->getReactionClassMembership(mol);
-
-                //keep only those reactions that match the number of reactants we are interested in
-                rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
-                              [numOfReactants](ReactionClass* p){
-                                return p->getNumOfReactants() != numOfReactants || p->get_a() == 0; 
-                              }), rxnMembership.end() );
-
-                // if there's any reactions we qualify for store that molecule
-                if ((rxnMembership.size()) > 0){
-                    molMembership[complex].reserve( molMembership[complex].size() + distance(rxnMembership.begin(),rxnMembership.end()));
-                    molMembership[complex].insert( molMembership[complex].end(),rxnMembership.begin(),rxnMembership.end());
-
-                }
-
-
-            }
-        }
-
-}
 
 std::string RPCServer::nfsimQuery::serializeJsonOutput(){
     Json::Value root;

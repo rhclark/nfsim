@@ -332,6 +332,7 @@ namespace NFcore
 			double stepTo(double stoppingTime);
 
 			void singleStep();
+			void singleStep(ReactionClass*);
 
 			/* runs the simulation without output for the given time.  After, the clock is reset to
 			 * to the start time, so it is as if no time has elapsed */
