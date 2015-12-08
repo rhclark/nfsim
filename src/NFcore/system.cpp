@@ -692,7 +692,7 @@ double System::sim(double duration, long int sampleTimes, bool verbose)
 				curSampleTime+=dSampleTime;
 			}
 			if(verbose) {
-				cout << "Sim time: "           << (curSampleTime-dSampleTime);
+				cout << "Sim time: "            << (curSampleTime-dSampleTime);
 				cout << "\tCPU time (total): " << ((double)(clock() - start)/(double)CLOCKS_PER_SEC) << "s";
 				cout << "\t events (step): "   << stepIteration<<endl;
 			}
@@ -840,6 +840,23 @@ void System::singleStep()
 	cout<<"  -System time is now at time: "<<current_time<<endl;
 
 	globalEventCounter++;
+}
+
+void System::singleStep(ReactionClass* nextReaction){
+    double delta_t = -log(NFutil::RANDOM_CLOSED()) / a_tot;
+
+    //Increment time
+    current_time+=delta_t;
+
+    cout<<"  -Firing: "<<endl;
+    nextReaction->printDetails();;
+
+    //5: Fire Reaction! (takes care of updates to lists and observables)
+    nextReaction->fire(-1);
+
+    globalEventCounter++;
+    recompute_A_tot();
+
 }
 
 void System::equilibrate(double duration)
