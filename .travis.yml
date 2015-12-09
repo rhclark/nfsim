@@ -9,8 +9,6 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - george-edison55-precise-backports
-
     packages:
     - gcc-4.8
     - g++-4.8
@@ -21,8 +19,6 @@ addons:
     - libxmlrpc-core-c3-dev
     - libxmlrpc-c++8-dev
     - libboost-all-dev
-    - cmake
-    - ninja-build
 compiler:
   - g++
 notifications:
@@ -40,4 +36,4 @@ before_script:
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
-script: mkdir build; cd build; cmake -G "Ninja" ..; ninja; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
+script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
