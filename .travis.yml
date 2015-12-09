@@ -19,21 +19,22 @@ addons:
     - libxmlrpc-core-c3-dev
     - libxmlrpc-c++8-dev
     - libboost-all-dev
+    - ninja-build
 compiler:
   - g++
 notifications:
   slack: faederlab:bJ2pu0hViE70sbIKASmmT74r
 
-#before_script:
-#    - cd dep
-#    - tar xfz xmlrpc-c-1.33.18.tgz
-#    - cd xmlrpc-c-1.33.18
-#    - ./configure --prefix=$PWD/xmlrpc; make; make install
-#    - cd xmlrpc
-#    - mv include ../../..
-#    - mv lib ../../..
-#    - cd ../../..
+before_script:
+    - cd dep
+    - tar xfz xmlrpc-c-1.33.18.tgz
+    - cd xmlrpc-c-1.33.18
+    - ./configure --prefix=$PWD/xmlrpc; make; make install
+    - cd xmlrpc
+    - mv include ../../..
+    - mv lib ../../..
+    - cd ../../..
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
-script: mkdir build; cd build; cmake ..; make; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
+script: mkdir build; cd build; cmake -G "Ninja" ..; ninja; cd ..;cd validate;tar xfj bionetgen-2.2.6.tar.bz2;python validate.py
