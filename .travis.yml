@@ -9,6 +9,8 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - george-edison55-precise-backports
+
     packages:
     - gcc-4.8
     - g++-4.8
@@ -19,6 +21,7 @@ addons:
     - libxmlrpc-core-c3-dev
     - libxmlrpc-c++8-dev
     - libboost-all-dev
+    - cmake
     - ninja-build
 compiler:
   - g++
