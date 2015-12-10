@@ -53,7 +53,7 @@ void RPCServer::calculateRxnMembership(System *s, std::map<Complex*, vector<Reac
 
 RPCServer::nfsimReset::nfsimReset(NFinput::XMLStructures* x, NFinput::XMLFlags f): xmlStructures(x), xmlflags(f)
 {
-    this->_signature = "i:i";
+    this->_signature = "b:n";
     this->_help = "This method simulates a chemical system given a simulation time and number of output steps";
 
 }
@@ -80,7 +80,7 @@ void RPCServer::nfsimReset::execute(xmlrpc_c::paramList const& paramList,
 
 RPCServer::nfsimInit::nfsimInit()
 {
-    this->_signature = "i:iiiii";
+    this->_signature = "b:s";
     this->_help = "This method initializes the nfsim system with some speceis starting conditions";
 
 }
@@ -109,7 +109,7 @@ void RPCServer::nfsimInit::execute(xmlrpc_c::paramList const& paramList,
 
 RPCServer::nfsimStep::nfsimStep()
 {
-    this->_signature = "i:iiiiii";
+    this->_signature = "b:n";
     this->_help = "This method advances the simulation one step";
 
 }
@@ -129,7 +129,6 @@ void RPCServer::nfsimStep::execute(xmlrpc_c::paramList const& paramList,
     }
     auto nextReaction = this->getNextReaction();
     (RPCServer::system->getAllComplexes()).printAllComplexes();
-    cout <<";;;;;;;;;;\n";
     //fire the selected reaction
     RPCServer::system->singleStep(nextReaction);
     (RPCServer::system->getAllComplexes()).printAllComplexes();
@@ -165,7 +164,7 @@ RPCServer::nfsimQuery::nfsimQuery() {
     // signature and help strings are documentation -- the client
     // can query this information with a system.methodSignature and
     // system.methodHelp RPC.
-    this->_signature = "i:iiii";
+    this->_signature = "s:i";
     this->_help = "This method returns the current state of the system";
 }
 void RPCServer::nfsimQuery::execute(xmlrpc_c::paramList const& paramList,
@@ -178,10 +177,8 @@ void RPCServer::nfsimQuery::execute(xmlrpc_c::paramList const& paramList,
     // with numOfReactants reactants.
     RPCServer::calculateRxnMembership(RPCServer::system, molMembership, numOfReactants);
 
-
+    // serialize the data structures we will be returning to the client
     string serializedJson = serializeOutput();
-    //XXX: one detail is that this uncoupling by #ofreactants operation may not necessarely be best done in here. it might be worth it 
-    //to just pass the map object along to be processed by someone else
     *retvalP = xmlrpc_c::value_string(serializedJson);
 
 }
@@ -223,12 +220,13 @@ void NFinput::remoteWalk(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlag
     try {
         xmlrpc_c::registry myRegistry;
 
+
         xmlrpc_c::methodPtr const nfsimResetO(new RPCServer::nfsimReset(xmlStructures, xmlFlags));
         xmlrpc_c::methodPtr const nfsimInitO(new RPCServer::nfsimInit);
         xmlrpc_c::methodPtr const nfsimStepO(new RPCServer::nfsimStep);
         xmlrpc_c::methodPtr const nfsimQueryO(new RPCServer::nfsimQuery);
 
-
+        // this methods will be the public interfaces a client can reach from this server
         myRegistry.addMethod("nfsim.reset", nfsimResetO);
         myRegistry.addMethod("nfsim.init", nfsimInitO);
         myRegistry.addMethod("nfsim.step", nfsimStepO);
