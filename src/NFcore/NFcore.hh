@@ -9,7 +9,7 @@
 #include <fstream>
 #include <string>
 
-//Include stl containers
+//Include stl containerscl
 #include <vector>
 #include <list>
 #include <queue>
@@ -50,6 +50,7 @@ using namespace std;
 */
 namespace NFcore
 {
+
 
 	//Forward declarations to deal with cyclic dependencies
 	class MapGenerator;
@@ -93,13 +94,16 @@ namespace NFcore
 	class Complex;  /* collection of molecules that are bonded to each
 						other and whose membership dynamically can change*/
 
+	class Node; /* Node object for creating labeled graphs from NFsim complexes. */
 	class ComplexList;  /* a container class to organize complexes */
 
 	class ReactantList;
 
 	class ReactionSelector;
 
-
+	//convenience data types
+	typedef  pair < Molecule *, int >  node_t;
+	typedef  pair < node_t, Node * >   node_index_t;
 
 	//!  Container to organize all system complexes.
 	/*!
@@ -194,10 +198,18 @@ namespace NFcore
 			*/
 			System(string name, bool useComplex, int globalMoleculeLimit);
 
+			
+			/*
+				copy constructor 
+			*/
+			System(const System&);
+
 			/*!
 				 destroys the system and cleans up all memory associated with it
 			 */
 			~System();
+
+
 
 			// Basic functions to get the properties and objects of the system
 			string getName() const { return name; };
@@ -1221,7 +1233,7 @@ namespace NFcore
 			//This is public so that anybody can access the molecules quickly
 			list <Molecule *> complexMembers;
 			list <Molecule *>::iterator molIter;
-
+			void generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t, Node * >  &node_index );
 
 
 		protected:
@@ -1235,6 +1247,7 @@ namespace NFcore
 			string  canonical_label;
 
 		private:
+
 
 	};
 
@@ -1279,8 +1292,7 @@ namespace NFcore
 	        int         index;
 	};
 
-	typedef  pair < Molecule *, int >  node_t;
-	typedef  pair < node_t, Node * >   node_index_t;
+
 
 }
 

@@ -1,4 +1,5 @@
 #include "NFinput.hh"
+#include "XMLRPC.hh"
 #include <boost/range/irange.hpp>
 
 //json serialization libraries

@@ -206,7 +206,67 @@ string Complex::getCanonicalLabel ( )
     Steps 1 and 3 have complexity around E log(V), where E is the number of edges
     and V is the number of vertices (nodes).
  */
-void Complex::generateCanonicalLabel ( )
+
+
+void Complex::generateCanonicalLabel(){
+
+    vector < Node * >  nodes;
+    map < node_t, Node * >  node_index;
+    vector < Node * >::iterator       node_iter;
+    map < node_t, Node * >::iterator  node_index_iter;
+
+    //label container
+    stringstream  labelstream;
+    //other variables
+    Molecule  *mol;
+    MoleculeType *moltype;
+
+    //get complex node nauty data structures
+    generateCanonicalLabelArray(nodes, node_index);
+
+    // Build label  ( N + sum_N[ Edges(n)*logN ] )
+    for (node_iter = nodes.begin();  node_iter != nodes.end();  ++node_iter )
+    {
+        auto curr_node = *node_iter;
+        mol = curr_node->getMolecule();
+        moltype = mol->getMoleculeType();
+        auto icomp = curr_node->getComponent();
+
+        labelstream << curr_node->getLabel();
+
+        if ( curr_node->isMolecule() )
+        {   // this is a molecule
+            for (auto icomp_nbh=0; icomp_nbh < moltype->getNumOfComponents(); ++icomp_nbh )
+            {
+                node_index_iter = node_index.find( node_t(mol, icomp_nbh) );
+                labelstream << "!" << node_index_iter->second->getIndex();
+            }
+        }
+        else
+        {   // this is a component
+            node_index_iter = node_index.find( node_t( mol, Node::IS_MOLECULE ) );
+            labelstream << "!" << node_index_iter->second->getIndex();
+
+            if ( mol->isBindingSiteBonded( icomp ) )
+            {
+                node_index_iter = node_index.find( node_t( mol->getBondedMolecule(icomp),
+                                                       mol->getBondedMoleculeBindingSiteIndex(icomp) ) );
+                labelstream << "!" << node_index_iter->second->getIndex();
+            }
+        }
+        labelstream << ",";
+    }
+
+    // Free nodes
+    for (node_iter = nodes.begin(); node_iter != nodes.end(); ++node_iter )
+        delete *node_iter;
+
+    // set canonical label
+    canonical_label = labelstream.str();
+    is_canonical = true;
+}
+
+void  Complex::generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t, Node * >  &node_index )
 {
     #if DEBUG_NAUTY==1
     std::cout << "find_canonical_order" << std::endl;
@@ -221,19 +281,19 @@ void Complex::generateCanonicalLabel ( )
     }
 
     // stringstream object where label is constructed
-    stringstream  labelstream;
+    
     // declare containers
-    vector < Node * >  nodes;
-    map < node_t, Node * >  node_index;
+    //vector < Node * >  nodes;
+    //map < node_t, Node * >  node_index;
     // declare iterators
     vector < Node * >::iterator       node_iter;
     map < node_t, Node * >::iterator  node_index_iter;
     // other variables
     bool      nauty_required;
     Node      *curr_node, *prev_node;
+    int       icomp;
     Molecule  *mol;
     MoleculeType *moltype;
-    int       icomp, icomp_nbh;
     // nauty related variables
     int      nv, m, nde;
     int      v_index, e_index;
@@ -401,45 +461,6 @@ void Complex::generateCanonicalLabel ( )
     // sort nodes
     std::sort ( nodes.begin(), nodes.end(), Node::less_by_index );
 
-    // Build label  ( N + sum_N[ Edges(n)*logN ] )
-    for ( node_iter = nodes.begin();  node_iter != nodes.end();  ++node_iter )
-    {
-        curr_node = *node_iter;
-        mol = curr_node->getMolecule();
-        moltype = mol->getMoleculeType();
-        icomp = curr_node->getComponent();
 
-        labelstream << curr_node->getLabel();
-
-        if ( curr_node->isMolecule() )
-        {   // this is a molecule
-    	    for ( icomp_nbh=0; icomp_nbh < moltype->getNumOfComponents(); ++icomp_nbh )
-		    {
-                node_index_iter = node_index.find( node_t(mol, icomp_nbh) );
-                labelstream << "!" << node_index_iter->second->getIndex();
-            }
-        }
-        else
-        {   // this is a component
-            node_index_iter = node_index.find( node_t( mol, Node::IS_MOLECULE ) );
-            labelstream << "!" << node_index_iter->second->getIndex();
-
-			if ( mol->isBindingSiteBonded( icomp ) )
-			{
-                node_index_iter = node_index.find( node_t( mol->getBondedMolecule(icomp),
-                                                       mol->getBondedMoleculeBindingSiteIndex(icomp) ) );
-                labelstream << "!" << node_index_iter->second->getIndex();
-			}
-        }
-        labelstream << ",";
-    }
-
-    // Free nodes
-    for ( node_iter = nodes.begin(); node_iter != nodes.end(); ++node_iter )
-        delete *node_iter;
-
-    // set canonical label
-    canonical_label = labelstream.str();
-    is_canonical = true;
 }
 
