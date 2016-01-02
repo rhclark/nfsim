@@ -79,12 +79,44 @@ void RPCServer::nfsimReset::execute(xmlrpc_c::paramList const& paramList,
 
 }
 
+RPCServer::nfsimInitNauty::nfsimInitNauty()
+{
+    this->_signature = "b:S";
+    this->_help = "This method initializes the nfsim system with some speceis starting conditions encoded as a nauty cannonnical label-int list of tuples";
+
+}
+
+
+void RPCServer::nfsimInitNauty::execute(xmlrpc_c::paramList const& paramList,
+                                   xmlrpc_c::value *   const  retvalP)
+{
+    // get map containing string-int tuples
+
+    std::map<std::string, int> localMap;
+    std::map<std::string, xmlrpc_c::value> const initMap(paramList.getStruct(0));
+    
+    //normalize the initialization map to a simple str-int map
+    for (auto const& it : initMap) {
+        localMap[it.first] = xmlrpc_c::value_int(it.second);
+    }
+
+    paramList.verifyEnd(1);
+    bool result = NFinput::initStartSpeciesFromCannonicalLabels(localMap, RPCServer::system, NFinput::parameter, NFinput::allowedStates, true);
+    RPCServer::system->prepareForSimulation();
+
+    //*retvalP = xmlrpc_c::value_boolean(result);
+
+
+}
 RPCServer::nfsimInit::nfsimInit()
 {
     this->_signature = "b:s";
     this->_help = "This method initializes the nfsim system with some speceis starting conditions";
 
 }
+
+
+
 
 void RPCServer::nfsimInit::execute(xmlrpc_c::paramList const& paramList,
                                    xmlrpc_c::value *   const  retvalP)
@@ -226,12 +258,15 @@ void NFinput::remoteWalk(NFinput::XMLStructures* xmlStructures, NFinput::XMLFlag
         xmlrpc_c::methodPtr const nfsimInitO(new RPCServer::nfsimInit);
         xmlrpc_c::methodPtr const nfsimStepO(new RPCServer::nfsimStep);
         xmlrpc_c::methodPtr const nfsimQueryO(new RPCServer::nfsimQuery);
+        xmlrpc_c::methodPtr const nfsimInitNautyO(new RPCServer::nfsimInitNauty);
+
 
         // this methods will be the public interfaces a client can reach from this server
         myRegistry.addMethod("nfsim.reset", nfsimResetO);
         myRegistry.addMethod("nfsim.init", nfsimInitO);
         myRegistry.addMethod("nfsim.step", nfsimStepO);
         myRegistry.addMethod("nfsim.query", nfsimQueryO);
+        myRegistry.addMethod("nfsim.initNauty", nfsimInitNautyO);
 
         xmlrpc_c::serverAbyss nfsimServer(
             xmlrpc_c::serverAbyss::constrOpt()

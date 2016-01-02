@@ -68,6 +68,23 @@ namespace NFinput {
 	    bool verbose;
 	};
 
+	struct componentStruct{
+		string name;
+		string state;
+		int membership;
+		vector<int> bonds;
+	};
+
+	struct moleculeStruct{
+		vector<componentStruct> components;
+	};
+
+	struct complexStruct{
+		vector<moleculeStruct> molecules;
+		map<string, string> bondList;
+	};
+
+
 	//JJT: Contains maps that are used to share information between XML initialization methods
 	// we are extracting them to this namespace so those XML init methods can be used in isolation.
 	extern map<string, double> parameter;
@@ -198,8 +215,18 @@ namespace NFinput {
 			int &suggestedTraversalLimit);
 
 
+	bool initStartSpeciesFromCannonicalLabels(
+		std::map<std::string, int> &initMap,
+		System * s,
+		map<string,double> &parameter,
+		map<string,int> &allowedStates,
+		bool verbose);
 
-
+	void transformComplexString(const string &,
+								map<int, vector<componentStruct>> &,
+								map<int, string> &,
+								vector<componentStruct> &,
+								vector<pair<int, int >> &bondNumbers);
 
 	//! Reads a Species XML block, creates the molecules and adds them to the system.
 	/*!

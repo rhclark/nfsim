@@ -1,7 +1,7 @@
 #include "NFinput.hh"
+#include <boost/algorithm/string.hpp>
 
-
-
+#include <boost/range.hpp>
 #include <algorithm>
 
 
@@ -674,6 +674,298 @@ int NFinput::stringToInt(const std::string & specCount, const std::string & spec
 
 }
 
+void NFinput::transformComplexString(const std::string &label, 
+									 map<int, vector<componentStruct>> &componentList,
+									 map<int, string> &moleculeIndex,
+									 vector<componentStruct> &componentIndex,
+									 vector<pair<int, int>> &bondNumbers)
+{
+
+
+	//auxiliary vector for storing the tokenized elements
+	vector<string> strs;
+	boost::split(strs,label,boost::is_from_range(',', ','));
+	string graphEntity;
+	int index = 0;
+
+
+	int partnerIndex;
+	int parentMoleculeIdx;
+	int graphIndex = 0;
+    for (auto graphEntity: strs)
+    {
+        //if its a component
+    	if (graphEntity[0] == 'c'){
+    		componentStruct component;
+	    	
+    		auto componentInfo = graphEntity.substr(2,graphEntity.size());
+
+			vector<string> bonds;
+			boost::split(bonds,componentInfo,boost::is_from_range('!', '!'));
+
+			index=0;
+			for(string element: bonds){
+				//name +state
+				if (index == 0){
+					auto tildeIndex = element.find('~');
+					component.name = element.substr(0,tildeIndex);
+					component.state = element.substr(tildeIndex+1,element.size());
+				}
+				//parent molecule
+				else if(index == 1){
+					parentMoleculeIdx = stoi(element);
+					component.membership = parentMoleculeIdx;
+					componentList[parentMoleculeIdx].push_back(component);
+
+				}
+				//related bonds
+				else{
+					partnerIndex = stoi(element);
+					if (index< partnerIndex)
+						bondNumbers.push_back(make_pair(index, partnerIndex));
+				}
+
+				index++;
+				//cout<< "\t"<<element<<"\n";
+			}
+    		componentIndex.push_back(component);
+			bonds.clear();
+
+		}
+   		
+    	//else if its a molecule
+    	else if(graphEntity.size() > 2){
+			vector<string> definitions;
+    		auto moleculeInfo = graphEntity.substr(2,graphEntity.size());
+    		boost::split(definitions,moleculeInfo,boost::is_from_range('!', '!'));
+    		moleculeIndex[graphIndex] = definitions[0];
+    		definitions.clear();
+    	}
+    	graphIndex++;
+    }
+
+
+    strs.clear();
+}
+
+bool NFinput::initStartSpeciesFromCannonicalLabels(
+		std::map<std::string, int> &initMap,
+		System * s,
+		map <string,double> &parameter,
+		map<string,int> &allowedStates,
+		bool verbose)
+{
+	//iterate over the list of complexes
+	try{
+		vector < vector <Molecule *> > molecules;
+
+		//A vector that maps binding site ids into a molecule location in the molecules vector
+		//and the name of the binding site
+		map <string, string> bSiteSiteMapping;
+		map <string, int> bSiteMolMapping;
+		vector <string> stateName;
+		vector <double> stateValue;
+
+		vector<string>::iterator snIter;
+
+		//temporarily map a molecule idx to its children components
+		map<int, vector<componentStruct>> componentList;
+		//a list containing an id-> molecule name equivalence list
+		map<int, string> moleculeIndex; 
+
+		//stores molecule and component information
+		vector<componentStruct> componentIndex;
+		vector<pair<int, int>> bondNumbers;
+
+		//iterate over all complexes
+		for(auto const& it : initMap){
+
+			transformComplexString(it.first, componentList, moleculeIndex, componentIndex, bondNumbers);
+
+			//iterate over all molecules in the complex
+			for(auto molIt: componentList){ 
+				string molName = moleculeIndex[molIt.first];
+				int molUid = molIt.first;
+
+				// Identify the moleculeType if we can (note that this call could potentially kill our code if we can't find the type);
+				MoleculeType *mt = s->getMoleculeTypeByName(molName);
+				if(verbose) cout<<"\t\t\tIncluding Molecule of type: "<<molName<<" with local id: " << molUid<<endl;
+
+				vector <string> usedComponentNames;
+
+				//loop through components
+				for (auto compIt: molIt.second){
+						//Get the basic properties of the component
+					string compId,compBondCount;
+
+					string compName = compIt.name;
+					string compStateValue = compIt.state;
+
+			
+					//First, if the site is symmetric, we have to relabel it correctly...
+					if(mt->isEquivalentComponent(compName)) {
+						//cout<<"is eq"<<endl;
+						int *eqCompClass; int n_eqComp;
+						mt->getEquivalencyClass(eqCompClass,n_eqComp,compName);
+
+
+						bool couldPlaceSymComp=false;
+						for(int eq=0; eq<n_eqComp;eq++) {
+							string eqCompNameToCompare=mt->getComponentName(eqCompClass[eq]);
+							//cout<<"comparing to: "<<eqCompNameToCompare<<endl;
+							bool foundMatch=false;
+							for(unsigned int ucn=0;ucn<usedComponentNames.size(); ucn++) {
+								if(usedComponentNames.at(ucn).compare(eqCompNameToCompare)==0) {
+									foundMatch=true; break;
+								}
+							}
+							if(!foundMatch) {
+								//cout<<" not used, using."<<endl;
+								usedComponentNames.push_back(eqCompNameToCompare);
+								compName=eqCompNameToCompare;
+								couldPlaceSymComp=true;
+								break;
+							} else {
+								//cout<<" used, moving on."<<endl;
+							}
+						}
+						if(!couldPlaceSymComp) {
+							cout<<"Too many symmetric sites specified, when creating species: "<<speciesName<<endl;
+							return false;
+						}
+					} else {
+						for(unsigned int ucn=0;ucn<usedComponentNames.size(); ucn++) {
+							if(usedComponentNames.at(ucn).compare(compName)==0) {
+								cout<<"Specified the same component multiple times, when creating species: "<<speciesName<<endl;
+								return false;
+							}
+						}
+						usedComponentNames.push_back(compName);
+					}
+
+
+					//If it is a state, treat it as such
+					if(compStateValue != "NO_STATE")
+					{
+							//First grab the states value as a string
+
+						if(allowedStates.find(molName+"_"+compName+"_"+compStateValue)==allowedStates.end()) {
+							cerr<<"You are trying to create a molecule of type '"<<molName<<"', but you gave an "<<endl;
+							cerr<<"invalid state! The state you gave was: '"<<compStateValue<<"'.  Quitting now."<<endl;
+							return false;
+						} else {
+
+							//State is a valid allowed state, so push it onto our list
+							int stateValueInt = allowedStates.find(molName+"_"+compName+"_"+compStateValue)->second;
+							stateName.push_back(compName);
+							stateValue.push_back(stateValueInt);
+						}
+					}
+
+
+					//finally, we have to add the b site mapping that will let us later
+					//easily connect binding sites with the molecules involved
+					bSiteSiteMapping[compId] = compName;
+					bSiteMolMapping[compId] = molecules.size();
+				}
+
+				//loop to create the actual molecules of this type
+				vector <Molecule *> currentM;
+				molecules.push_back(currentM);
+
+				for(int m=0; m<specCountInteger; m++)
+				{
+					Molecule *mol = mt->genDefaultMolecule();
+
+					//for(int i=0; i<eqClassCount; i++) { currentCount[i]=1; }
+
+					//Loop through the states and set the ones we need to set
+					int k=0;
+					for(snIter = stateName.begin(); snIter != stateName.end(); k++, snIter++ )
+					{
+						mol->setComponentState((*snIter), (int)stateValue.at(k));
+					}
+
+					molecules.at(molecules.size()-1).push_back(mol);
+				}
+				
+
+			}
+			
+			///////////////////////////////////////////////////////////////
+			//Here is where we add the bonds to the molecules in this species
+			TiXmlElement *pListOfBonds = pListOfMol->NextSiblingElement("ListOfBonds");
+			if(pListOfBonds)
+			{
+				//First get the information on the bonds in the complex
+				TiXmlElement *pBond;
+				for ( pBond = pListOfBonds->FirstChildElement("Bond"); pBond != 0; pBond = pBond->NextSiblingElement("Bond"))
+				{
+					string bondId, bSite1, bSite2;
+					if(!pBond->Attribute("id") || !pBond->Attribute("site1") || !pBond->Attribute("site2")) {
+						cerr<<"!! Invalid Bond tag for species: "<<speciesName<<".  Quitting."<<endl;
+						return false;
+					} else {
+						bondId = pBond->Attribute("id");
+						bSite1 = pBond->Attribute("site1");
+						bSite2 = pBond->Attribute("site2");
+					}
+					//cout<<"reading bond "<<bondId<<" which connects "<<bSite1<<" to " <<bSite2<<endl;
+
+
+					//Get the information on this bond that tells us which molecules to connect
+					try {
+						string bSiteName1 = bSiteSiteMapping.find(bSite1)->second;
+						int bSiteMolIndex1 = bSiteMolMapping.find(bSite1)->second;
+						string bSiteName2 = bSiteSiteMapping.find(bSite2)->second;
+						int bSiteMolIndex2 = bSiteMolMapping.find(bSite2)->second;
+
+						for(int j=0;j<specCountInteger;j++) {
+							Molecule::bind( molecules.at(bSiteMolIndex1).at(j),bSiteName1.c_str(),
+											molecules.at(bSiteMolIndex2).at(j),bSiteName2.c_str());
+						}
+
+					} catch (exception& e) {
+						cout<<"!!!!Invalid site value for bond: '"<<bondId<<"' when creating species '"<<speciesName<<"'. Quitting"<<endl;
+						return false;
+					}
+				}
+			}
+
+			//Tidy up and clear the lists for the next species
+			vector< vector <Molecule *> >::iterator mIter;
+			for(mIter = molecules.begin(); mIter != molecules.end(); mIter++ ) {
+				(*mIter).clear();
+			}
+
+		molecules.clear();
+
+
+			cout << "below\n";
+			for(auto molIt: componentList){
+				cout<< "components in molecule " << molIt.first << " " << moleculeIndex[molIt.first] << "\n";
+				for (auto compIt: molIt.second){
+					cout <<"\t first component" << compIt.name << " " << compIt.state << "\n";
+				}
+			}
+
+			//cleanuo
+			componentList.clear();
+			moleculeIndex.clear();
+			componentIndex.clear();
+			bondNumbers.clear();
+
+
+
+		}
+	}
+	catch (...) {
+		cerr<<"Caught some unknown error when creating Species."<<endl;
+		return false;
+	}
+	
+}
+
 bool NFinput::initStartSpecies(
 		TiXmlElement * pListOfSpecies,
 		System * s,
@@ -977,7 +1269,7 @@ bool NFinput::initStartSpecies(
 				//Reset the states for the next wave...
 				stateName.clear();
 				stateValue.clear();
-			}
+			}	
 
 
 			///////////////////////////////////////////////////////////////

@@ -81,6 +81,20 @@ namespace RPCServer{
             xmlrpc_c::value *   const  retvalP);
     };
 
+    //! Initializes an NFSim system based on a map of cannonical labels representing complexes mapped to integers
+    /*!
+        @author Jose Juan Tapia
+    */  
+
+    class nfsimInitNauty: public xmlrpc_c::method
+    {
+    public:
+        nfsimInitNauty();
+        void execute(xmlrpc_c::paramList const& paramList,
+            xmlrpc_c::value *   const  retvalP);
+
+    };
+
     //! Performs one simulation step on the global XMLRPC system object
     /*!
         @author Jose Juan Tapia
