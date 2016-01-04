@@ -104,7 +104,7 @@ void RPCServer::nfsimInitNauty::execute(xmlrpc_c::paramList const& paramList,
     bool result = NFinput::initStartSpeciesFromCannonicalLabels(localMap, RPCServer::system, NFinput::parameter, NFinput::allowedStates, true);
     RPCServer::system->prepareForSimulation();
 
-    //*retvalP = xmlrpc_c::value_boolean(result);
+    *retvalP = xmlrpc_c::value_boolean(result);
 
 
 }

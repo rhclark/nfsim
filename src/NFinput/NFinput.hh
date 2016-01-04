@@ -71,6 +71,7 @@ namespace NFinput {
 	struct componentStruct{
 		string name;
 		string state;
+		int id;
 		int membership;
 		vector<int> bonds;
 	};

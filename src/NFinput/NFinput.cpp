@@ -710,6 +710,7 @@ void NFinput::transformComplexString(const std::string &label,
 					auto tildeIndex = element.find('~');
 					component.name = element.substr(0,tildeIndex);
 					component.state = element.substr(tildeIndex+1,element.size());
+					component.id = graphIndex;
 				}
 				//parent molecule
 				else if(index == 1){
@@ -721,8 +722,8 @@ void NFinput::transformComplexString(const std::string &label,
 				//related bonds
 				else{
 					partnerIndex = stoi(element);
-					if (index< partnerIndex)
-						bondNumbers.push_back(make_pair(index, partnerIndex));
+					if (graphIndex< partnerIndex)
+						bondNumbers.push_back(make_pair(graphIndex, partnerIndex));
 				}
 
 				index++;
@@ -761,8 +762,9 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 		//A vector that maps binding site ids into a molecule location in the molecules vector
 		//and the name of the binding site
-		map <string, string> bSiteSiteMapping;
-		map <string, int> bSiteMolMapping;
+		map <int, int> bSiteMolMapping;
+		map <int, string> bSiteSiteMapping;
+
 		vector <string> stateName;
 		vector <double> stateValue;
 
@@ -777,11 +779,19 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		vector<componentStruct> componentIndex;
 		vector<pair<int, int>> bondNumbers;
 
+		//more auxiliary structures
+		componentStruct* firstComponent;
+		componentStruct* secondComponent;
+
+
 		//iterate over all complexes
 		for(auto const& it : initMap){
 
 			transformComplexString(it.first, componentList, moleculeIndex, componentIndex, bondNumbers);
-
+			cout << "checking\n";
+			for(auto bondInfo: bondNumbers){
+				cout << bondInfo.first << " " << bondInfo.second << " \n"; 
+			}
 			//iterate over all molecules in the complex
 			for(auto molIt: componentList){ 
 				string molName = moleculeIndex[molIt.first];
@@ -830,13 +840,13 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 							}
 						}
 						if(!couldPlaceSymComp) {
-							cout<<"Too many symmetric sites specified, when creating species: "<<speciesName<<endl;
+							cout<<"Too many symmetric sites specified, when creating species: "<<it.first<<endl;
 							return false;
 						}
 					} else {
 						for(unsigned int ucn=0;ucn<usedComponentNames.size(); ucn++) {
 							if(usedComponentNames.at(ucn).compare(compName)==0) {
-								cout<<"Specified the same component multiple times, when creating species: "<<speciesName<<endl;
+								cout<<"Specified the same component multiple times, when creating species: "<<it.first<<endl;
 								return false;
 							}
 						}
@@ -865,15 +875,15 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 					//finally, we have to add the b site mapping that will let us later
 					//easily connect binding sites with the molecules involved
-					bSiteSiteMapping[compId] = compName;
-					bSiteMolMapping[compId] = molecules.size();
+					bSiteSiteMapping[compIt.id] = compName;
+					bSiteMolMapping[compIt.id] = molecules.size();
 				}
 
 				//loop to create the actual molecules of this type
 				vector <Molecule *> currentM;
 				molecules.push_back(currentM);
 
-				for(int m=0; m<specCountInteger; m++)
+				for(int m=0; m<it.second; m++)
 				{
 					Molecule *mol = mt->genDefaultMolecule();
 
@@ -894,62 +904,32 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 			
 			///////////////////////////////////////////////////////////////
 			//Here is where we add the bonds to the molecules in this species
-			TiXmlElement *pListOfBonds = pListOfMol->NextSiblingElement("ListOfBonds");
-			if(pListOfBonds)
-			{
-				//First get the information on the bonds in the complex
-				TiXmlElement *pBond;
-				for ( pBond = pListOfBonds->FirstChildElement("Bond"); pBond != 0; pBond = pBond->NextSiblingElement("Bond"))
-				{
-					string bondId, bSite1, bSite2;
-					if(!pBond->Attribute("id") || !pBond->Attribute("site1") || !pBond->Attribute("site2")) {
-						cerr<<"!! Invalid Bond tag for species: "<<speciesName<<".  Quitting."<<endl;
-						return false;
-					} else {
-						bondId = pBond->Attribute("id");
-						bSite1 = pBond->Attribute("site1");
-						bSite2 = pBond->Attribute("site2");
-					}
-					//cout<<"reading bond "<<bondId<<" which connects "<<bSite1<<" to " <<bSite2<<endl;
 
 
-					//Get the information on this bond that tells us which molecules to connect
-					try {
-						string bSiteName1 = bSiteSiteMapping.find(bSite1)->second;
-						int bSiteMolIndex1 = bSiteMolMapping.find(bSite1)->second;
-						string bSiteName2 = bSiteSiteMapping.find(bSite2)->second;
-						int bSiteMolIndex2 = bSiteMolMapping.find(bSite2)->second;
+			for(auto bondInfo: bondNumbers){
+				firstComponent = &componentIndex[bondInfo.first];
+				secondComponent = &componentIndex[bondInfo.second];
+				int bSiteMolIndex1 = bSiteMolMapping.find(firstComponent->id)->second;
+				int bSiteMolIndex2 = bSiteMolMapping.find(secondComponent->id)->second;
+				string bSiteCompName1 = bSiteSiteMapping[firstComponent->id];
+				string bSiteCompName2 = bSiteSiteMapping[secondComponent->id];
 
-						for(int j=0;j<specCountInteger;j++) {
-							Molecule::bind( molecules.at(bSiteMolIndex1).at(j),bSiteName1.c_str(),
-											molecules.at(bSiteMolIndex2).at(j),bSiteName2.c_str());
-						}
-
-					} catch (exception& e) {
-						cout<<"!!!!Invalid site value for bond: '"<<bondId<<"' when creating species '"<<speciesName<<"'. Quitting"<<endl;
-						return false;
-					}
+				for(int j=0;j<it.second;j++) {
+					Molecule::bind( molecules.at(bSiteMolIndex1).at(j),bSiteCompName1.c_str(),
+									molecules.at(bSiteMolIndex2).at(j),bSiteCompName2.c_str());
 				}
 			}
 
+			
 			//Tidy up and clear the lists for the next species
 			vector< vector <Molecule *> >::iterator mIter;
 			for(mIter = molecules.begin(); mIter != molecules.end(); mIter++ ) {
 				(*mIter).clear();
 			}
 
-		molecules.clear();
-
-
-			cout << "below\n";
-			for(auto molIt: componentList){
-				cout<< "components in molecule " << molIt.first << " " << moleculeIndex[molIt.first] << "\n";
-				for (auto compIt: molIt.second){
-					cout <<"\t first component" << compIt.name << " " << compIt.state << "\n";
-				}
-			}
-
-			//cleanuo
+			molecules.clear();
+			bSiteMolMapping.clear();
+			bSiteSiteMapping.clear();
 			componentList.clear();
 			moleculeIndex.clear();
 			componentIndex.clear();
@@ -963,6 +943,8 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		cerr<<"Caught some unknown error when creating Species."<<endl;
 		return false;
 	}
+
+	return true;
 	
 }
 
@@ -1269,7 +1251,7 @@ bool NFinput::initStartSpecies(
 				//Reset the states for the next wave...
 				stateName.clear();
 				stateValue.clear();
-			}	
+			}
 
 
 			///////////////////////////////////////////////////////////////
@@ -1308,7 +1290,6 @@ bool NFinput::initStartSpecies(
 						int bSiteMolIndex1 = bSiteMolMapping.find(bSite1)->second;
 						string bSiteName2 = bSiteSiteMapping.find(bSite2)->second;
 						int bSiteMolIndex2 = bSiteMolMapping.find(bSite2)->second;
-
 						for(int j=0;j<specCountInteger;j++) {
 							Molecule::bind( molecules.at(bSiteMolIndex1).at(j),bSiteName1.c_str(),
 											molecules.at(bSiteMolIndex2).at(j),bSiteName2.c_str());
