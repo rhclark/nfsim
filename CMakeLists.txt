@@ -10,8 +10,11 @@ project(NFsim)
 #endif (NOT XMLRPC_FOUND) 
 
 set(CMAKE_BUILD_TYPE Release)
+set (CMAKE_C_FLAGS "$CMAKE_C_FLAGS -fPIC")
+set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
 
 set(SUB_DIRS
+    src/
     src/nauty24 
     src/NFutil 
     src/NFutil/MTrand 
@@ -40,10 +43,11 @@ set(SUB_DIRS
 add_definitions("-Wno-deprecated-declarations")
 add_definitions(-std=c++11)
 
+
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
 
-
+                                                                                                                        
 file(GLOB_RECURSE src_files  "${CMAKE_CURRENT_SOURCE_DIR}/src/*cpp")
 file(GLOB_RECURSE c_src_files  "${CMAKE_CURRENT_SOURCE_DIR}/src/*c")
 
@@ -53,9 +57,11 @@ set(SRC_FILES
     ${c_src_files} 
 )
 
-#link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
-link_directories(lib)
-link_libraries(xmlrpc_server_abyss++.a xmlrpc_server_abyss.a xmlrpc_server.a xmlrpc_server++.a xmlrpc++.a xmlrpc.a xmlrpc_xmlparse.a xmlrpc_xmltok.a xmlrpc_util.a  xmlrpc_abyss.a libxmlrpc_util.a pthread)
-#link_libraries(${XMLRPC_LIBRARIES})
 
-add_executable(${PROJECT_NAME} ${SRC_FILES} )
+
+add_library(objlib OBJECT ${SRC_FILES})
+# shared libraries need PIC
+set_property(TARGET ${objlib} PROPERTY POSITION_INDEPENDENT_CODE 1)
+add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:objlib>)
+add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:objlib>)
+

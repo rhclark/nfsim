@@ -129,6 +129,9 @@ namespace NFcore
 
 			// output and printing
 			void printAllComplexes();
+			const vector<Complex*> & getAllComplexesVector(){
+				return allComplexes;
+			}
 			void purgeAndPrintAvailableComplexList(); /*< ONLY USE FOR DEBUG PURPOSES, AS THIS DELETES ALL COMPLEX BOOKKEEPING */
 			void outputComplexSizes(double cSampleTime);
 			void outputMoleculeTypeCountPerComplex(MoleculeType *m);

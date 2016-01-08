@@ -750,7 +750,7 @@ void NFinput::transformComplexString(const std::string &label,
 }
 
 bool NFinput::initStartSpeciesFromCannonicalLabels(
-		std::map<std::string, int> &initMap,
+		const std::map<std::string, int> &initMap,
 		System * s,
 		map <string,double> &parameter,
 		map<string,int> &allowedStates,
@@ -788,7 +788,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		for(auto const& it : initMap){
 
 			transformComplexString(it.first, componentList, moleculeIndex, componentIndex, bondNumbers);
-			cout << "checking\n";
 			for(auto bondInfo: bondNumbers){
 				cout << bondInfo.first << " " << bondInfo.second << " \n"; 
 			}

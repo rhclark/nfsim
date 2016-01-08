@@ -190,7 +190,7 @@ void Complex::updateComplexMembership(Molecule * m)
 
 
 // get the canonical label for this complex
-string Complex::getCanonicalLabel ( )
+string Complex::getCanonicalLabel( )
 {
 	if (!is_canonical)
 		generateCanonicalLabel();
@@ -220,17 +220,18 @@ void Complex::generateCanonicalLabel(){
     //other variables
     Molecule  *mol;
     MoleculeType *moltype;
-
+    Node      *curr_node;
+    int icomp;
     //get complex node nauty data structures
     generateCanonicalLabelArray(nodes, node_index);
 
     // Build label  ( N + sum_N[ Edges(n)*logN ] )
     for (node_iter = nodes.begin();  node_iter != nodes.end();  ++node_iter )
     {
-        auto curr_node = *node_iter;
+        curr_node = *node_iter;
         mol = curr_node->getMolecule();
         moltype = mol->getMoleculeType();
-        auto icomp = curr_node->getComponent();
+        icomp = curr_node->getComponent();
 
         labelstream << curr_node->getLabel();
 
@@ -265,7 +266,25 @@ void Complex::generateCanonicalLabel(){
     canonical_label = labelstream.str();
     is_canonical = true;
 }
+/*
+void Complex::getCanonicalArray(){
+    vector < Node * >  nodes;
+    map < node_t, Node * >  node_index;
+    vector < Node * >::iterator       node_iter;
+    map < node_t, Node * >::iterator  node_index_iter;
 
+    Molecule  *mol;
+    MoleculeType *moltype;
+    Node      *curr_node;
+    int icomp;
+
+    generateCanonicalLabelArray(nodes, node_index);
+
+    for (node_iter = nodes.begin();  node_iter != nodes.end();  ++node_iter )
+    {
+
+    }
+}*/
 void  Complex::generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t, Node * >  &node_index )
 {
     #if DEBUG_NAUTY==1
@@ -280,11 +299,8 @@ void  Complex::generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t,
         return;
     }
 
-    // stringstream object where label is constructed
-    
-    // declare containers
-    //vector < Node * >  nodes;
-    //map < node_t, Node * >  node_index;
+
+
     // declare iterators
     vector < Node * >::iterator       node_iter;
     map < node_t, Node * >::iterator  node_index_iter;

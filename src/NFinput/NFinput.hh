@@ -217,7 +217,7 @@ namespace NFinput {
 
 
 	bool initStartSpeciesFromCannonicalLabels(
-		std::map<std::string, int> &initMap,
+		const std::map<std::string, int> &initMap,
 		System * s,
 		map<string,double> &parameter,
 		map<string,int> &allowedStates,
@@ -363,7 +363,7 @@ namespace NFinput {
 	/*!
     	@author Jose Juan Tapia
 	 */
-	void remoteWalk(NFinput::XMLStructures*, NFinput::XMLFlags);
+	//void remoteWalk(NFinput::XMLStructures*, NFinput::XMLFlags);
 
 
 	//! Parses the cmd line arg that specifies system dumps, and schedules them.
