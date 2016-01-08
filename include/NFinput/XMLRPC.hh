@@ -44,8 +44,9 @@ namespace RPCServer{
         nfsimQuery();
         void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
-        string serializeOutput();
-        string serializeJsonOutput();
+        //string serializeOutput();
+        //string serializeJsonOutput();
+        xmlrpc_c::value serializeXMLRPCOutput();
         
 
 
@@ -113,18 +114,17 @@ namespace RPCServer{
 
     };
 
-    //! Returns the system species state space as a list of species-rate tuples
+    //! Returns the system species state space for a given element
     /*!
         @author Jose Juan Tapia
     */  
-    class nfsimSpecies: public xmlrpc_c::method
+    class nfsimPrint: public xmlrpc_c::method
     {
     public:
-        nfsimSpecies();
+        nfsimPrint();
         void execute(xmlrpc_c::paramList const& paramList,
             xmlrpc_c::value *   const  retvalP);
     };
-
 
 }
 
