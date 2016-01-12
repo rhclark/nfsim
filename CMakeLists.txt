@@ -14,38 +14,36 @@ set (CMAKE_C_FLAGS "$CMAKE_C_FLAGS -fPIC")
 set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
 
 set(SUB_DIRS
-    src/
-    src/nauty24 
-    src/NFutil 
-    src/NFutil/MTrand 
-    src/NFtest/transcription 
-    src/NFtest/tlbr 
-    src/NFtest/simple_system 
-    src/NFtest/agentcell/cell 
-    src/NFtest/agentcell 
-    src/NFscheduler 
-    src/NFreactions/transformations 
-    src/NFreactions/reactions 
-    src/NFreactions/reactantLists 
-    src/NFreactions/mappings 
-    src/NFreactions 
-    src/NFoutput 
-    src/NFinput 
-    src/NFinput/TinyXML 
-    src/NFinput/json 
-    src/NFfunction/muParser 
-    src/NFfunction 
-    src/NFcore 
-    src/NFcore/reactionSelector 
-    src/NFcore/moleculeLists 
+    include/
+    include/nauty24 
+    include/NFutil 
+    include/NFutil/MTrand 
+    include/NFtest/transcription 
+    include/NFtest/tlbr 
+    include/NFtest/simple_system 
+    include/NFtest/agentcell/cell 
+    include/NFtest/agentcell 
+    include/NFscheduler 
+    include/NFreactions/transformations 
+    include/NFreactions/reactions 
+    include/NFreactions/reactantLists 
+    include/NFreactions/mappings 
+    include/NFreactions 
+    include/NFoutput 
+    include/NFinput 
+    include/NFinput/TinyXML 
+    include/NFinput/json 
+    include/NFfunction/muParser 
+    include/NFfunction 
+    include/NFcore 
+    include/NFcore/reactionSelector 
+    include/NFcore/moleculeLists 
 )
 
 add_definitions("-Wno-deprecated-declarations")
 add_definitions(-std=c++11)
 
-
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${SUB_DIRS})
 
                                                                                                                         
 file(GLOB_RECURSE src_files  "${CMAKE_CURRENT_SOURCE_DIR}/src/*cpp")

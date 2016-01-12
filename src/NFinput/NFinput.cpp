@@ -204,7 +204,7 @@ XMLStructures* NFinput::loadXMLFile(string filename, bool verbose)
 	}
 	else{
 		cout<<"\nError reading the file.  I could not find / open it, or it is not valid xml."<<endl;
-		return NULL;
+		return nullptr;
 	}
 
 	return xmlDataStructures;

@@ -7,6 +7,7 @@ namespace NFapi {
     NFinput::XMLStructures* xmlStructures = nullptr;
     System* system = nullptr;
     NFinput::XMLFlags xmlflags;
+    map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
 }
 
 using namespace boost;
@@ -25,7 +26,6 @@ void NFapi::calculateRxnMembership(System *s,
         for(auto i: irange(0, s->getNumOfMoleculeTypes())){
             // and all molecule agents associated with those molecule types...
             for(auto m: irange(0, s->getMoleculeType(i)->getMoleculeCount())){
-
                 mol = s->getMoleculeType(i)->getMolecule(m);
                 complex = mol->getComplex();
                 std::vector<ReactionClass*> rxnMembership = s->getMoleculeType(i)->getReactionClassMembership(mol);
@@ -57,6 +57,11 @@ bool NFapi::setupNFSim(const char* filename, bool verbose){
 
     NFapi::xmlflags = getXMLInitializationParameters(argMap, verbose);
     NFapi::xmlStructures = getXMLStructureFromFlags(argMap, verbose);
+
+    if(NFapi::xmlStructures == nullptr)
+        return false;
+    
+    return true;
 }
 
 bool NFapi::resetSystem(){
@@ -65,7 +70,7 @@ bool NFapi::resetSystem(){
                         NFapi::xmlflags.suggestedTraversalLimit, NFapi::xmlflags.evaluateComplexScopedLocalFunctions);
 
 
-    return NFapi::system == NULL;
+    return NFapi::system != NULL;
 }
 
 bool NFapi::initSystemXML(const string initXML){
@@ -90,7 +95,7 @@ bool NFapi::initSystemNauty(const std::map<std::string, int> localMap){
 }
 
 
-void NFapi::queryByNoReactant(std::map<std::string, vector<map<string,string>>> &structData, const int numOfReactants) {
+void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>>> &structData, const int numOfReactants) {
     std::map<Complex*, vector<ReactionClass*>> molMembership;
     NFapi::calculateRxnMembership(NFapi::system, molMembership, numOfReactants);
 
@@ -101,7 +106,6 @@ void NFapi::queryByNoReactant(std::map<std::string, vector<map<string,string>>> 
                 std::map<std::string, string> localData;
                 localData["rate"] = std::to_string(rxn->getBaseRate());
                 localData["name"] = rxn->getName();
-
                 reactions.push_back(localData);
             }
             structData[cpx.first->getCanonicalLabel()] = reactions;
@@ -109,6 +113,29 @@ void NFapi::queryByNoReactant(std::map<std::string, vector<map<string,string>>> 
     }
 
 
+}
+
+bool NFapi::initAndQueryByNumReactant(const std::map<string, int> initMap, std::map<std::string, 
+                               vector<map<string,string>>> &structData, const int numOfReactants){
+
+    NFapi::numReactantQueryIndex query;
+    query.numReactants = numOfReactants;
+    query.initMap = initMap;
+
+    //memoization
+    if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
+        structData = NFapi::numReactantQueryDict[query];
+    }
+    else{
+        if(!NFapi::resetSystem())
+            return false;
+        if(!NFapi::initSystemNauty(initMap))
+            return false;
+
+        NFapi::queryByNumReactant(structData, numOfReactants);
+        NFapi::numReactantQueryDict[query] = structData;
+    }
+    return true;
 }
 
 void NFapi::querySystemStatus(std::string printParam, set<string> &labelSet)
@@ -125,6 +152,17 @@ void NFapi::querySystemStatus(std::string printParam, set<string> &labelSet)
             }
         }
     }
+}
 
+bool NFapi::stepSimulation(const std::string rxnName){
+    auto rxn = NFapi::system->getReaction(rxnName);
+    //sending a negative number causes the firing function to recalculate the random number used
+    //for argument
+    rxn->fire(-1);
+    return 0;
+}
+
+bool NFapi::stepSimulation(){
+    NFapi::system->singleStep();
 
 }

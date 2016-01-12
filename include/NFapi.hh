@@ -32,17 +32,46 @@
 
 #include <NFsim.hh>
 
+
+
 namespace NFapi{
+
+    //memoization structures
+    struct numReactantQueryIndex{
+        std::map<string, int> initMap;
+        int numReactants;
+    };
+
+    typedef struct numReactantQueryIndex numReactantQueryIndex;
+
+    bool operator<(const numReactantQueryIndex& l, const numReactantQueryIndex& r) {
+     return (l.initMap<r.initMap || (l.initMap==r.initMap && l.numReactants<r.numReactants));
+    }
+
+    bool operator==(const numReactantQueryIndex& l, const numReactantQueryIndex& r) {
+     return (l.initMap==r.initMap && l.numReactants==r.numReactants);
+    }
+
+
     bool setupNFSim(const char* filename, bool);
     bool resetSystem();
     bool initSystemXML(const string);
     bool initSystemNauty(const std::map<string, int>);
-    void queryByNoReactant(std::map<std::string, vector<map<string,string>>> &, const int);
+    //performs  exactly one simulation step
+    bool stepSimulation();
+    //performs exactly one simulation step by firying reaction rxn
+    bool stepSimulation(const string rxn);
+
+
+    void queryByNumReactant(std::map<std::string, vector<map<string,string>>> &, const int);
     void querySystemStatus(std::string, set<string> &);
     void calculateRxnMembership(System *, std::map<Complex*, vector<ReactionClass*>> &, 
                                             const int);
 
+    //convenience function that calls reset, initNauty and queryByNumReactant while performing memoization
+    bool initAndQueryByNumReactant(const std::map<string, int>, std::map<std::string, vector<map<string,string>>> &, const int);
 
+    extern map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
     extern NFinput::XMLFlags xmlflags;
     extern NFinput::XMLStructures* xmlStructures;
     extern System* system;

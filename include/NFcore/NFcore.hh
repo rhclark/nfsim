@@ -227,6 +227,9 @@ namespace NFcore
 
 			ReactionClass *getReaction(int rIndex) { return allReactions.at(rIndex); };
 
+
+			ReactionClass *getReaction(string name);
+
 			MoleculeType * getMoleculeType(int mtIndex) { return allMoleculeTypes.at(mtIndex); };
 			MoleculeType * getMoleculeTypeByName(string name);
 			int getNumOfMoleculeTypes() { return allMoleculeTypes.size(); };

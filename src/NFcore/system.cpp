@@ -94,6 +94,37 @@ System::System(string name, bool useComplex, int globalMoleculeLimit)
 	csvFormat = false;
 }
 
+System::System(const System& orig){
+
+	//copy simple variables
+	this->name = orig.name;
+	this->a_tot = orig.a_tot;
+	current_time = orig.current_time;
+	this->useComplex = orig.useComplex;  // NETGEN -- is this needed?
+	this->useBinaryOutput = orig.useBinaryOutput;
+	this->evaluateComplexScopedLocalFunctions = orig.evaluateComplexScopedLocalFunctions;
+	this->universalTraversalLimit = orig.universalTraversalLimit;
+	this->onTheFlyObservables = orig.onTheFlyObservables;
+	this->outputGlobalFunctionValues = orig.outputGlobalFunctionValues;
+	this->globalMoleculeLimit = orig.globalMoleculeLimit;
+	this->outputEventCounter = orig.outputEventCounter;
+	this->globalEventCounter = orig.globalEventCounter;
+	this->csvFormat = orig.csvFormat;
+
+	//do we need to do a deep copy of all the contained pointers?
+
+	this->allMoleculeTypes = orig.allMoleculeTypes;
+	//contains list of candidate reactants. if we modify this later we contaminate the original list
+	this->allReactions = orig.allReactions;
+	this->allOutputters = orig.allOutputters;
+	this->obsToOutput = orig.obsToOutput;
+	this->speciesObservables = orig.speciesObservables;
+
+	//copy constructor not done
+
+
+}
+
 
 
 System::~System()
@@ -361,7 +392,12 @@ bool System::addGlobalFunction(GlobalFunction *gf)
 }
 
 
-
+ReactionClass* System::getReaction(string name)
+{
+	auto it = find_if(allReactions.begin(), allReactions.end(), [name] (const ReactionClass* r) 
+					  { return r->getName() == name; });
+	return *it;
+}
 
 MoleculeType * System::getMoleculeTypeByName(string mName)
 {
