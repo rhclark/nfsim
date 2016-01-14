@@ -8,6 +8,7 @@ namespace NFapi {
     System* system = nullptr;
     NFinput::XMLFlags xmlflags;
     map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
+    map<numReactantQueryIndex, vector<std::string>> mSystemQueryDict;
 }
 
 using namespace boost;
@@ -116,12 +117,10 @@ void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>>>
 
 }
 
-bool NFapi::initAndQueryByNumReactant(const std::map<string, int> initMap, std::map<std::string, 
-                               vector<map<string,string>>> &structData, const int numOfReactants){
-
-    NFapi::numReactantQueryIndex query;
-    query.numReactants = numOfReactants;
-    query.initMap = initMap;
+bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query, 
+                                      std::map<std::string, vector<map<string,
+                                                     string>>> &structData)
+{
 
     //memoization
     if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
@@ -130,14 +129,41 @@ bool NFapi::initAndQueryByNumReactant(const std::map<string, int> initMap, std::
     else{
         if(!NFapi::resetSystem())
             return false;
-        if(!NFapi::initSystemNauty(initMap))
+        if(!NFapi::initSystemNauty(query.initMap))
             return false;
 
-        NFapi::queryByNumReactant(structData, numOfReactants);
+        if(query.options.find("reaction") != query.options.end())
+            NFapi::stepSimulation(query.options["reaction"]);
+
+        if(query.options.find("numReactants") != query.options.end())
+            NFapi::queryByNumReactant(structData, std::stoi(query.options["numReactants"]));
         NFapi::numReactantQueryDict[query] = structData;
     }
     return true;
 }
+
+bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query, 
+                              vector<string> &labelSet)
+{
+    //memoization
+    if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
+        labelSet = NFapi::mSystemQueryDict[query];
+    }
+    else{
+        if(!NFapi::resetSystem())
+            return false;
+        if(!NFapi::initSystemNauty(query.initMap))
+            return false;
+        if(query.options.find("systemQuery") != query.options.end()){
+            NFapi::querySystemStatus(query.options["systemQuery"], labelSet);            
+        }
+        NFapi::mSystemQueryDict[query] = labelSet;
+
+    }
+    return true;
+
+}
+
 
 void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
 {
@@ -166,6 +192,8 @@ void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
         }
     }
 }
+
+
 
 bool NFapi::stepSimulation(const std::string rxnName){
     auto rxn = NFapi::system->getReaction(rxnName);

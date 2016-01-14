@@ -39,17 +39,18 @@ namespace NFapi{
     //memoization structures
     struct numReactantQueryIndex{
         std::map<string, int> initMap;
-        int numReactants;
+        std::map<string, string> options;
+
     };
 
     typedef struct numReactantQueryIndex numReactantQueryIndex;
 
     bool operator<(const numReactantQueryIndex& l, const numReactantQueryIndex& r) {
-     return (l.initMap<r.initMap || (l.initMap==r.initMap && l.numReactants<r.numReactants));
+     return (l.initMap<r.initMap || (l.initMap==r.initMap && l.options<r.options));
     }
 
     bool operator==(const numReactantQueryIndex& l, const numReactantQueryIndex& r) {
-     return (l.initMap==r.initMap && l.numReactants==r.numReactants);
+     return (l.initMap==r.initMap && l.options==r.options);
     }
 
 
@@ -68,10 +69,18 @@ namespace NFapi{
     void calculateRxnMembership(System *, std::map<Complex*, vector<ReactionClass*>> &, 
                                             const int);
 
-    //convenience function that calls reset, initNauty and queryByNumReactant while performing memoization
-    bool initAndQueryByNumReactant(const std::map<string, int>, std::map<std::string, vector<map<string,string>>> &, const int);
+    //convenience function that calls reset, initializes the system as indicated by the query and queryByNumReactant while performing memoization
+    bool initAndQueryByNumReactant(NFapi::numReactantQueryIndex &, 
+                                   std::map<std::string, vector<map<string,string>>> &);
+
+
+
+    bool initAndQuerySystemStatus(NFapi::numReactantQueryIndex &, 
+                                  vector<std::string> &);
 
     extern map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
+    extern map<numReactantQueryIndex, vector<std::string>> mSystemQueryDict;
+
     extern NFinput::XMLFlags xmlflags;
     extern NFinput::XMLStructures* xmlStructures;
     extern System* system;
