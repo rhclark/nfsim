@@ -1137,6 +1137,17 @@ void System::printAllObservableCounts(double cSampleTime,int eventCounter)
 	cout<<endl;
 }
 
+map<string, double> System::getAllObservableCounts()
+{
+	map<string, double> observableCounts;
+	for(auto it: obsToOutput)
+	{
+		observableCounts[it->getName()] = it->getCount();
+	}
+
+	return observableCounts;
+}
+
 
 // NETGEN  moved to ComplexList
 /*

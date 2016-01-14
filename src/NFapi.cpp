@@ -89,6 +89,7 @@ bool NFapi::initSystemNauty(const std::map<std::string, int> localMap){
 
     bool result = NFinput::initStartSpeciesFromCannonicalLabels(localMap, NFapi::system, 
                         NFinput::parameter, NFinput::allowedStates, true);
+
     NFapi::system->prepareForSimulation();
 
     return result;
@@ -138,18 +139,30 @@ bool NFapi::initAndQueryByNumReactant(const std::map<string, int> initMap, std::
     return true;
 }
 
-void NFapi::querySystemStatus(std::string printParam, set<string> &labelSet)
+void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
 {
 
     labelSet.clear();
 
     if (printParam == "complex")
-    {   
+    {      
+        //adding a fully unbound species to the complex list is very convoluted because nfsim already
+        //contains a defualt molecule copy for each molecule type, so we hae to make sure we are adding the
+        //second one
         const vector<Complex*> complexList = (NFapi::system->getAllComplexes()).getAllComplexesVector();
         for(auto complex: complexList){
-            if (labelSet.find(complex->getCanonicalLabel()) == labelSet.end()){
-                labelSet.insert(complex->getCanonicalLabel());
-            }
+                if(complex->isAlive())
+                    labelSet.push_back(complex->getCanonicalLabel());
+            
+        }
+        
+    }
+    else if(printParam == "observables")
+    {
+        map<string,double> basicMolecules = NFapi::system->getAllObservableCounts();
+        for(auto it: basicMolecules){
+            for(int i: irange(0,(int)it.second))
+                labelSet.push_back(it.first);
         }
     }
 }

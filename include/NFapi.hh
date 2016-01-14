@@ -64,7 +64,7 @@ namespace NFapi{
 
 
     void queryByNumReactant(std::map<std::string, vector<map<string,string>>> &, const int);
-    void querySystemStatus(std::string, set<string> &);
+    void querySystemStatus(std::string, vector<string> &);
     void calculateRxnMembership(System *, std::map<Complex*, vector<ReactionClass*>> &, 
                                             const int);
 

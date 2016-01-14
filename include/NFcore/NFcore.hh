@@ -298,6 +298,7 @@ namespace NFcore
 			void outputAllObservableCounts(double cSampleTime,int eventCounter);
 			int getNumOfSpeciesObs() const;
 			Observable * getSpeciesObs(int index) const;
+			map<string, double> getAllObservableCounts();
 
 			/* functions that print out other information to the console */
 			// NETGEN

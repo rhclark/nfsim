@@ -788,9 +788,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		for(auto const& it : initMap){
 
 			transformComplexString(it.first, componentList, moleculeIndex, componentIndex, bondNumbers);
-			for(auto bondInfo: bondNumbers){
-				cout << bondInfo.first << " " << bondInfo.second << " \n"; 
-			}
 			//iterate over all molecules in the complex
 			for(auto molIt: componentList){ 
 				string molName = moleculeIndex[molIt.first];
@@ -2689,7 +2686,9 @@ bool NFinput::initObservables(
 				vector <TemplateMolecule *> tmList;
 				vector <string> stochRelation;
 				vector <int> stochQuantity;
-				if(!readObservableForTemplateMolecules(pObs,observableName,tmList,stochRelation,stochQuantity,s,parameter,allowedStates,Observable::MOLECULES,verbose,suggestedTraversalLimit)) {return false;}
+				if(!readObservableForTemplateMolecules(pObs,observableName,tmList,stochRelation,
+									stochQuantity,s,parameter,allowedStates,Observable::MOLECULES,
+									verbose,suggestedTraversalLimit)) {return false;}
 
 				//Create the observable, which in this case, is a MoleculesObservable
 				MoleculesObservable *mo = new MoleculesObservable(observableName,tmList);
@@ -2733,7 +2732,9 @@ bool NFinput::initObservables(
 				vector <TemplateMolecule *> tmList;
 				vector <string> stochRelation;
 				vector <int> stochQuantity;
-				if(!readObservableForTemplateMolecules(pObs,observableName,tmList,stochRelation,stochQuantity,s,parameter,allowedStates,Observable::SPECIES,verbose, suggestedTraversalLimit)) {return false;}
+				if(!readObservableForTemplateMolecules(pObs,observableName,tmList,stochRelation,
+								stochQuantity,s,parameter,allowedStates,Observable::SPECIES,
+								verbose, suggestedTraversalLimit)) {return false;}
 
 				SpeciesObservable *so = new SpeciesObservable(observableName,tmList,stochRelation,stochQuantity);
 				s->addObservableForOutput(so);
