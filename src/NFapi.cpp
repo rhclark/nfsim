@@ -143,7 +143,7 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
 }
 
 bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query, 
-                              vector<string> &labelSet)
+                                     vector<string> &labelSet)
 {
     //memoization
     if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
@@ -154,6 +154,11 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
             return false;
         if(!NFapi::initSystemNauty(query.initMap))
             return false;
+
+        if(query.options.find("reaction") != query.options.end()){
+            NFapi::stepSimulation(query.options["reaction"]);
+        }
+
         if(query.options.find("systemQuery") != query.options.end()){
             NFapi::querySystemStatus(query.options["systemQuery"], labelSet);            
         }
