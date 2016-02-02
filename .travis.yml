@@ -24,15 +24,6 @@ compiler:
 notifications:
   slack: faederlab:bJ2pu0hViE70sbIKASmmT74r
 
-before_script:
-    - cd dep
-    - tar xfz xmlrpc-c-1.33.18.tgz
-    - cd xmlrpc-c-1.33.18
-    - ./configure --prefix=$PWD/xmlrpc; make; make install
-    - cd xmlrpc
-    - mv include ../../..
-    - mv lib ../../..
-    - cd ../../..
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 

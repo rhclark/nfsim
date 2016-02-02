@@ -69,8 +69,6 @@ bool NFapi::resetSystem(){
 
     NFapi::system = initializeNFSimSystem(NFapi::xmlStructures, NFapi::xmlflags.cb, NFapi::xmlflags.globalMoleculeLimit, NFapi::xmlflags.verbose,
                         NFapi::xmlflags.suggestedTraversalLimit, NFapi::xmlflags.evaluateComplexScopedLocalFunctions);
-
-
     return NFapi::system != NULL;
 }
 
@@ -108,6 +106,7 @@ void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>>>
                 std::map<std::string, string> localData;
                 localData["rate"] = std::to_string(rxn->getBaseRate());
                 localData["name"] = rxn->getName();
+                //localData["numPlayers"] = 0;
                 reactions.push_back(localData);
             }
             structData[cpx.first->getCanonicalLabel()] = reactions;
@@ -177,14 +176,10 @@ void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
 
     if (printParam == "complex")
     {      
-        //adding a fully unbound species to the complex list is very convoluted because nfsim already
-        //contains a defualt molecule copy for each molecule type, so we hae to make sure we are adding the
-        //second one
         const vector<Complex*> complexList = (NFapi::system->getAllComplexes()).getAllComplexesVector();
         for(auto complex: complexList){
                 if(complex->isAlive())
                     labelSet.push_back(complex->getCanonicalLabel());
-            
         }
         
     }
@@ -198,6 +193,11 @@ void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
     }
 }
 
+bool NFapi::queryObservables(map<std::string, double> &observables){
+    observables = NFapi::system->getAllObservableCounts();
+
+    return true;
+}
 
 
 bool NFapi::stepSimulation(const std::string rxnName){

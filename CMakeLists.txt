@@ -13,6 +13,11 @@ set(CMAKE_BUILD_TYPE Release)
 set (CMAKE_C_FLAGS "$CMAKE_C_FLAGS -fPIC")
 set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+
+
+
 set(SUB_DIRS
     include/
     include/nauty24 
@@ -41,7 +46,8 @@ set(SUB_DIRS
 )
 
 add_definitions("-Wno-deprecated-declarations")
-add_definitions(-std=c++11)
+#add_definitions(-std=c++11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${SUB_DIRS})
 
@@ -60,6 +66,7 @@ set(SRC_FILES
 add_library(objlib OBJECT ${SRC_FILES})
 # shared libraries need PIC
 set_property(TARGET ${objlib} PROPERTY POSITION_INDEPENDENT_CODE 1)
-add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:objlib>)
+#add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:objlib>)
 add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:objlib>)
-
+#set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+#add_executable(${PROJECT_NAME} ${SRC_FILES} )

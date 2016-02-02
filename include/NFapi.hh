@@ -78,6 +78,10 @@ namespace NFapi{
     bool initAndQuerySystemStatus(NFapi::numReactantQueryIndex &, 
                                   vector<std::string> &);
 
+
+    bool queryObservables(map<std::string, double> &);
+
+
     extern map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
     extern map<numReactantQueryIndex, vector<std::string>> mSystemQueryDict;
 

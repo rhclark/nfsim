@@ -1055,7 +1055,7 @@ namespace NFcore
 			virtual ~ReactionClass();
 
 			int getNumOfReactants() const { return n_reactants; };
-
+			int getNumOfProducts() const { return products.size(); };
 			string getName() const { return name; };
 			double getBaseRate() const { return baseRate; };
 			int getRxnType() const { return reactionType; };
@@ -1089,6 +1089,7 @@ namespace NFcore
 
 			/* turn the tag of this guy on */
 			void tag() { tagged = true; };
+
 
 
 			virtual int getReactantCount(unsigned int reactantIndex) const = 0;
@@ -1152,6 +1153,7 @@ namespace NFcore
 			//each complex once (for observables, and matchOnce reactants)
 			vector <int> updatedComplexes;
 			vector <Complex*> productComplexes;  // Justin 24Jun12
+			vector <string> reactantComplexes; // JJT Jan16
 			vector <Complex*>::iterator complexIter; // Justin 24Jun12
 
 

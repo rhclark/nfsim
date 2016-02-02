@@ -324,7 +324,6 @@ void ReactionClass::fire(double random_A_number) {
 	//cout<<endl<<">FIRE "<<getName()<<endl;
 	fireCounter++;
 
-
 	// First randomly pick the reactants to fire by selecting the MappingSets
 	this->pickMappingSets(random_A_number);
 
@@ -350,7 +349,21 @@ void ReactionClass::fire(double random_A_number) {
 		}
 		cout<<endl;
 	}
-
+	//XXX: this might need to get moved to somewhere more functional
+	//keep track of reactant complexes too. inneficient like product complex search below,
+	//but functional
+	if(system->isUsingComplex()){
+		Complex * complex;
+		reactantComplexes.clear();
+		for(unsigned int k=0; k<n_reactants; k++) {
+			for(unsigned int p=0; p<mappingSet[k]->getNumOfMappings();p++) {
+				Molecule *mForTag = mappingSet[k]->get(p)->getMolecule();
+				if(!mForTag->isAlive()) continue;
+				complex = mForTag->getComplex();
+				reactantComplexes.push_back(complex->getCanonicalLabel());
+			}
+		}
+	}
 
 	// Generate the set of possible products that we need to update
 	// (excluding new molecules, we'll get those later --Justin)
@@ -438,6 +451,7 @@ void ReactionClass::fire(double random_A_number) {
 			if ( std::find( productComplexes.begin(), productComplexes.end(), complex ) == productComplexes.end() )
 				productComplexes.push_back(complex);
 		}
+
 	}
 
 
