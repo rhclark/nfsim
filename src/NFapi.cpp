@@ -67,6 +67,9 @@ bool NFapi::setupNFSim(const char* filename, bool verbose){
 
 bool NFapi::resetSystem(){
 
+    if(NFapi::system != NULL)
+        delete NFapi::system;
+
     NFapi::system = initializeNFSimSystem(NFapi::xmlStructures, NFapi::xmlflags.cb, NFapi::xmlflags.globalMoleculeLimit, NFapi::xmlflags.verbose,
                         NFapi::xmlflags.suggestedTraversalLimit, NFapi::xmlflags.evaluateComplexScopedLocalFunctions);
     return NFapi::system != NULL;
@@ -78,7 +81,7 @@ bool NFapi::initSystemXML(const string initXML){
     TiXmlHandle hDoc(doc);
 
     TiXmlElement *  listOfSpecies = hDoc.FirstChildElement().Node()->FirstChildElement("ListOfSpecies");
-    bool result = NFinput::initStartSpecies(listOfSpecies, NFapi::system, NFinput::parameter, NFinput::allowedStates, true);
+    bool result = NFinput::initStartSpecies(listOfSpecies, NFapi::system, NFinput::parameter, NFinput::allowedStates, false);
     NFapi::system->prepareForSimulation();
 
     return result;
@@ -87,7 +90,7 @@ bool NFapi::initSystemXML(const string initXML){
 bool NFapi::initSystemNauty(const std::map<std::string, int> localMap){
 
     bool result = NFinput::initStartSpeciesFromCannonicalLabels(localMap, NFapi::system, 
-                        NFinput::parameter, NFinput::allowedStates, true);
+                        NFinput::parameter, NFinput::allowedStates, false);
 
     NFapi::system->prepareForSimulation();
 
@@ -130,7 +133,6 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
             return false;
         if(!NFapi::initSystemNauty(query.initMap))
             return false;
-
         if(query.options.find("reaction") != query.options.end())
             NFapi::stepSimulation(query.options["reaction"]);
 
@@ -145,7 +147,7 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
                                      vector<string> &labelSet)
 {
     //memoization
-    if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
+    if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
         labelSet = NFapi::mSystemQueryDict[query];
     }
     else{

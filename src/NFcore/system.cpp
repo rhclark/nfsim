@@ -458,7 +458,7 @@ void System::prepareForSimulation()
 {
 	this->selector = new DirectSelector(allReactions);
 
-	cout<<"preparing simulation..."<<endl;
+	//cout<<"preparing simulation..."<<endl;
 	//Note!!  : the order of preparing the system matters!  You have to prepare
 	//some things before others, because certain things require other
 
@@ -554,14 +554,6 @@ void System::prepareForSimulation()
   		}
   	}
   	*/
-
-
-  	//cout<<"here 8..."<<endl;
-
-
-
-
-	//cout<<"here 9..."<<endl;
 
 
 

@@ -109,8 +109,8 @@ System* NFinput::initializeNFSimSystem(
 
 	//Now retrieve the parameters, so they are easy to look up in the future
 	//and save the parameters in a map we call parameter
-	if(!verbose) cout<<"-";
-	else cout<<"\n\tReading parameter list..."<<endl;
+	
+	if(verbose) cout<<"\n\tReading parameter list..."<<endl;
 	
 	if(!initParameters(xmlDataStructures->pListOfParameters, s, parameter, verbose))
 	{
@@ -119,8 +119,8 @@ System* NFinput::initializeNFSimSystem(
 		return NULL;
 	}
 
-	if(!verbose) cout<<"-";
-	else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
+	
+	if(verbose) cout<<"\n\tReading list of MoleculeTypes..."<<endl;
 	
 	if(!initMoleculeTypes(xmlDataStructures->pListOfMoleculeTypes, s, allowedStates, verbose))
 	{
@@ -130,8 +130,8 @@ System* NFinput::initializeNFSimSystem(
 	}
 
 
-	if(!verbose) cout<<"-";
-	else cout<<"\n\tReading list of Species..."<<endl;
+	
+	if(verbose) cout<<"\n\tReading list of Species..."<<endl;
 	if(!initStartSpecies(xmlDataStructures->pListOfSpecies, s, parameter, allowedStates, verbose))
 	{
 		cout<<"\n\nI failed at parsing your species.  Check standard error for a report."<<endl;
@@ -140,8 +140,8 @@ System* NFinput::initializeNFSimSystem(
 	}
 
 
-	if(!verbose) cout<<"-";
-	else cout<<"\n\tReading list of Observables..."<<endl;
+	
+	if(verbose) cout<<"\n\tReading list of Observables..."<<endl;
 	if(!initObservables(xmlDataStructures->pListOfObservables, s, parameter, allowedStates, verbose, suggestedTraversalLimit))
 	{
 		cout<<"\n\nI failed at parsing your observables.  Check standard error for a report."<<endl;
@@ -151,8 +151,7 @@ System* NFinput::initializeNFSimSystem(
 
 
 
-	if(!verbose) cout<<"-";
-	else if(xmlDataStructures->pListOfFunctions) cout<<"\n\tReading list of Functions..."<<endl;
+	if(verbose) if(xmlDataStructures->pListOfFunctions) cout<<"\n\tReading list of Functions..."<<endl;
 	if(xmlDataStructures->pListOfFunctions)
 	{
 		if(!initFunctions(xmlDataStructures->pListOfFunctions, s, parameter, xmlDataStructures->pListOfObservables,allowedStates,verbose)) {
@@ -166,8 +165,8 @@ System* NFinput::initializeNFSimSystem(
 
 	//We have to read reactionRules AFTER observables because sometimes reactions
 	//might depend on some observable...
-	if(!verbose) cout<<"-";
-	else cout<<"\n\tReading list of Reaction Rules..."<<endl;
+	
+	if(verbose) cout<<"\n\tReading list of Reaction Rules..."<<endl;
 
 	if(!initReactionRules(xmlDataStructures->pListOfReactionRules, s, parameter, allowedStates, blockSameComplexBinding, verbose, suggestedTraversalLimit))
 	{
@@ -180,7 +179,7 @@ System* NFinput::initializeNFSimSystem(
 	// Parse is finally over!  Now we just have to take care of some final details.
 
 	//Finish up the output message
-	if(!verbose) cout<<"-]\n";
+	//if(!verbose) cout<<"-]\n";
 
 	//We no longer prepare the simulation here!  You have to do it yourself
 
@@ -743,8 +742,9 @@ void NFinput::transformComplexString(const std::string &label,
     		definitions.clear();
     	}
     	graphIndex++;
-    }
 
+
+    }
 
     strs.clear();
 }
@@ -795,7 +795,7 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 				// Identify the moleculeType if we can (note that this call could potentially kill our code if we can't find the type);
 				MoleculeType *mt = s->getMoleculeTypeByName(molName);
-				if(verbose) cout<<"\t\t\tIncluding Molecule of type: "<<molName<<" with local id: " << molUid<<endl;
+				//if(verbose) cout<<"\t\t\tIncluding Molecule of type: "<<molName<<" with local id: " << molUid<<endl;
 
 				vector <string> usedComponentNames;
 
@@ -806,7 +806,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 					string compName = compIt.name;
 					string compStateValue = compIt.state;
-
 			
 					//First, if the site is symmetric, we have to relabel it correctly...
 					if(mt->isEquivalentComponent(compName)) {
@@ -849,7 +848,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 						usedComponentNames.push_back(compName);
 					}
 
-
 					//If it is a state, treat it as such
 					if(compStateValue != "NO_STATE")
 					{
@@ -868,12 +866,12 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 						}
 					}
 
-
 					//finally, we have to add the b site mapping that will let us later
 					//easily connect binding sites with the molecules involved
 					bSiteSiteMapping[compIt.id] = compName;
 					bSiteMolMapping[compIt.id] = molecules.size();
 				}
+
 
 				//loop to create the actual molecules of this type
 				vector <Molecule *> currentM;
@@ -888,7 +886,7 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 					//Loop through the states and set the ones we need to set
 					int k=0;
 					for(snIter = stateName.begin(); snIter != stateName.end(); k++, snIter++ )
-					{
+					{	
 						mol->setComponentState((*snIter), (int)stateValue.at(k));
 					}
 
@@ -930,6 +928,8 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 			moleculeIndex.clear();
 			componentIndex.clear();
 			bondNumbers.clear();
+			stateName.clear();
+			stateValue.clear();
 
 
 
@@ -2716,9 +2716,9 @@ bool NFinput::initObservables(
 			}
 			else if(observableType.compare("Species")==0) {
 
-				cout<<"\nWarning!! Creating a Species Observable!  NFsim does not keep track of Species"<<endl;
-				cout<<"by default, so this type of observable requires complex bookkeeping to be turned on"<<endl;
-				cout<<"which makes NFsim run slower.  Be sure that you need this observable!\n"<<endl;
+				//cout<<"\nWarning!! Creating a Species Observable!  NFsim does not keep track of Species"<<endl;
+				//cout<<"by default, so this type of observable requires complex bookkeeping to be turned on"<<endl;
+				//cout<<"which makes NFsim run slower.  Be sure that you need this observable!\n"<<endl;
 
 				if(!s->isUsingComplex()) {
 					cerr<<"You have not turned on complex book keeping, so I can not run you simulation"<<endl;

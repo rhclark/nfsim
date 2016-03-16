@@ -431,7 +431,7 @@ void  Complex::generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t,
     ptn[nv-1] = 0;
 
 
-    #if DEBUG_NAUTY==1
+    #if DEBUG_NAUTY==1    
     cout << "lab: ";
     for ( int i = 0; i != nv; ++i )  cout << lab[i] << ",";
     cout << "\nptn: ";
@@ -475,6 +475,7 @@ void  Complex::generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t,
     delete [] ptn;
 
     // sort nodes
+
     std::sort ( nodes.begin(), nodes.end(), Node::less_by_index );
 
 

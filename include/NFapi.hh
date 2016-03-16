@@ -60,7 +60,7 @@ namespace NFapi{
     bool initSystemNauty(const std::map<string, int>);
     //performs  exactly one simulation step
     bool stepSimulation();
-    //performs exactly one simulation step by firying reaction rxn
+    //performs exactly one simulation step by firing reaction rxn
     bool stepSimulation(const string rxn);
 
 
