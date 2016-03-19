@@ -860,7 +860,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 							//State is a valid allowed state, so push it onto our list
 							int stateValueInt = allowedStates.find(molName+"_"+compName+"_"+compStateValue)->second;
-							cout << molName << " " << compName << " "<<compStateValue << " " << stateValueInt << "\n";
 							stateName.push_back(compName);
 							stateValue.push_back(stateValueInt);
 						}
