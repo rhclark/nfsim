@@ -792,7 +792,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 			for(auto molIt: componentList){ 
 				string molName = moleculeIndex[molIt.first];
 				int molUid = molIt.first;
-
 				// Identify the moleculeType if we can (note that this call could potentially kill our code if we can't find the type);
 				MoleculeType *mt = s->getMoleculeTypeByName(molName);
 				//if(verbose) cout<<"\t\t\tIncluding Molecule of type: "<<molName<<" with local id: " << molUid<<endl;
@@ -847,7 +846,7 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 						}
 						usedComponentNames.push_back(compName);
 					}
-
+ 	
 					//If it is a state, treat it as such
 					if(compStateValue != "NO_STATE")
 					{
@@ -861,6 +860,7 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 							//State is a valid allowed state, so push it onto our list
 							int stateValueInt = allowedStates.find(molName+"_"+compName+"_"+compStateValue)->second;
+							cout << molName << " " << compName << " "<<compStateValue << " " << stateValueInt << "\n";
 							stateName.push_back(compName);
 							stateValue.push_back(stateValueInt);
 						}
@@ -892,6 +892,10 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 					molecules.at(molecules.size()-1).push_back(mol);
 				}
+
+				stateName.clear();
+				stateValue.clear();
+
 				
 
 			}
@@ -928,8 +932,6 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 			moleculeIndex.clear();
 			componentIndex.clear();
 			bondNumbers.clear();
-			stateName.clear();
-			stateValue.clear();
 
 
 
