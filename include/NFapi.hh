@@ -54,6 +54,12 @@ namespace NFapi{
     }
 
 
+    //results container
+    struct queryResults{
+        string label;
+        string compartment;
+    };
+
     bool setupNFSim(const char* filename, bool);
     bool resetSystem();
     bool initSystemXML(const string);
@@ -65,7 +71,7 @@ namespace NFapi{
 
 
     void queryByNumReactant(std::map<std::string, vector<map<string,string>>> &, const int);
-    void querySystemStatus(std::string, vector<string> &);
+    void querySystemStatus(std::string, vector<queryResults> &);
     void calculateRxnMembership(System *, std::map<Complex*, vector<ReactionClass*>> &, 
                                             const int);
 
@@ -76,14 +82,16 @@ namespace NFapi{
 
 
     bool initAndQuerySystemStatus(NFapi::numReactantQueryIndex &, 
-                                  vector<std::string> &);
+                                  vector<queryResults> &);
 
 
     bool queryObservables(map<std::string, double> &);
 
+    //information about the model definition
+    Compartment* getCompartmentInformation(const std::string compartmentName);
 
     extern map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
-    extern map<numReactantQueryIndex, vector<std::string>> mSystemQueryDict;
+    extern map<numReactantQueryIndex, vector<queryResults>> mSystemQueryDict;
 
     extern NFinput::XMLFlags xmlflags;
     extern NFinput::XMLStructures* xmlStructures;

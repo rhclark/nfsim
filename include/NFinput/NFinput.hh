@@ -48,6 +48,7 @@ namespace NFinput {
 	struct XMLStructures{
 		string modelName;
 		TiXmlElement *pListOfParameters;
+		TiXmlElement *pListOfCompartments;
 		TiXmlElement *pListOfFunctions;
 		TiXmlElement *pListOfMoleculeTypes;
 		TiXmlElement *pListOfSpecies;
@@ -153,6 +154,16 @@ namespace NFinput {
 			bool verbose);
 
 
+	//! Reads the compartment XML block and puts them in the compartment list.
+	/*!
+    	@author Jose Juan Tapia
+	 */
+	bool initCompartments(
+			TiXmlElement *pListOfCompartments, 
+			System *s, 
+			map <string,double> &parameter, 
+			bool verbose);
+
 	//! Reads the Function XML block and adds the Functions to the system.
 	/*!
 	   	@author Michael Sneddon
@@ -225,6 +236,7 @@ namespace NFinput {
 
 	void transformComplexString(const string &,
 								map<int, vector<componentStruct>> &,
+								map<int, string> &,
 								map<int, string> &,
 								vector<componentStruct> &,
 								vector<pair<int, int >> &bondNumbers);

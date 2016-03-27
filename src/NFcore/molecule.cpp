@@ -310,6 +310,13 @@ bool Molecule::decrementPopulation()
 
 }
 
+void Molecule::setCompartment(string compartment){
+	this->compartment = compartment;
+}
+
+string Molecule::getCompartmentName(){
+	return this->compartment;
+}
 
 void Molecule::setComponentState(int cIndex, int newValue)
 {

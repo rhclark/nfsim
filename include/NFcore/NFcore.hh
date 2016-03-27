@@ -97,6 +97,9 @@ namespace NFcore
 	class Node; /* Node object for creating labeled graphs from NFsim complexes. */
 	class ComplexList;  /* a container class to organize complexes */
 
+	class Compartment;
+	class CompartmentList;
+
 	class ReactantList;
 
 	class ReactionSelector;
@@ -104,6 +107,66 @@ namespace NFcore
 	//convenience data types
 	typedef  pair < Molecule *, int >  node_t;
 	typedef  pair < node_t, Node * >   node_index_t;
+
+
+	//! Basic container class for all compartments in the current model
+	/*
+		Container class for all compartments in an NFSim system
+	*/
+	class CompartmentList
+	{
+		
+		public:
+			CompartmentList() {};
+			~CompartmentList();
+
+			Compartment* getCompartment(string name);
+			bool addCompartment(Compartment*);
+			bool addCompartment(string name, int dimensions, double size, string outside);
+			Compartment* getParent();
+			vector<Compartment*> getChildren();
+
+		protected:
+			map<string, Compartment*> compartmentList;
+
+
+	};
+
+	//! Keeps track of the compartments that can exist
+	/*!
+		Wrapper class that keeps track of a compartments name, 
+		size, dimensionality and hierarchy
+
+		@author Jose Juan Tapia
+	*/
+	class Compartment
+	{
+		public:
+			Compartment(
+				string name,
+				int spatialDimensions,
+				double size): Compartment(name, spatialDimensions, size, "") {};
+
+			Compartment(
+				string name,
+				int spatialDimensions,
+				double size,
+				string outside);
+
+			~Compartment();
+
+			inline string getName() const { return name; };
+			int getSpatialDimensions() const {return spatialDimensions; };
+			double getSize() const {return size; };
+			string getOutside() const {return outside; };
+
+		protected:
+			string name;
+			int spatialDimensions;
+			double size;
+			string outside;
+
+	};
 
 	//!  Container to organize all system complexes.
 	/*!
@@ -378,6 +441,8 @@ namespace NFcore
 	        // NETGEN -- method to access allComplexes
 	        ComplexList & getAllComplexes( )  {  return allComplexes;  };
 
+	        CompartmentList & getAllCompartments() { return allCompartments; };
+
 			/*! keeps track of null events (ie binding events that have
 			    been rejected because molecules are on the same complex)
 			 */
@@ -417,6 +482,8 @@ namespace NFcore
 			vector <Outputter *> allOutputters;    /*!< manages the outputters of the system */
 
 			ComplexList  allComplexes;                /*!< a container to track all complexes in the system */
+
+			CompartmentList allCompartments;		/*!< a contained for all compartments in the system  */
 
 			vector <Observable *> obsToOutput; /*!< keeps ordered list of pointers to observables for output */
 			vector <Observable *> speciesObservables;
@@ -488,6 +555,7 @@ namespace NFcore
 			//vector <Complex *>::iterator complexIter;      /* to iterate over allComplexes */
 			vector <GlobalFunction *>::iterator functionIter; /* to iterate over Global Functions */
 	};
+
 
 
 
@@ -809,6 +877,10 @@ namespace NFcore
 			void setComponentState(int cIndex, int newValue);
 			void setComponentState(string cName, int newValue);
 
+			////////////////////////////////////////////////////////
+			string getCompartmentName();
+			void setCompartment(string compartment);
+
 			///////////// local function methods...
 			void setLocalFunctionValue(double newValue,int localFunctionIndex);
 			double getLocalFunctionValue(int localFunctionIndex);
@@ -966,6 +1038,9 @@ namespace NFcore
 
 			/* store the states and bonds in arrays */
 
+
+			/* associated compartment */
+			string compartment;
 
 			///////////////////////////////////////////////////////////////////
 			/* list of components */
@@ -1205,6 +1280,9 @@ namespace NFcore
 			int getComplexSize() const {return complexMembers.size();};
 			int getMoleculeCountOfType(MoleculeType *m);
 			Molecule * getFirstMolecule() { return complexMembers.front(); };
+
+			//calculates the complex compartment based on the compartment of its individual molecules
+			Compartment* getCompartment();
 
 			void mergeWithList(Complex * c);
 

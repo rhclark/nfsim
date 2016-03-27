@@ -8,12 +8,15 @@ namespace NFapi {
     System* system = nullptr;
     NFinput::XMLFlags xmlflags;
     map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
-    map<numReactantQueryIndex, vector<std::string>> mSystemQueryDict;
+    map<numReactantQueryIndex, vector<queryResults>> mSystemQueryDict;
 }
 
 using namespace boost;
 
-
+Compartment* NFapi::getCompartmentInformation(const std::string compartmentName)
+{
+    return NFapi::system->getAllCompartments().getCompartment(compartmentName);
+};
 //function declarations
 void NFapi::calculateRxnMembership(System *s, 
                                         std::map<Complex*, vector<ReactionClass*>> &molMembership, 
@@ -144,7 +147,7 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
 }
 
 bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query, 
-                                     vector<string> &labelSet)
+                                     vector<queryResults> &labelSet)
 {
     //memoization
     if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
@@ -171,7 +174,7 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
 }
 
 
-void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
+void NFapi::querySystemStatus(std::string printParam, vector<queryResults> &labelSet)
 {
 
     labelSet.clear();
@@ -179,9 +182,15 @@ void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
     if (printParam == "complex")
     {      
         const vector<Complex*> complexList = (NFapi::system->getAllComplexes()).getAllComplexesVector();
+        
         for(auto complex: complexList){
-                if(complex->isAlive())
-                    labelSet.push_back(complex->getCanonicalLabel());
+                
+            if(complex->isAlive()){
+                queryResults results;
+                results.label = complex->getCanonicalLabel();
+                results.compartment = complex->getCompartment()->getName();
+                labelSet.push_back(results);
+            }
         }
         
     }
@@ -189,8 +198,11 @@ void NFapi::querySystemStatus(std::string printParam, vector<string> &labelSet)
     {
         map<string,double> basicMolecules = NFapi::system->getAllObservableCounts();
         for(auto it: basicMolecules){
-            for(int i: irange(0,(int)it.second))
-                labelSet.push_back(it.first);
+            for(int i: irange(0,(int)it.second)){
+                queryResults results;
+                results.label = it.first;
+                labelSet.push_back(results);
+            }
         }
     }
 }

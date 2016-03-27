@@ -29,6 +29,23 @@ bool Complex::isAlive() {
 	return (*complexMembers.begin())->isAlive();
 }
 
+Compartment* Complex::getCompartment()
+{
+    Compartment *compartment = nullptr;
+    Compartment* tmp = nullptr;
+    for(auto mol: complexMembers){
+        tmp = this->system->getAllCompartments().getCompartment(mol->getCompartmentName());
+        if(tmp->getSpatialDimensions() == 2){
+            compartment = tmp;
+        }
+        else if(compartment == nullptr){
+            compartment = tmp;
+        }
+    }
+
+    return compartment;
+}
+
 
 int Complex::getMoleculeCountOfType(MoleculeType *m)
 {
@@ -236,12 +253,17 @@ void Complex::generateCanonicalLabel(){
         labelstream << curr_node->getLabel();
 
         if ( curr_node->isMolecule() )
-        {   // this is a molecule
+
+        {   
+            //attach compartment information
+            labelstream << "@" << mol->getCompartmentName();
+            // this is a molecule
             for (auto icomp_nbh=0; icomp_nbh < moltype->getNumOfComponents(); ++icomp_nbh )
             {
                 node_index_iter = node_index.find( node_t(mol, icomp_nbh) );
                 labelstream << "!" << node_index_iter->second->getIndex();
             }
+
         }
         else
         {   // this is a component

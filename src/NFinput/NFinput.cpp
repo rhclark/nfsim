@@ -72,6 +72,8 @@ XMLStructures* NFinput::loadXMLDataStructures(TiXmlDocument* doc, bool verbose)
 		//Read the key lists needed for the simulation and make sure they exist...
 		xmlstructures->pListOfParameters = pModel->FirstChildElement("ListOfParameters");
 		if(!xmlstructures->pListOfParameters) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; return NULL; }
+		xmlstructures->pListOfCompartments = pModel->FirstChildElement("ListOfCompartments"); 
+		//we do not enforce existence of compartments
 		xmlstructures->pListOfFunctions = pModel->FirstChildElement("ListOfFunctions");
 		//(we do not enforce that functions must exist... yet)  if(!pListOfFunctions) { cout<<"\tNo 'ListOfParameters' tag found.  Quitting."; delete s; return NULL; }
 		xmlstructures->pListOfMoleculeTypes = xmlstructures->pListOfParameters->NextSiblingElement("ListOfMoleculeTypes");
@@ -119,6 +121,16 @@ System* NFinput::initializeNFSimSystem(
 		return NULL;
 	}
 
+	if(verbose) if(xmlDataStructures->pListOfCompartments) cout<<"\n\tReading list of Compartments..."<<endl;
+	if(xmlDataStructures->pListOfCompartments)
+	{
+		if(!initCompartments(xmlDataStructures->pListOfCompartments, s, parameter, verbose)) {
+			cout<<"\n\nI failed at parsing your Compartments.  Check standard error for a report."<<endl;
+			if(s!=NULL) delete s;
+			return NULL;
+		}
+	}
+
 	
 	if(verbose) cout<<"\n\tReading list of MoleculeTypes..."<<endl;
 	
@@ -130,7 +142,7 @@ System* NFinput::initializeNFSimSystem(
 	}
 
 
-	
+
 	if(verbose) cout<<"\n\tReading list of Species..."<<endl;
 	if(!initStartSpecies(xmlDataStructures->pListOfSpecies, s, parameter, allowedStates, verbose))
 	{
@@ -300,14 +312,60 @@ bool NFinput::initParameters(TiXmlElement *pListOfParameters, System *s, map <st
 	return false;
 }
 
+/**
+ * JJT: compartment stuff
+ *
+ *
+**/
+bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map <string,double> &parameter, bool verbose)
+{
+	try {
+		TiXmlElement *pCompartmentElement;
+		for ( pCompartmentElement = pListOfCompartments->FirstChildElement("compartment");
+				pCompartmentElement != 0; pCompartmentElement = pCompartmentElement->NextSiblingElement("compartment"))
+		{
+			string compartmentName = "";
+			int spatialDimensions = 0;
+			double size = 0.0;
+			string outside = "";
+			if(!pCompartmentElement->Attribute("id")) {
+				cerr<<"\t\t!!A Compartment is undefined! It is missing the 'id' attribute!  Quitting.\n";
+				return false;
+			}			
+			else{
+				compartmentName = pCompartmentElement->Attribute("id");
+			}
 
+			if(!pCompartmentElement->Attribute("spatialDimensions")) {
+				cerr<<"\t\t!!A Compartment is undefined! It is missing the 'spatialDimensions' attribute!  Quitting.\n";
+				return false;
+			}
+			else{
+				spatialDimensions = NFutil::convertToInt(pCompartmentElement->Attribute("spatialDimensions"));
+			}
 
+			if(!pCompartmentElement->Attribute("size")){
+				cerr<<"\t\t!!A Compartment is undefined! It is missing the 'size' attribute!  Quitting.\n";
+				return false;
 
+			}
+			else{
+				size = stringToInt(pCompartmentElement->Attribute("size"), compartmentName);
+			}
+			if(pCompartmentElement->Attribute("outside")){
+				outside = pCompartmentElement->Attribute("outside");
+			}
+			s->getAllCompartments().addCompartment(compartmentName, spatialDimensions, size, outside);
+		}
 
+	} catch (...) {
+		cerr<<"Undefined exception thrown while parsing the compartments."<<endl;
+		return false;
 
+	}
+	return true;
 
-
-
+}
 
 
 
@@ -676,6 +734,7 @@ int NFinput::stringToInt(const std::string & specCount, const std::string & spec
 void NFinput::transformComplexString(const std::string &label, 
 									 map<int, vector<componentStruct>> &componentList,
 									 map<int, string> &moleculeIndex,
+									 map<int, string> &moleculeCompartment,
 									 vector<componentStruct> &componentIndex,
 									 vector<pair<int, int>> &bondNumbers)
 {
@@ -736,14 +795,17 @@ void NFinput::transformComplexString(const std::string &label,
     	//else if its a molecule
     	else if(graphEntity.size() > 2){
 			vector<string> definitions;
+			vector<string> moleculeAndCompartment;
     		auto moleculeInfo = graphEntity.substr(2,graphEntity.size());
     		boost::split(definitions,moleculeInfo,boost::is_from_range('!', '!'));
-    		moleculeIndex[graphIndex] = definitions[0];
+    		
+    		boost::split(moleculeAndCompartment,definitions[0],boost::is_from_range('@', '@'));
+    		moleculeIndex[graphIndex] = moleculeAndCompartment[0];
+    		moleculeCompartment[graphIndex] = moleculeAndCompartment[1];
     		definitions.clear();
+    		moleculeAndCompartment.clear();
     	}
     	graphIndex++;
-
-
     }
 
     strs.clear();
@@ -774,7 +836,7 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		map<int, vector<componentStruct>> componentList;
 		//a list containing an id-> molecule name equivalence list
 		map<int, string> moleculeIndex; 
-
+		map<int, string> moleculeCompartment;
 		//stores molecule and component information
 		vector<componentStruct> componentIndex;
 		vector<pair<int, int>> bondNumbers;
@@ -787,10 +849,12 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		//iterate over all complexes
 		for(auto const& it : initMap){
 
-			transformComplexString(it.first, componentList, moleculeIndex, componentIndex, bondNumbers);
+			transformComplexString(it.first, componentList, moleculeIndex, moleculeCompartment, 
+								   componentIndex, bondNumbers);
 			//iterate over all molecules in the complex
 			for(auto molIt: componentList){ 
 				string molName = moleculeIndex[molIt.first];
+				string compartmentName = moleculeCompartment[molIt.first];
 				int molUid = molIt.first;
 				// Identify the moleculeType if we can (note that this call could potentially kill our code if we can't find the type);
 				MoleculeType *mt = s->getMoleculeTypeByName(molName);
@@ -888,7 +952,7 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 					{	
 						mol->setComponentState((*snIter), (int)stateValue.at(k));
 					}
-
+					mol->setCompartment(compartmentName);
 					molecules.at(molecules.size()-1).push_back(mol);
 				}
 
@@ -979,11 +1043,15 @@ bool NFinput::initStartSpecies(
 		{
 			//First get the species name and make sure it exists
 			string speciesName;
+			string speciesCompartment;
 			if(!pSpec->Attribute("id")) {
 				cerr<<"Species tag without a valid 'id' attribute.  Quiting"<<endl;
 				return false;
 			} else {
 				speciesName = pSpec->Attribute("id");
+				speciesCompartment = "";
+				if(pSpec->Attribute("compartment"))
+					speciesCompartment = pSpec->Attribute("compartment");
 			}
 
 
@@ -1045,13 +1113,17 @@ bool NFinput::initStartSpecies(
 				}
 
 				//First get the type of molecule and retrieve the moleculeType object from the system
-				string molName, molUid;
+				string molName, molUid, compartmentName;
 				if(!pMol->Attribute("name") || ! pMol->Attribute("id"))  {
 					cerr<<"!!!Error.  Invalid 'Molecule' tag found when creating species '"<<speciesName<<"'. Quitting"<<endl;
 					return false;
 				} else {
 					molName = pMol->Attribute("name");
 					molUid = pMol->Attribute("id");
+					if(pMol->Attribute("compartment"))
+						compartmentName = pMol->Attribute("compartment");
+					else
+						compartmentName = speciesCompartment;
 				}
 
 				//Skip anything that is null or trash molecule
@@ -1201,6 +1273,10 @@ bool NFinput::initStartSpecies(
 				vector <Molecule *> currentM;
 				molecules.push_back(currentM);
 
+				//set default value for no compartment information
+				if(compartmentName.empty()){
+					compartmentName = "NOCOMPARTMENT";
+				}
 				if ( !found_population )
 				{
 					for(int m=0; m<specCountInteger; m++)
@@ -1223,9 +1299,11 @@ bool NFinput::initStartSpecies(
 								mol->setComponentState((*snIter), (int)stateValue.at(k));
 							//}
 						}
-
+						mol->setCompartment(compartmentName);
 						molecules.at(molecules.size()-1).push_back(mol);
+
 					}
+
 				}
 				// handle population case (only create one instance of this molecule type) --Justin
 				else
@@ -1239,6 +1317,7 @@ bool NFinput::initStartSpecies(
 					for(snIter = stateName.begin(); snIter != stateName.end(); k++, snIter++ )
 						mol->setComponentState((*snIter), (int)stateValue.at(k));
 
+					mol->setCompartment(compartmentName);
 					molecules.at(molecules.size()-1).push_back(mol);
 
 				}
