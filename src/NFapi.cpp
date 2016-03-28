@@ -1,6 +1,7 @@
 #include <NFapi.hh>
 #include <NFinput/NFinput.hh>
 #include <boost/range/irange.hpp>
+#include <NFapiAux.hh>
 
 
 namespace NFapi {
@@ -8,7 +9,7 @@ namespace NFapi {
     System* system = nullptr;
     NFinput::XMLFlags xmlflags;
     map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
-    map<numReactantQueryIndex, vector<queryResults>> mSystemQueryDict;
+    map<numReactantQueryIndex, vector<queryResults*>> mSystemQueryDict;
 }
 
 using namespace boost;
@@ -122,6 +123,39 @@ void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>>>
 
 }
 
+map<string, string> NFapi::extractSpeciesCompartmentFromNauty(const std::string nauty){
+    //temporarily map a molecule idx to its children components
+    map<int, vector<NFinput::componentStruct>> componentList;
+    //a list containing an id-> molecule name equivalence list
+    map<int, string> moleculeIndex; 
+    map<int, string> moleculeCompartment;
+    //stores molecule and component information
+    vector<NFinput::componentStruct> componentIndex;
+    vector<pair<int, int>> bondNumbers;
+
+    map<string, string> speciesCompartmentMap;
+
+    NFinput::transformComplexString(nauty, componentList, moleculeIndex, moleculeCompartment, 
+                           componentIndex, bondNumbers);
+
+    Compartment* finalCompartment = nullptr;
+    for(auto it:moleculeCompartment){
+        auto temp = getCompartmentInformation(it.second);
+
+        if(temp->getSpatialDimensions() == 2){
+            finalCompartment = temp;
+        }
+        else if(finalCompartment == nullptr){
+            finalCompartment = temp;
+        }
+    }
+
+    for(auto it: moleculeIndex){
+        speciesCompartmentMap[it.second] = finalCompartment->getName();
+    }
+    return speciesCompartmentMap;
+}
+
 bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query, 
                                       std::map<std::string, vector<map<string,
                                                      string>>> &structData)
@@ -134,30 +168,43 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
     else{
         if(!NFapi::resetSystem())
             return false;
-        if(!NFapi::initSystemNauty(query.initMap))
+        if(!NFapi::initSystemNauty(query.initMap)){
             return false;
+        }
         if(query.options.find("reaction") != query.options.end())
             NFapi::stepSimulation(query.options["reaction"]);
 
         if(query.options.find("numReactants") != query.options.end())
             NFapi::queryByNumReactant(structData, std::stoi(query.options["numReactants"]));
+
+
+        //store for future use
         NFapi::numReactantQueryDict[query] = structData;
     }
     return true;
 }
 
 bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query, 
-                                     vector<queryResults> &labelSet)
+                                     vector<queryResults*> &labelSet)
 {
     //memoization
     if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
         labelSet = NFapi::mSystemQueryDict[query];
     }
     else{
+        map<string, string> inputCompartments;
         if(!NFapi::resetSystem())
             return false;
         if(!NFapi::initSystemNauty(query.initMap))
+        {
             return false;
+        }
+        // get species comparment info
+        for(auto it:query.initMap){
+            auto newMap = NFapi::extractSpeciesCompartmentFromNauty(it.first);
+            inputCompartments.insert(newMap.begin(), newMap.end());
+        }
+
 
         if(query.options.find("reaction") != query.options.end()){
             NFapi::stepSimulation(query.options["reaction"]);
@@ -165,7 +212,16 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
 
         if(query.options.find("systemQuery") != query.options.end()){
             NFapi::querySystemStatus(query.options["systemQuery"], labelSet);            
+
+            if(query.options["systemQuery"] == "complex"){
+                for(auto it: labelSet){
+                    it->originalCompartment = calculateOriginalCompartment(it->label, inputCompartments);
+                }
+            }
         }
+
+
+        //store for future use
         NFapi::mSystemQueryDict[query] = labelSet;
 
     }
@@ -174,7 +230,7 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
 }
 
 
-void NFapi::querySystemStatus(std::string printParam, vector<queryResults> &labelSet)
+void NFapi::querySystemStatus(std::string printParam, vector<queryResults*> &labelSet)
 {
 
     labelSet.clear();
@@ -186,9 +242,9 @@ void NFapi::querySystemStatus(std::string printParam, vector<queryResults> &labe
         for(auto complex: complexList){
                 
             if(complex->isAlive()){
-                queryResults results;
-                results.label = complex->getCanonicalLabel();
-                results.compartment = complex->getCompartment()->getName();
+                queryResults* results = new queryResults();
+                results->label = complex->getCanonicalLabel();
+                results->compartment = complex->getCompartment()->getName();
                 labelSet.push_back(results);
             }
         }
@@ -199,8 +255,8 @@ void NFapi::querySystemStatus(std::string printParam, vector<queryResults> &labe
         map<string,double> basicMolecules = NFapi::system->getAllObservableCounts();
         for(auto it: basicMolecules){
             for(int i: irange(0,(int)it.second)){
-                queryResults results;
-                results.label = it.first;
+                queryResults* results = new queryResults();
+                results->label = it.first;
                 labelSet.push_back(results);
             }
         }
