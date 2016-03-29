@@ -2,16 +2,14 @@ cmake_minimum_required(VERSION 2.8.9)
 
 project(NFsim)
 
-#find_package(XMLRPC REQUIRED abyss-server c++2)
 
 
-#if (NOT XMLRPC_FOUND) 
-#  message (FATAL_ERROR "XMLRPC-C not found") 
-#endif (NOT XMLRPC_FOUND) 
 
 #set(CMAKE_BUILD_TYPE Release)
-set (CMAKE_C_FLAGS "$CMAKE_C_FLAGS -fPIC")
-set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
+#set (CMAKE_C_FLAGS "$CMAKE_C_FLAGS -fPIC")
+#set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
+
+add_definitions("-fPIC")
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
@@ -46,8 +44,8 @@ set(SUB_DIRS
 )
 
 add_definitions("-Wno-deprecated-declarations")
-#add_definitions(-std=c++11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+add_definitions(-std=c++11)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${SUB_DIRS})
 
