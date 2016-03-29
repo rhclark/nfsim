@@ -123,7 +123,7 @@ void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>>>
 
 }
 
-map<string, string> NFapi::extractSpeciesCompartmentFromNauty(const std::string nauty){
+map<string, string> NFapi::extractSpeciesCompartmentMapFromNauty(const std::string nauty){
     //temporarily map a molecule idx to its children components
     map<int, vector<NFinput::componentStruct>> componentList;
     //a list containing an id-> molecule name equivalence list
@@ -155,6 +155,12 @@ map<string, string> NFapi::extractSpeciesCompartmentFromNauty(const std::string 
     }
     return speciesCompartmentMap;
 }
+
+string NFapi::extractSpeciesCompartmentFromNauty(const std::string nauty){
+    auto compartmentMap = NFapi::extractSpeciesCompartmentMapFromNauty(nauty);
+    return compartmentMap.begin()->second;
+}
+
 
 bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query, 
                                       std::map<std::string, vector<map<string,
@@ -201,7 +207,7 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
         }
         // get species comparment info
         for(auto it:query.initMap){
-            auto newMap = NFapi::extractSpeciesCompartmentFromNauty(it.first);
+            auto newMap = NFapi::extractSpeciesCompartmentMapFromNauty(it.first);
             inputCompartments.insert(newMap.begin(), newMap.end());
         }
 
