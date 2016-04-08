@@ -1678,7 +1678,13 @@ void System::outputAllPropensities(double time, int rxnFired)
 }
 
 
-
+//extended bng-xml setter/getters
+void System::addProperty(string name,string value) {
+	this->propertyList[name]=value;
+}
+string System::getProperty(string name) {
+	return this->propertyList.find(name)->second;
+}
 
 
 

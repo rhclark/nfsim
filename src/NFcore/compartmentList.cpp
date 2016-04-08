@@ -52,3 +52,14 @@ Compartment::Compartment(string name, int spatialDimensions, double size, string
     this->size = size;
     this->outside = outside;
 }
+
+//extended bng-xml setter/getters
+void Compartment::addProperty(string key, string value)
+{
+    this->propertyList[key]=value;
+}
+
+
+string Compartment::getProperty(string key) {
+    return this->propertyList.find(key)->second;
+}

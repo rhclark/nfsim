@@ -104,6 +104,12 @@ namespace NFcore
 
 	class ReactionSelector;
 
+
+	/*part of the bng-xml extension rehaul. Container for an arbitrary property
+	assigned to any object in the bng hierarchy
+	*/
+	class GenericProperty;
+
 	//convenience data types
 	typedef  pair < Molecule *, int >  node_t;
 	typedef  pair < node_t, Node * >   node_index_t;
@@ -159,13 +165,15 @@ namespace NFcore
 			int getSpatialDimensions() const {return spatialDimensions; };
 			double getSize() const {return size; };
 			string getOutside() const {return outside; };
+			void addProperty(string key, string value);
+			string getProperty(string key);
 
 		protected:
 			string name;
 			int spatialDimensions;
 			double size;
 			string outside;
-
+			map<string, string> propertyList;
 	};
 
 	//!  Container to organize all system complexes.
@@ -454,6 +462,9 @@ namespace NFcore
 			*/
 			void turnOnCSVformat() { this->csvFormat = true; };
 
+			//JJT: bng-xml-extended methods
+			void addProperty(string key, string value);
+			string getProperty(string key);
 		protected:
 
 			///////////////////////////////////////////////////////////////////////////
@@ -539,6 +550,9 @@ namespace NFcore
 
 			//Data structure that performs the selection of the next reaction class
 			ReactionSelector * selector;
+
+			//extended property list
+			map<string, string> propertyList;
 
 
 		private:
@@ -769,6 +783,10 @@ namespace NFcore
 
 			void setUpLocalFunctionListForMolecules();
 
+			//bng-xml-extended methods to manage the property list
+			void addProperty(string key, string value);
+			string getProperty(string key);
+
 		protected:
 
 			void init(
@@ -818,6 +836,8 @@ namespace NFcore
 
 			ReactionClass *rxn; /*used so we don't need to redeclare this at every call to updateRxnMembership */
 
+			//new element in bng-xmle
+			map<string, string> propertyList;
 
 
 		private:
@@ -1379,6 +1399,20 @@ namespace NFcore
 	        int         index;
 	};
 
+	/*
+	generic interface for keeping track of all
+	properties assigned to objects
+	*/
+	class GenericProperty{
+		public:
+			GenericProperty(string name, string value);
+			~GenericProperty();
+			virtual void getValue(string&);
+
+		protected:
+			string name;
+			string value;
+	};	
 
 
 }

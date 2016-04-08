@@ -785,5 +785,13 @@ NFstream& operator<<(NFstream& nfstream, const T& value)
     return nfstream;
 }
 
+//extended bng-xml setter/getters
+void MoleculeType::addProperty(string key, string value)
+{
+	this->propertyList[key]=value;
+}
 
 
+string MoleculeType::getProperty(string key) {
+	return this->propertyList.find(key)->second;
+}
