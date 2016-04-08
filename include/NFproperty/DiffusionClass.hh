@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
+#include <map>
 //Include the core NFsim objects
 #include "../NFcore/NFcore.hh"
 
@@ -18,24 +18,24 @@ namespace NFcore{
 
     class DiffusionClass: public GenericProperty{
         public:
-            public DiffusionClassProperty(string key, string value): GenericProperty(key, value);
+            DiffusionClass(string key, string value): GenericProperty(key, value) {};
             virtual void getValue(string& value);
-            virtual double getDiffusion(map<string, double> params);
+            virtual double getDiffusion();
     };
 
-    class ConstantDiffusionProperty:public DiffusionClass{
+    class ConstantDiffusion:public DiffusionClass{
         public:
-            public ConstantDiffusionProperty(string key, string value): DiffusionClass(key, value);
+            ConstantDiffusion(string key, string value): DiffusionClass(key, value) {};
             virtual void getValue(string& value);
-            virtual void getDiffusion(map<string, double params);
+            virtual double getDiffusion();
     };
 
 
-    class EinsteinStokes: public DiffussionClassProperty{
+    class EinsteinStokes: public DiffusionClass{
         public:
-            public EinsteinStokes(string key, string value): DiffusionClass(key, value);
+            EinsteinStokes(string key, string value): DiffusionClass(key, value) {};
             virtual void getValue(string& value);
-            virtual void getDiffusion(map<string, double params);
+            virtual double getDiffusion();
     };
 }
 

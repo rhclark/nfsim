@@ -85,6 +85,8 @@ XMLStructures* NFinput::loadXMLDataStructures(TiXmlDocument* doc, bool verbose)
 		xmlstructures->pListOfObservables = xmlstructures->pListOfReactionRules->NextSiblingElement("ListOfObservables");
 		if(!xmlstructures->pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; return NULL; }
 
+		//kept on a separate tree till we integrate bng-xml v1.1 into the formal spec
+		xmlstructures->pListOfExtendedBNGXML = hDoc.FirstChildElement().Node()->FirstChildElement("bngexperimental");
 		return xmlstructures;
 
 
@@ -185,6 +187,19 @@ System* NFinput::initializeNFSimSystem(
 		cout<<"\n\nI failed at parsing your reaction rules.  Check standard error for a report."<<endl;
 		if(s!=NULL) delete s;
 		return NULL;
+	}
+
+
+	///check for extended-xml stuff. Eventually this stuff should be integrated into the normal checks
+	if(xmlDataStructures->pListOfExtendedBNGXML)
+	{
+		if(!initSystemExtendedProperties(xmlDataStructures->pListOfExtendedBNGXML, s, parameter, verbose))
+		{
+			cout<<"\n\nI failed at partsing your extended properties. We are all doomed. DOOOOOMED. Also, check standard error for a report."<<endl;
+			if(s!=NULL) delete s;
+			return NULL;
+
+		}
 	}
 
 	/////////////////////////////////////////
@@ -367,9 +382,53 @@ bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map
 
 }
 
+/****
+
+Extended bngxml stuff. Portions of this method should be moved to the main parsing sections once we get the list of properties
+spec into bng proper
+
+***/
+
+bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, System* s, map <string,double> &parameter, bool verbose)
+{
+	try {
+		TiXmlElement *pListOfModelProperties = pListOfExtendedBNGXML->FirstChildElement("ListOfProperties");
+		TiXmlElement *property;
+
+		if(pListOfModelProperties){
+			for ( property = pListOfModelProperties->FirstChildElement("Property"); property != 0; property = pListOfModelProperties->NextSiblingElement("Property"))
+			{
+				if(!property->Attribute("id")) {
+				cerr<<"!!!Error:  Model Property tag must contain the id attribute.  Quitting."<<endl;
+				return false;
+				}
+
+				string id = property->Attribute("id");
+
+				if(!property->Attribute("value")) {
+				cerr<<"!!!Error:  Model Property tag must contain the value attribute.  Quitting."<<endl;
+				return false;
+				}
+
+				string value = property->Attribute("value");
+				s->addProperty(id, value);
+			}
+
+		}
+
+		TiXmlElement *pListOfCompartments = pListOfExtendedBNGXML->FirstChildElement("ListOfCompartments");
+		if(pListOfCompartments)
+		{
+
+		}
 
 
+	} catch (...) {
+		cerr<<"Undefined exception thrown while parsing the extended options."<<endl;
+		return false;
 
+	}
+}
 /**
  *
  * The strategy is to look at one MoleculeType at a time, make sure that moleculeType contains

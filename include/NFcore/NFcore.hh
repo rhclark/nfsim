@@ -52,6 +52,8 @@ namespace NFcore
 {
 
 
+
+
 	//Forward declarations to deal with cyclic dependencies
 	class MapGenerator;
 	class MappingSet;
@@ -79,8 +81,15 @@ namespace NFcore
 	 *    header file and are used throughout the NFsim program
 	 */
 
+	class HierarchicalNode; /* all members of the bng graph hierarchy (system, compartment, 
+							 molecule types etc, inheric from this node). right now its just a container
+							 for property stuff*/
+				
 	class System;  /* the system that contains necessary information to set up,
 	                  run, and output results of the simulation */
+
+
+
 
 	class MoleculeType;  /* indicates the "type" of molecule */
 	class Molecule;  /* the actual class that represents instances of a molecule */
