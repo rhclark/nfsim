@@ -251,6 +251,7 @@ void NFapi::querySystemStatus(std::string printParam, vector<queryResults*> &lab
                 queryResults* results = new queryResults();
                 results->label = complex->getCanonicalLabel();
                 results->compartment = complex->getCompartment()->getName();
+                //double diffusion = complex->getProperty("diffusion");
                 labelSet.push_back(results);
             }
         }

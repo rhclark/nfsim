@@ -20,14 +20,17 @@ namespace NFcore{
         public:
             DiffusionClass(string key, string value): GenericProperty(key, value) {};
             virtual void getValue(string& value);
-            virtual double getDiffusion();
+            virtual double getDiffusionValue(Complex*);
+
+        protected:
+            map<string, double> parameters;
     };
 
     class ConstantDiffusion:public DiffusionClass{
         public:
             ConstantDiffusion(string key, string value): DiffusionClass(key, value) {};
             virtual void getValue(string& value);
-            virtual double getDiffusion();
+            virtual double getDiffusionValue(Complex*);
     };
 
 
@@ -35,7 +38,7 @@ namespace NFcore{
         public:
             EinsteinStokes(string key, string value): DiffusionClass(key, value) {};
             virtual void getValue(string& value);
-            virtual double getDiffusion();
+            virtual double getDiffusionValue(Complex*);
     };
 }
 

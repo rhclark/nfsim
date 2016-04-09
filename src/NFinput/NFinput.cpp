@@ -356,7 +356,7 @@ bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map
 				return false;
 			}
 			else{
-				spatialDimensions = NFutil::convertToInt(pCompartmentElement->Attribute("spatialDimensions"));
+				spatialDimensions = stringToInt(pCompartmentElement->Attribute("spatialDimensions"), compartmentName);
 			}
 
 			if(!pCompartmentElement->Attribute("size")){
@@ -365,7 +365,7 @@ bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map
 
 			}
 			else{
-				size = stringToInt(pCompartmentElement->Attribute("size"), compartmentName);
+				size = stringToDouble(pCompartmentElement->Attribute("size"), compartmentName);
 			}
 			if(pCompartmentElement->Attribute("outside")){
 				outside = pCompartmentElement->Attribute("outside");
@@ -388,39 +388,50 @@ Extended bngxml stuff. Portions of this method should be moved to the main parsi
 spec into bng proper
 
 ***/
-
 bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, System* s, map <string,double> &parameter, bool verbose)
 {
 	try {
-		TiXmlElement *pListOfModelProperties = pListOfExtendedBNGXML->FirstChildElement("ListOfProperties");
-		TiXmlElement *property;
-
-		if(pListOfModelProperties){
-			for ( property = pListOfModelProperties->FirstChildElement("Property"); property != 0; property = pListOfModelProperties->NextSiblingElement("Property"))
-			{
-				if(!property->Attribute("id")) {
-				cerr<<"!!!Error:  Model Property tag must contain the id attribute.  Quitting."<<endl;
-				return false;
-				}
-
-				string id = property->Attribute("id");
-
-				if(!property->Attribute("value")) {
-				cerr<<"!!!Error:  Model Property tag must contain the value attribute.  Quitting."<<endl;
-				return false;
-				}
-
-				string value = property->Attribute("value");
-				s->addProperty(id, value);
-			}
-
+		if(!initEntityProperties(pListOfExtendedBNGXML, s, parameter, verbose)){
+			return false;
 		}
 
 		TiXmlElement *pListOfCompartments = pListOfExtendedBNGXML->FirstChildElement("ListOfCompartments");
-		if(pListOfCompartments)
-		{
+		if(pListOfCompartments){
+			Compartment* compartmentStructure;
+			for (auto compartment = pListOfCompartments->FirstChildElement("Compartment"); compartment != 0; compartment = compartment->NextSiblingElement("Compartment"))
+			{
+				if(!compartment->Attribute("id")){
+					cerr<<"compartment is missing id attribute. error"<<endl;
+					return false;
+				}
+				string compartmentName = compartment->Attribute("id");
+				compartmentStructure = s->getAllCompartments().getCompartment(compartmentName);
+				if(!initEntityProperties(compartment, compartmentStructure, parameter, verbose)){
+					return false;
+				}
 
+			}
 		}
+
+		TiXmlElement *pListOfMoleculeTypes = pListOfExtendedBNGXML->FirstChildElement("ListOfMoleculeTypes");
+		if(pListOfMoleculeTypes){
+			MoleculeType* moleculeStructure;
+			for (auto moleculeType = pListOfMoleculeTypes->FirstChildElement("MoleculeType"); moleculeType != 0; moleculeType = moleculeType->NextSiblingElement("MoleculeType"))
+			{
+				if(!moleculeType->Attribute("id")){
+					cerr<<"molecule type is missing id attribute. error"<<endl;
+					return false;
+				}
+				string moleculeName = moleculeType->Attribute("id");
+				moleculeStructure = s->getMoleculeTypeByName(moleculeName);
+				if(!initEntityProperties(moleculeType, moleculeStructure, parameter, verbose)){
+					return false;
+				}
+
+			}	
+		}
+		
+
 
 
 	} catch (...) {
@@ -428,6 +439,45 @@ bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, 
 		return false;
 
 	}
+
+	return true;
+}
+
+bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* entity,
+							  map <string,double> &parameter, bool verbose)
+{
+	TiXmlElement *pListOfModelProperties = pEntityXML->FirstChildElement("ListOfProperties");
+	if(pListOfModelProperties){
+
+		TiXmlElement *property;
+		for ( property = pListOfModelProperties->FirstChildElement("Property"); property != 0; property = property->NextSiblingElement("Property"))
+		{
+			if(!property->Attribute("id")) {
+			cerr<<"!!!Error:  Model Property tag must contain the id attribute.  Quitting."<<endl;
+			return false;
+			}
+
+			string id = property->Attribute("id");
+
+			if(!property->Attribute("value")) {
+			cerr<<"!!!Error:  Model Property tag must contain the value attribute.  Quitting."<<endl;
+			return false;
+			}
+
+			string value = property->Attribute("value");
+			
+
+			if(property->Attribute("type") == string("num")){
+				double numericValue = stringToDouble(value, id);
+				stringstream ss;
+				ss.precision(17);
+				ss << numericValue;
+				value = ss.str();
+			}
+			entity->addProperty(id, new GenericProperty(id, value));
+		}
+	}
+	return true;
 }
 /**
  *
@@ -767,26 +817,39 @@ int NFinput::stringToInt(const std::string & specCount, const std::string & spec
 		// to the nearest whole integer.
 		try {
 			specCountInteger = (int) NFutil::convertToDouble(specCount);
-
 		} catch (std::runtime_error &e1) {
-			// if we cannot get it as an integer, try as a double (for instance, for notation
-			// such as 2e4).  We cast it as an int, which will always round the number down
-			// to the nearest whole integer.
-			try {
-				specCountInteger = (int) NFutil::convertToDouble(specCount);
-			} catch (std::runtime_error &e1) {
-				if(parameter.find(specCount)==parameter.end()) {
-					cerr<<"Could not find parameter: "<<specCount<<" when creating species "<<speciesName<<". Quitting"<<endl;
-					return false;
-				}
-				specCountInteger = (int)parameter.find(specCount)->second;
+			if(parameter.find(specCount)==parameter.end()) {
+				cerr<<"Could not find parameter: "<<specCount<<" when creating species "<<speciesName<<". Quitting"<<endl;
+				return false;
 			}
-
+			specCountInteger = (int)parameter.find(specCount)->second;
 		}
+
+		
 	}
 
 	return specCountInteger;
 
+
+}
+
+double NFinput::stringToDouble(const std::string &doubleNumber, const std::string & parentValue){
+	double result = 0.0;
+
+	try {
+		result = NFutil::convertToDouble(doubleNumber);
+	} catch (std::runtime_error &e1) {
+		if(parameter.find(doubleNumber)==parameter.end()) {
+			cerr<<"Could not find parameter: "<<doubleNumber<<" when extracting for entity "<<parentValue<<". Quitting"<<endl;
+			return false;
+		}
+		result = parameter.find(doubleNumber)->second;
+	}
+
+	
+	
+
+	return result;
 
 }
 

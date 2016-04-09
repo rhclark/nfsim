@@ -27,6 +27,7 @@ System::System(string name)
 	this->useComplex = false;     // NETGEN -- is this needed?
 	// NETGEN
 	allComplexes.setSystem( this );
+	allCompartments.setSystem(this);
 	allComplexes.setUseComplex( false );
 
 	this->outputGlobalFunctionValues=false;
@@ -53,6 +54,7 @@ System::System(string name, bool useComplex)
 	this->useComplex = useComplex;    // NETGEN -- is this needed?
 	// NETGEN
 	allComplexes.setSystem( this );
+	allCompartments.setSystem(this);
 	allComplexes.setUseComplex( useComplex );
 
 	this->outputGlobalFunctionValues=false;
@@ -78,6 +80,7 @@ System::System(string name, bool useComplex, int globalMoleculeLimit)
 	this->useComplex = useComplex;  // NETGEN -- is this needed?
 	// NETGEN
 	allComplexes.setSystem( this );
+	allCompartments.setSystem(this);
 	allComplexes.setUseComplex( useComplex );
 
 	this->globalMoleculeLimit=globalMoleculeLimit;
@@ -1678,15 +1681,6 @@ void System::outputAllPropensities(double time, int rxnFired)
 }
 
 
-//extended bng-xml setter/getters
-void System::addProperty(string name,string value) {
-	this->propertyList[name]=value;
-}
-string System::getProperty(string name) {
-	return this->propertyList.find(name)->second;
-}
-
-
 
 NFstream& System::getOutputFileStream()
 {
@@ -1706,3 +1700,37 @@ NFstream& operator<<(NFstream& nfstream, const T& value)
     return nfstream;
 }
 
+//extended bng-xml setter/getters
+
+HierarchicalNode::HierarchicalNode(HierarchicalNode* parent){
+	this->setContainer(parent);
+}
+
+HierarchicalNode::~HierarchicalNode(){
+	this->propertyList.clear();
+}
+
+void HierarchicalNode::addProperty(string name, GenericProperty* value) {
+	this->propertyList[name]=value;
+}
+
+GenericProperty* HierarchicalNode::getProperty(string name) {
+	auto result = this->propertyList.find(name);
+	if (result != propertyList.end()){
+		return result->second;
+	}
+	if (this->getContainer() != nullptr){
+		return this->getContainer()->getProperty(name);
+	}
+
+	return nullptr;
+
+}
+
+HierarchicalNode* HierarchicalNode::getContainer(){
+	return this->parent;
+}
+
+void HierarchicalNode::setContainer(HierarchicalNode* container){
+	this->parent = container;
+}

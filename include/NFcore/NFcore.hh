@@ -124,6 +124,27 @@ namespace NFcore
 	typedef  pair < node_t, Node * >   node_index_t;
 
 
+	//! Basic class for characterizing and giving a listOfproperties field to all child class
+	/*
+		it also contains information about the container class
+		(right now it's just system contains everything else. eventually this could be made 
+		more complex)
+		@author: JJT
+	*/
+	class HierarchicalNode{
+		public:
+			HierarchicalNode() {};
+			HierarchicalNode(HierarchicalNode* parent);
+			~HierarchicalNode();
+			GenericProperty* getProperty(string key);
+			void addProperty(string key, GenericProperty* value);
+			virtual HierarchicalNode* getContainer();
+			virtual void setContainer(HierarchicalNode*);
+		protected:
+			map<string, GenericProperty*> propertyList;
+			HierarchicalNode* parent = nullptr;
+	};
+
 	//! Basic container class for all compartments in the current model
 	/*
 		Container class for all compartments in an NFSim system
@@ -140,9 +161,11 @@ namespace NFcore
 			bool addCompartment(string name, int dimensions, double size, string outside);
 			Compartment* getParent();
 			vector<Compartment*> getChildren();
+			void setSystem ( System * _sys ) { sys = _sys; }
 
 		protected:
 			map<string, Compartment*> compartmentList;
+			System* sys = nullptr;
 
 
 	};
@@ -154,7 +177,7 @@ namespace NFcore
 
 		@author Jose Juan Tapia
 	*/
-	class Compartment
+	class Compartment: public HierarchicalNode
 	{
 		public:
 			Compartment(
@@ -174,15 +197,12 @@ namespace NFcore
 			int getSpatialDimensions() const {return spatialDimensions; };
 			double getSize() const {return size; };
 			string getOutside() const {return outside; };
-			void addProperty(string key, string value);
-			string getProperty(string key);
 
 		protected:
 			string name;
 			int spatialDimensions;
 			double size;
 			string outside;
-			map<string, string> propertyList;
 	};
 
 	//!  Container to organize all system complexes.
@@ -253,7 +273,7 @@ namespace NFcore
 	   recorded.
 	   @author Michael Sneddon
 	 */
-	class System
+	class System: public HierarchicalNode
 	{
 	
 		// _NETGEN_
@@ -472,8 +492,6 @@ namespace NFcore
 			void turnOnCSVformat() { this->csvFormat = true; };
 
 			//JJT: bng-xml-extended methods
-			void addProperty(string key, string value);
-			string getProperty(string key);
 		protected:
 
 			///////////////////////////////////////////////////////////////////////////
@@ -561,7 +579,6 @@ namespace NFcore
 			ReactionSelector * selector;
 
 			//extended property list
-			map<string, string> propertyList;
 
 
 		private:
@@ -594,7 +611,7 @@ namespace NFcore
 	  of the simulation easier.
 	    @author Michael Sneddon
 	 */
-	class MoleculeType
+	class MoleculeType: public HierarchicalNode
 	{
 		public:
 
@@ -792,9 +809,6 @@ namespace NFcore
 
 			void setUpLocalFunctionListForMolecules();
 
-			//bng-xml-extended methods to manage the property list
-			void addProperty(string key, string value);
-			string getProperty(string key);
 
 		protected:
 
@@ -845,8 +859,6 @@ namespace NFcore
 
 			ReactionClass *rxn; /*used so we don't need to redeclare this at every call to updateRxnMembership */
 
-			//new element in bng-xmle
-			map<string, string> propertyList;
 
 
 		private:
@@ -1297,7 +1309,7 @@ namespace NFcore
 	/*!
 	    @author Michael Sneddon
 	*/
-	class Complex
+	class Complex: public HierarchicalNode
 	{
 		public:
 			Complex(System * s, int ID_complex, Molecule * m);
@@ -1310,8 +1322,10 @@ namespace NFcore
 			int getMoleculeCountOfType(MoleculeType *m);
 			Molecule * getFirstMolecule() { return complexMembers.front(); };
 
-			//calculates the complex compartment based on the compartment of its individual molecules
+			//returns the compartment container
 			Compartment* getCompartment();
+			//calculates the complex compartment based on the compartment of its individual molecules
+			void updateCompartment();
 
 			void mergeWithList(Complex * c);
 
@@ -1351,14 +1365,15 @@ namespace NFcore
 			list <Molecule *>::iterator molIter;
 			void generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t, Node * >  &node_index );
 
-
+			virtual HierarchicalNode* getContainer();
+			
 		protected:
 			// generate a canonical label using Nauty
 			void   generateCanonicalLabel ( );
 
 			System * system;
 			int ID_complex;
-
+			Compartment* compartment;
 			bool    is_canonical;
 			string  canonical_label;
 

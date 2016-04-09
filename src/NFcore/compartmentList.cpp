@@ -32,6 +32,7 @@ Compartment* CompartmentList::getCompartment(string name)
 
 bool CompartmentList::addCompartment(Compartment* compartment)
 {
+    compartment->setContainer(sys);
     compartmentList[compartment->getName()] = compartment;
 
     return true;
@@ -40,6 +41,7 @@ bool CompartmentList::addCompartment(Compartment* compartment)
 bool CompartmentList::addCompartment(string name, int dimensions, double size, string outside)
 {
     Compartment *compartment = new Compartment(name, dimensions, size, outside);
+    compartment->setContainer(sys);
     this->addCompartment(compartment);
 }
 
@@ -53,13 +55,3 @@ Compartment::Compartment(string name, int spatialDimensions, double size, string
     this->outside = outside;
 }
 
-//extended bng-xml setter/getters
-void Compartment::addProperty(string key, string value)
-{
-    this->propertyList[key]=value;
-}
-
-
-string Compartment::getProperty(string key) {
-    return this->propertyList.find(key)->second;
-}
