@@ -126,7 +126,7 @@ if __name__ == "__main__":
     #print tests
     #sys.exit()
     for index in tests:
-        suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 60}))
+        suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index, 'odir': 'basicModels', 'iterations': 30}))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     #print '++++', result, result.failures, result.errors, list(result.errors) == []
     ret = (list(result.failures) == [] and list(result.errors) == [])

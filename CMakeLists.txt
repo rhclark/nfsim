@@ -61,10 +61,10 @@ set(SRC_FILES
 )
 
 
-#add_executable(${PROJECT_NAME} ${SRC_FILES} )
+add_executable(${PROJECT_NAME} ${SRC_FILES} )
 
-add_library(objlib OBJECT ${SRC_FILES})
+#add_library(objlib OBJECT ${SRC_FILES})
 # shared libraries need PIC
-set_property(TARGET ${objlib} PROPERTY POSITION_INDEPENDENT_CODE 1)
-add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:objlib>)
+#set_property(TARGET ${objlib} PROPERTY POSITION_INDEPENDENT_CODE 1)
+#add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:objlib>)
 #add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:objlib>)
