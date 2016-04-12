@@ -118,6 +118,7 @@ namespace NFcore
 	assigned to any object in the bng hierarchy
 	*/
 	class GenericProperty;
+	class PropertyFactory;
 
 	//convenience data types
 	typedef  pair < Molecule *, int >  node_t;
@@ -136,8 +137,10 @@ namespace NFcore
 			HierarchicalNode() {};
 			HierarchicalNode(HierarchicalNode* parent);
 			~HierarchicalNode();
-			GenericProperty* getProperty(string key);
+			virtual GenericProperty* getProperty(string key);
 			void addProperty(string key, GenericProperty* value);
+			void addProperty(GenericProperty* property);
+			map<string, GenericProperty*> getProperties() const {return propertyList;};
 			virtual HierarchicalNode* getContainer();
 			virtual void setContainer(HierarchicalNode*);
 		protected:
@@ -160,7 +163,7 @@ namespace NFcore
 			bool addCompartment(Compartment*);
 			bool addCompartment(string name, int dimensions, double size, string outside);
 			Compartment* getParent();
-			vector<Compartment*> getChildren();
+			void getCompartmentChildren(string, vector<Compartment*> &);
 			void setSystem ( System * _sys ) { sys = _sys; }
 
 		protected:
@@ -880,7 +883,7 @@ namespace NFcore
 	  and delete bonds (bind and unbind).
 	    @author Michael Sneddon
 	 */
-	class Molecule
+	class Molecule: public HierarchicalNode
 	{
 		public:
 
@@ -1324,8 +1327,6 @@ namespace NFcore
 
 			//returns the compartment container
 			Compartment* getCompartment();
-			//calculates the complex compartment based on the compartment of its individual molecules
-			void updateCompartment();
 
 			void mergeWithList(Complex * c);
 
@@ -1365,8 +1366,13 @@ namespace NFcore
 			list <Molecule *>::iterator molIter;
 			void generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t, Node * >  &node_index );
 
+			//methods from the hierarchical/property bng-extension
 			virtual HierarchicalNode* getContainer();
-			
+			//virtual GenericProperty* getProperty(string key);
+
+			//set value of properties that are dependent on the moleculeTypes
+			void updateProperties();
+
 		protected:
 			// generate a canonical label using Nauty
 			void   generateCanonicalLabel ( );
@@ -1426,17 +1432,26 @@ namespace NFcore
 	/*
 	generic interface for keeping track of all
 	properties assigned to objects
+	properties can potentially have properties too (functions, parameters)
 	*/
-	class GenericProperty{
+	class GenericProperty: public HierarchicalNode{
 		public:
 			GenericProperty(string name, string value);
+			GenericProperty(GenericProperty*);
 			~GenericProperty();
 			virtual void getValue(string&);
+			string getValue() const { return value;};
+			string getName() const {return name;};
 
 		protected:
 			string name;
 			string value;
-	};	
+	};
+
+	class PropertyFactory{
+	public:
+		static GenericProperty* getPropertyClass(string key, string value);
+	};
 
 
 }

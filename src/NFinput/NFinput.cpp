@@ -466,7 +466,7 @@ bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* e
 
 			string value = property->Attribute("value");
 			
-
+			//it its a parameter parse it out
 			if(property->Attribute("type") == string("num")){
 				double numericValue = stringToDouble(value, id);
 				stringstream ss;
@@ -474,7 +474,19 @@ bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* e
 				ss << numericValue;
 				value = ss.str();
 			}
-			entity->addProperty(id, new GenericProperty(id, value));
+			//get the proper isntance class (normally a GenericPropery)
+			GenericProperty* newProperty = PropertyFactory::getPropertyClass(id, value);
+			//a property is also a hierarchical element that belongs to its hierarchical parent
+			newProperty->setContainer(entity);
+			//if this property has properties of its own then add them to the local namespace
+			TiXmlElement *localProperties = property->FirstChildElement("ListOfProperties");
+			if(localProperties){
+				initEntityProperties(localProperties, newProperty, parameter, verbose);
+			}
+
+			//finally add this property to its parents
+			entity->addProperty(id, newProperty);
+
 		}
 	}
 	return true;

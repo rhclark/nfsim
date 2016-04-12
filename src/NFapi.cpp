@@ -2,7 +2,7 @@
 #include <NFinput/NFinput.hh>
 #include <boost/range/irange.hpp>
 #include <NFapiAux.hh>
-
+#include <NFproperty.hh>
 
 namespace NFapi {
     NFinput::XMLStructures* xmlStructures = nullptr;
@@ -222,7 +222,6 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
                 for(auto it: labelSet){
                     string origCompartment = calculateOriginalCompartment(it->find("label")->second, inputCompartments);
                     it->insert(pair<string, string>("originalCompartment", origCompartment));
-                    //it->originalCompartment = calculateOriginalCompartment(it->label, inputCompartments);
                 }
             }
         }
@@ -236,6 +235,12 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
 
 }
 
+string doubleToString(double numericValue){
+    stringstream ss;
+    ss.precision(17);
+    ss << numericValue;
+    return ss.str();
+}
 
 void NFapi::querySystemStatus(std::string printParam, vector<map<string, string>*> &labelSet)
 {
@@ -251,8 +256,13 @@ void NFapi::querySystemStatus(std::string printParam, vector<map<string, string>
             if(complex->isAlive()){
                 map<string, string>* results = new map<string,string>;
                 results->insert(pair<string, string>("label", complex->getCanonicalLabel()));
+                complex->getCompartment();
                 results->insert(pair<string, string>("compartment", complex->getCompartment()->getName()));
-                //double diffusion = complex->getProperty("diffusion");
+                DiffusionClass* diffCalculator = dynamic_cast<DiffusionClass*>(complex->getProperty("diffusion_function"));
+                if(diffCalculator){
+                    string value = doubleToString(diffCalculator->getDiffusionValue());
+                    results->insert(pair<string, string>("diffusion_function", value));
+                }
                 labelSet.push_back(results);
             }
         }

@@ -30,6 +30,14 @@ Compartment* CompartmentList::getCompartment(string name)
     return compartmentList.find(name)->second;
 }
 
+void CompartmentList::getCompartmentChildren(string name, vector<Compartment*> &children){
+    for(auto it: compartmentList){
+        if(it.second->getOutside() == name){
+            children.push_back(it.second);
+        }
+    }
+}
+
 bool CompartmentList::addCompartment(Compartment* compartment)
 {
     compartment->setContainer(sys);

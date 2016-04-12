@@ -1714,6 +1714,10 @@ void HierarchicalNode::addProperty(string name, GenericProperty* value) {
 	this->propertyList[name]=value;
 }
 
+void HierarchicalNode::addProperty(GenericProperty* property){
+	HierarchicalNode::addProperty(property->getName(), property);
+}
+
 GenericProperty* HierarchicalNode::getProperty(string name) {
 	auto result = this->propertyList.find(name);
 	if (result != propertyList.end()){
