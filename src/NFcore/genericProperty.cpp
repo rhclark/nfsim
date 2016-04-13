@@ -16,6 +16,10 @@ GenericProperty::GenericProperty(GenericProperty* genericProperty){
     this->propertyList = genericProperty->getProperties();
 }
 
+GenericProperty::~GenericProperty(){
+    this->propertyList.clear();
+}
+
 void GenericProperty::getValue(string& value){
     value = this->value;
 }
