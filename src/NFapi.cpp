@@ -14,7 +14,7 @@ namespace NFapi {
 
 using namespace boost;
 
-Compartment* NFapi::getCompartmentInformation(const std::string compartmentName)
+shared_ptr<Compartment> NFapi::getCompartmentInformation(const std::string compartmentName)
 {
     return NFapi::system->getAllCompartments().getCompartment(compartmentName);
 };
@@ -138,7 +138,7 @@ map<string, string> NFapi::extractSpeciesCompartmentMapFromNauty(const std::stri
     NFinput::transformComplexString(nauty, componentList, moleculeIndex, moleculeCompartment, 
                            componentIndex, bondNumbers);
 
-    Compartment* finalCompartment = nullptr;
+    shared_ptr<Compartment> finalCompartment = nullptr;
     for(auto it:moleculeCompartment){
         auto temp = getCompartmentInformation(it.second);
 
@@ -258,7 +258,7 @@ void NFapi::querySystemStatus(std::string printParam, vector<map<string, string>
                 results->insert(pair<string, string>("label", complex->getCanonicalLabel()));
                 complex->getCompartment();
                 results->insert(pair<string, string>("compartment", complex->getCompartment()->getName()));
-                DiffusionClass* diffCalculator = dynamic_cast<DiffusionClass*>(complex->getProperty("diffusion_function"));
+                shared_ptr<DiffusionClass> diffCalculator = dynamic_pointer_cast<DiffusionClass>(complex->getProperty("diffusion_function"));
                 if(diffCalculator){
                     string value = doubleToString(diffCalculator->getDiffusionValue());
                     results->insert(pair<string, string>("diffusion_function", value));

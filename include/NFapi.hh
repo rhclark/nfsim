@@ -89,7 +89,7 @@ namespace NFapi{
     bool queryObservables(map<std::string, double> &);
 
     //information about the model definition/compartments
-    Compartment* getCompartmentInformation(const std::string compartmentName);
+    shared_ptr<Compartment> getCompartmentInformation(const std::string compartmentName);
     map<string, string> extractSpeciesCompartmentMapFromNauty(const std::string nautyString);
 
     //receives a nauty string, returns the compartment associated to the string

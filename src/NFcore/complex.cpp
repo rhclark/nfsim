@@ -36,16 +36,16 @@ bool Complex::isAlive() {
 	return (*complexMembers.begin())->isAlive();
 }
 
-Compartment* Complex::getCompartment()
+shared_ptr<Compartment> Complex::getCompartment()
 {
     //lazy calculation of a compartment since it is only used sparingly
     this->updateProperties();
-    return (Compartment*) this->compartment;
+    return (shared_ptr<Compartment>) this->compartment;
 }
 
 HierarchicalNode* Complex::getContainer(){
     if(this->getCompartment())
-        this->setContainer(this->getCompartment());
+        this->setContainer(this->getCompartment().get());
     else
         this->setContainer(this->system);
 
@@ -56,8 +56,8 @@ HierarchicalNode* Complex::getContainer(){
 void Complex::updateProperties()
 {
     Molecule* referenceMolecule = nullptr;
-    Compartment* referenceCompartment = nullptr;
-    Compartment* tmp = nullptr;
+    shared_ptr<Compartment> referenceCompartment = nullptr;
+    shared_ptr<Compartment> tmp = nullptr;
     for(auto mol: complexMembers){
         tmp = this->system->getAllCompartments().getCompartment(mol->getCompartmentName());
         if(!tmp)

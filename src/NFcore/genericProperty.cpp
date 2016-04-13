@@ -9,33 +9,30 @@ GenericProperty::GenericProperty(string name, string value){
     this->value = value;
 }
 
-GenericProperty::GenericProperty(GenericProperty* genericProperty){
+GenericProperty::GenericProperty(shared_ptr<GenericProperty> genericProperty){
     this->name = genericProperty->getName();
     this->value = genericProperty->getValue();
     //since a GenericProperty can also be a Hierarchical node...
     this->propertyList = genericProperty->getProperties();
 }
 
-GenericProperty::~GenericProperty(){
-    this->propertyList.clear();
-}
 
 void GenericProperty::getValue(string& value){
     value = this->value;
 }
 
-GenericProperty* PropertyFactory::getPropertyClass(string id, string value){
-    GenericProperty* property;
+shared_ptr<GenericProperty> PropertyFactory::getPropertyClass(string id, string value){
+    shared_ptr<GenericProperty> property;
     if(id == "diffusion_function"){
         if(value == "Einstein_Stokes")
-            property = new EinsteinStokes(id, value);
+            property = std::make_shared<EinsteinStokes>(id, value);
         else if(value =="Saffman_Delbruck")
-            property = new SaffmanDelbruck(id, value);
+            property = std::make_shared<SaffmanDelbruck>(id, value);
         else
-            property = new ConstantDiffusion(id, value);
+            property = std::make_shared<ConstantDiffusion>(id, value);
     }
     else
-        property =  new GenericProperty(id, value);
+        property =  std::make_shared<GenericProperty>(id, value);
 
     return property;
 }

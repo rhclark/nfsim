@@ -35,9 +35,9 @@ double SaffmanDelbruck::getViscositySurroundingVolume(){
     }
     //this might be worth doing in a different way once we have a more complex hierarchy
     System* system = dynamic_cast<System*>(compartment->getContainer());
-    vector<Compartment*> children;
+    vector<shared_ptr<Compartment>> children;
     system->getAllCompartments().getCompartmentChildren(compartment->getName(), children);
-    Compartment* parent = system->getAllCompartments().getCompartment(compartment->getOutside());
+    shared_ptr<Compartment> parent = system->getAllCompartments().getCompartment(compartment->getOutside());
 
     double parentViscosity = NFutil::convertToDouble(parent->getProperty("viscosity")->getValue());
     double childViscosity = NFutil::convertToDouble(children.at(0)->getProperty("viscosity")->getValue());

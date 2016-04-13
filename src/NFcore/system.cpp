@@ -1709,20 +1709,20 @@ HierarchicalNode::HierarchicalNode(HierarchicalNode* parent){
 
 HierarchicalNode::~HierarchicalNode(){
 	for(auto it: propertyList){
-		delete it.second;
+		it.second.reset();
 	}
 	this->propertyList.clear();
-}
+}	
 
-void HierarchicalNode::addProperty(string name, GenericProperty* value) {
+void HierarchicalNode::addProperty(string name, shared_ptr<GenericProperty> value) {
 	this->propertyList[name]=value;
 }
 
-void HierarchicalNode::addProperty(GenericProperty* property){
+void HierarchicalNode::addProperty(shared_ptr<GenericProperty> property){
 	HierarchicalNode::addProperty(property->getName(), property);
 }
 
-GenericProperty* HierarchicalNode::getProperty(string name) {
+shared_ptr<GenericProperty> HierarchicalNode::getProperty(string name) {
 	auto result = this->propertyList.find(name);
 	if (result != propertyList.end()){
 		return result->second;

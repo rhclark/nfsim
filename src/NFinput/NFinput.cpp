@@ -397,7 +397,7 @@ bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, 
 
 		TiXmlElement *pListOfCompartments = pListOfExtendedBNGXML->FirstChildElement("ListOfCompartments");
 		if(pListOfCompartments){
-			Compartment* compartmentStructure;
+			shared_ptr<Compartment> compartmentStructure;
 			for (auto compartment = pListOfCompartments->FirstChildElement("Compartment"); compartment != 0; compartment = compartment->NextSiblingElement("Compartment"))
 			{
 				if(!compartment->Attribute("id")){
@@ -406,7 +406,7 @@ bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, 
 				}
 				string compartmentName = compartment->Attribute("id");
 				compartmentStructure = s->getAllCompartments().getCompartment(compartmentName);
-				if(!initEntityProperties(compartment, compartmentStructure, parameter, verbose)){
+				if(!initEntityProperties(compartment, compartmentStructure.get(), parameter, verbose)){
 					return false;
 				}
 
@@ -475,13 +475,13 @@ bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* e
 				value = ss.str();
 			}
 			//get the proper isntance class (normally a GenericPropery)
-			GenericProperty* newProperty = PropertyFactory::getPropertyClass(id, value);
+			shared_ptr<GenericProperty> newProperty = PropertyFactory::getPropertyClass(id, value);
 			//a property is also a hierarchical element that belongs to its hierarchical parent
 			newProperty->setContainer(entity);
 			//if this property has properties of its own then add them to the local namespace
 			TiXmlElement *localProperties = property->FirstChildElement("ListOfProperties");
 			if(localProperties){
-				initEntityProperties(localProperties, newProperty, parameter, verbose);
+				initEntityProperties(localProperties, newProperty.get(), parameter, verbose);
 			}
 
 			//finally add this property to its parents

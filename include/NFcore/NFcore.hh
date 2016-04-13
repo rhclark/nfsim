@@ -137,14 +137,14 @@ namespace NFcore
 			HierarchicalNode() {};
 			HierarchicalNode(HierarchicalNode* parent);
 			~HierarchicalNode();
-			virtual GenericProperty* getProperty(string key);
-			void addProperty(string key, GenericProperty* value);
-			void addProperty(GenericProperty* property);
-			map<string, GenericProperty*> getProperties() const {return propertyList;};
+			virtual shared_ptr<GenericProperty> getProperty(string key);
+			void addProperty(string key, shared_ptr<GenericProperty> value);
+			void addProperty(shared_ptr<GenericProperty> property);
+			map<string, shared_ptr<GenericProperty>> getProperties() const {return propertyList;};
 			virtual HierarchicalNode* getContainer();
 			virtual void setContainer(HierarchicalNode*);
 		protected:
-			map<string, GenericProperty*> propertyList;
+			map<string, shared_ptr<GenericProperty>> propertyList;
 			HierarchicalNode* parent = nullptr;
 	};
 
@@ -159,15 +159,15 @@ namespace NFcore
 			CompartmentList() {};
 			~CompartmentList();
 
-			Compartment* getCompartment(string name);
-			bool addCompartment(Compartment*);
+			shared_ptr<Compartment> getCompartment(string name);
+			bool addCompartment(shared_ptr<Compartment>);
 			bool addCompartment(string name, int dimensions, double size, string outside);
-			Compartment* getParent();
-			void getCompartmentChildren(string, vector<Compartment*> &);
+			shared_ptr<Compartment> getParent();
+			void getCompartmentChildren(string, vector<shared_ptr<Compartment>> &);
 			void setSystem ( System * _sys ) { sys = _sys; }
 
 		protected:
-			map<string, Compartment*> compartmentList;
+			map<string, shared_ptr<Compartment>> compartmentList;
 			System* sys = nullptr;
 
 
@@ -194,7 +194,7 @@ namespace NFcore
 				double size,
 				string outside);
 
-			~Compartment();
+			~Compartment(){};
 
 			inline string getName() const { return name; };
 			int getSpatialDimensions() const {return spatialDimensions; };
@@ -1326,7 +1326,7 @@ namespace NFcore
 			Molecule * getFirstMolecule() { return complexMembers.front(); };
 
 			//returns the compartment container
-			Compartment* getCompartment();
+			shared_ptr<Compartment> getCompartment();
 
 			void mergeWithList(Complex * c);
 
@@ -1379,7 +1379,7 @@ namespace NFcore
 
 			System * system;
 			int ID_complex;
-			Compartment* compartment;
+			shared_ptr<Compartment> compartment;
 			bool    is_canonical;
 			string  canonical_label;
 
@@ -1437,8 +1437,8 @@ namespace NFcore
 	class GenericProperty: public HierarchicalNode{
 		public:
 			GenericProperty(string name, string value);
-			GenericProperty(GenericProperty*);
-			~GenericProperty();
+			GenericProperty(shared_ptr<GenericProperty>);
+			//~GenericProperty();
 			virtual void getValue(string&);
 			string getValue() const { return value;};
 			string getName() const {return name;};
@@ -1450,7 +1450,7 @@ namespace NFcore
 
 	class PropertyFactory{
 	public:
-		static GenericProperty* getPropertyClass(string key, string value);
+		static shared_ptr<GenericProperty> getPropertyClass(string key, string value);
 	};
 
 
