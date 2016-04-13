@@ -24,12 +24,11 @@ double SaffmanDelbruck::getDiffusionValue(){
 
 
     return kb*t*log((viscosity*width/(rc*surrounding_viscosity))-gamma)/(4*pi*viscosity*width);
-    
-    
-    return 0;
+
 }
 
 double SaffmanDelbruck::getViscositySurroundingVolume(){
+    //property->complex->compartment->system
     Compartment* compartment = dynamic_cast<Compartment*>(this->getContainer()->getContainer());
     if(!compartment){
         return -1.0;

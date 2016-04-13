@@ -61,5 +61,8 @@ Compartment::Compartment(string name, int spatialDimensions, double size, string
     this->spatialDimensions = spatialDimensions;
     this->size = size;
     this->outside = outside;
+
+    //this->addProperty("compartmentName", name);
+    //this->addProperty("compartmentOuside", outside);
 }
 

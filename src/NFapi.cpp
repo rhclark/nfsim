@@ -194,10 +194,10 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
                                      vector<map<string, string>*> &labelSet)
 {
     //memoization
-    if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
-        labelSet = NFapi::mSystemQueryDict[query];
-    }
-    else{
+    //if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
+    //    labelSet = NFapi::mSystemQueryDict[query];
+    //}
+    //else{
         map<string, string> inputCompartments;
         if(!NFapi::resetSystem())
             return false;
@@ -224,11 +224,11 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
                     it->insert(pair<string, string>("originalCompartment", origCompartment));
                 }
             }
-        }
+        //}
 
 
         //store for future use
-        NFapi::mSystemQueryDict[query] = labelSet;
+        //NFapi::mSystemQueryDict[query] = labelSet;
 
     }
     return true;
