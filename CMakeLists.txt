@@ -60,8 +60,9 @@ set(SRC_FILES
     ${c_src_files} 
 )
 
+add_executable(${PROJECT_NAME}_EXE ${SRC_FILES} )
+set_target_properties(${PROJECT_NAME}_EXE PROPERTIES OUTPUT_NAME "NFsim")
 
-#add_executable(${PROJECT_NAME} ${SRC_FILES} )
 
 add_library(objlib OBJECT ${SRC_FILES})
 # shared libraries need PIC
