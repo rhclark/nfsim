@@ -54,6 +54,9 @@ namespace NFinput {
 		TiXmlElement *pListOfSpecies;
 		TiXmlElement *pListOfReactionRules;
 		TiXmlElement *pListOfObservables;
+
+		//this is kept separately till we define a proper structure for BNG-XML v1.1 properties
+		TiXmlElement *pListOfExtendedBNGXML;
 	};
 
 	//! A simple structure containing XML initialization flags
@@ -176,6 +179,21 @@ namespace NFinput {
 		map<string,int> &allowedStates,
 		bool verbose);
 
+
+	//! Reads the compartment XML block and puts them in the compartment list.
+	/*!
+    	@author Jose Juan Tapia
+	 */
+	bool initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, 
+									  System* s, 
+									  map <string,double> &parameter, 
+									  bool verbose);
+
+	bool initEntityProperties(TiXmlElement* pListOfProperties,
+							  HierarchicalNode* node,
+							  map <string,double> &parameter, 
+							  bool verbose);
+
 	//! Reads the MoleculeType XML block and adds the MoleculeTypes to the system.
 	/*!
     	@author Michael Sneddon
@@ -257,6 +275,7 @@ namespace NFinput {
 		@author Michael Sneddon, Jose Juan Tapia
 	*/
 	int stringToInt(const std::string& s, const std::string& );
+	double stringToDouble(const std::string &s, const std::string&);
 
 	//! Reads a reactionRule XML block and adds the rules to the system.
 	/*!

@@ -52,6 +52,8 @@ namespace NFcore
 {
 
 
+
+
 	//Forward declarations to deal with cyclic dependencies
 	class MapGenerator;
 	class MappingSet;
@@ -79,8 +81,15 @@ namespace NFcore
 	 *    header file and are used throughout the NFsim program
 	 */
 
+	class HierarchicalNode; /* all members of the bng graph hierarchy (system, compartment, 
+							 molecule types etc, inheric from this node). right now its just a container
+							 for property stuff*/
+				
 	class System;  /* the system that contains necessary information to set up,
 	                  run, and output results of the simulation */
+
+
+
 
 	class MoleculeType;  /* indicates the "type" of molecule */
 	class Molecule;  /* the actual class that represents instances of a molecule */
@@ -104,10 +113,40 @@ namespace NFcore
 
 	class ReactionSelector;
 
+
+	/*part of the bng-xml extension rehaul. Container for an arbitrary property
+	assigned to any object in the bng hierarchy
+	*/
+	class GenericProperty;
+	class PropertyFactory;
+
 	//convenience data types
 	typedef  pair < Molecule *, int >  node_t;
 	typedef  pair < node_t, Node * >   node_index_t;
 
+
+	//! Basic class for characterizing and giving a listOfproperties field to all child class
+	/*
+		it also contains information about the container class
+		(right now it's just system contains everything else. eventually this could be made 
+		more complex)
+		@author: JJT
+	*/
+	class HierarchicalNode{
+		public:
+			HierarchicalNode() {};
+			HierarchicalNode(HierarchicalNode* parent);
+			~HierarchicalNode();
+			virtual GenericProperty* getProperty(string key);
+			void addProperty(string key, GenericProperty* value);
+			void addProperty(GenericProperty* property);
+			map<string, GenericProperty*> getProperties() const {return propertyList;};
+			virtual HierarchicalNode* getContainer();
+			virtual void setContainer(HierarchicalNode*);
+		protected:
+			map<string, GenericProperty*> propertyList;
+			HierarchicalNode* parent = nullptr;
+	};
 
 	//! Basic container class for all compartments in the current model
 	/*
@@ -124,10 +163,12 @@ namespace NFcore
 			bool addCompartment(Compartment*);
 			bool addCompartment(string name, int dimensions, double size, string outside);
 			Compartment* getParent();
-			vector<Compartment*> getChildren();
+			void getCompartmentChildren(string, vector<Compartment*> &);
+			void setSystem ( System * _sys ) { sys = _sys; }
 
 		protected:
 			map<string, Compartment*> compartmentList;
+			System* sys = nullptr;
 
 
 	};
@@ -139,7 +180,7 @@ namespace NFcore
 
 		@author Jose Juan Tapia
 	*/
-	class Compartment
+	class Compartment: public HierarchicalNode
 	{
 		public:
 			Compartment(
@@ -165,7 +206,6 @@ namespace NFcore
 			int spatialDimensions;
 			double size;
 			string outside;
-
 	};
 
 	//!  Container to organize all system complexes.
@@ -236,7 +276,7 @@ namespace NFcore
 	   recorded.
 	   @author Michael Sneddon
 	 */
-	class System
+	class System: public HierarchicalNode
 	{
 	
 		// _NETGEN_
@@ -454,6 +494,7 @@ namespace NFcore
 			*/
 			void turnOnCSVformat() { this->csvFormat = true; };
 
+			//JJT: bng-xml-extended methods
 		protected:
 
 			///////////////////////////////////////////////////////////////////////////
@@ -540,6 +581,8 @@ namespace NFcore
 			//Data structure that performs the selection of the next reaction class
 			ReactionSelector * selector;
 
+			//extended property list
+
 
 		private:
 			list <Molecule *> molList;
@@ -571,7 +614,7 @@ namespace NFcore
 	  of the simulation easier.
 	    @author Michael Sneddon
 	 */
-	class MoleculeType
+	class MoleculeType: public HierarchicalNode
 	{
 		public:
 
@@ -769,6 +812,7 @@ namespace NFcore
 
 			void setUpLocalFunctionListForMolecules();
 
+
 		protected:
 
 			void init(
@@ -839,7 +883,7 @@ namespace NFcore
 	  and delete bonds (bind and unbind).
 	    @author Michael Sneddon
 	 */
-	class Molecule
+	class Molecule: public HierarchicalNode
 	{
 		public:
 
@@ -1268,7 +1312,7 @@ namespace NFcore
 	/*!
 	    @author Michael Sneddon
 	*/
-	class Complex
+	class Complex: public HierarchicalNode
 	{
 		public:
 			Complex(System * s, int ID_complex, Molecule * m);
@@ -1281,7 +1325,7 @@ namespace NFcore
 			int getMoleculeCountOfType(MoleculeType *m);
 			Molecule * getFirstMolecule() { return complexMembers.front(); };
 
-			//calculates the complex compartment based on the compartment of its individual molecules
+			//returns the compartment container
 			Compartment* getCompartment();
 
 			void mergeWithList(Complex * c);
@@ -1322,6 +1366,12 @@ namespace NFcore
 			list <Molecule *>::iterator molIter;
 			void generateCanonicalLabelArray(vector <Node* > &nodes, map < node_t, Node * >  &node_index );
 
+			//methods from the hierarchical/property bng-extension
+			virtual HierarchicalNode* getContainer();
+			//virtual GenericProperty* getProperty(string key);
+
+			//set value of properties that are dependent on the moleculeTypes
+			void updateProperties();
 
 		protected:
 			// generate a canonical label using Nauty
@@ -1329,7 +1379,7 @@ namespace NFcore
 
 			System * system;
 			int ID_complex;
-
+			Compartment* compartment;
 			bool    is_canonical;
 			string  canonical_label;
 
@@ -1379,6 +1429,29 @@ namespace NFcore
 	        int         index;
 	};
 
+	/*
+	generic interface for keeping track of all
+	properties assigned to objects
+	properties can potentially have properties too (functions, parameters)
+	*/
+	class GenericProperty: public HierarchicalNode{
+		public:
+			GenericProperty(string name, string value);
+			GenericProperty(GenericProperty*);
+			~GenericProperty();
+			virtual void getValue(string&);
+			string getValue() const { return value;};
+			string getName() const {return name;};
+
+		protected:
+			string name;
+			string value;
+	};
+
+	class PropertyFactory{
+	public:
+		static GenericProperty* getPropertyClass(string key, string value);
+	};
 
 
 }

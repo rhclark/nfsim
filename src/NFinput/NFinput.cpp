@@ -85,6 +85,8 @@ XMLStructures* NFinput::loadXMLDataStructures(TiXmlDocument* doc, bool verbose)
 		xmlstructures->pListOfObservables = xmlstructures->pListOfReactionRules->NextSiblingElement("ListOfObservables");
 		if(!xmlstructures->pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; return NULL; }
 
+		//kept on a separate tree till we integrate bng-xml v1.1 into the formal spec
+		xmlstructures->pListOfExtendedBNGXML = hDoc.FirstChildElement().Node()->FirstChildElement("bngexperimental");
 		return xmlstructures;
 
 
@@ -185,6 +187,19 @@ System* NFinput::initializeNFSimSystem(
 		cout<<"\n\nI failed at parsing your reaction rules.  Check standard error for a report."<<endl;
 		if(s!=NULL) delete s;
 		return NULL;
+	}
+
+
+	///check for extended-xml stuff. Eventually this stuff should be integrated into the normal checks
+	if(xmlDataStructures->pListOfExtendedBNGXML)
+	{
+		if(!initSystemExtendedProperties(xmlDataStructures->pListOfExtendedBNGXML, s, parameter, verbose))
+		{
+			cout<<"\n\nI failed at partsing your extended properties. We are all doomed. DOOOOOMED. Also, check standard error for a report."<<endl;
+			if(s!=NULL) delete s;
+			return NULL;
+
+		}
 	}
 
 	/////////////////////////////////////////
@@ -341,7 +356,7 @@ bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map
 				return false;
 			}
 			else{
-				spatialDimensions = NFutil::convertToInt(pCompartmentElement->Attribute("spatialDimensions"));
+				spatialDimensions = stringToInt(pCompartmentElement->Attribute("spatialDimensions"), compartmentName);
 			}
 
 			if(!pCompartmentElement->Attribute("size")){
@@ -350,7 +365,7 @@ bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map
 
 			}
 			else{
-				size = stringToInt(pCompartmentElement->Attribute("size"), compartmentName);
+				size = stringToDouble(pCompartmentElement->Attribute("size"), compartmentName);
 			}
 			if(pCompartmentElement->Attribute("outside")){
 				outside = pCompartmentElement->Attribute("outside");
@@ -367,9 +382,115 @@ bool NFinput::initCompartments(TiXmlElement *pListOfCompartments, System *s, map
 
 }
 
+/****
+
+Extended bngxml stuff. Portions of this method should be moved to the main parsing sections once we get the list of properties
+spec into bng proper
+
+***/
+bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, System* s, map <string,double> &parameter, bool verbose)
+{
+	try {
+		if(!initEntityProperties(pListOfExtendedBNGXML, s, parameter, verbose)){
+			return false;
+		}
+
+		TiXmlElement *pListOfCompartments = pListOfExtendedBNGXML->FirstChildElement("ListOfCompartments");
+		if(pListOfCompartments){
+			Compartment* compartmentStructure;
+			for (auto compartment = pListOfCompartments->FirstChildElement("Compartment"); compartment != 0; compartment = compartment->NextSiblingElement("Compartment"))
+			{
+				if(!compartment->Attribute("id")){
+					cerr<<"compartment is missing id attribute. error"<<endl;
+					return false;
+				}
+				string compartmentName = compartment->Attribute("id");
+				compartmentStructure = s->getAllCompartments().getCompartment(compartmentName);
+				if(!initEntityProperties(compartment, compartmentStructure, parameter, verbose)){
+					return false;
+				}
+
+			}
+		}
+
+		TiXmlElement *pListOfMoleculeTypes = pListOfExtendedBNGXML->FirstChildElement("ListOfMoleculeTypes");
+		if(pListOfMoleculeTypes){
+			MoleculeType* moleculeStructure;
+			for (auto moleculeType = pListOfMoleculeTypes->FirstChildElement("MoleculeType"); moleculeType != 0; moleculeType = moleculeType->NextSiblingElement("MoleculeType"))
+			{
+				if(!moleculeType->Attribute("id")){
+					cerr<<"molecule type is missing id attribute. error"<<endl;
+					return false;
+				}
+				string moleculeName = moleculeType->Attribute("id");
+				moleculeStructure = s->getMoleculeTypeByName(moleculeName);
+				if(!initEntityProperties(moleculeType, moleculeStructure, parameter, verbose)){
+					return false;
+				}
+
+			}	
+		}
+		
 
 
 
+	} catch (...) {
+		cerr<<"Undefined exception thrown while parsing the extended options."<<endl;
+		return false;
+
+	}
+
+	return true;
+}
+
+bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* entity,
+							  map <string,double> &parameter, bool verbose)
+{
+	TiXmlElement *pListOfModelProperties = pEntityXML->FirstChildElement("ListOfProperties");
+	if(pListOfModelProperties){
+
+		TiXmlElement *property;
+		for ( property = pListOfModelProperties->FirstChildElement("Property"); property != 0; property = property->NextSiblingElement("Property"))
+		{
+			if(!property->Attribute("id")) {
+			cerr<<"!!!Error:  Model Property tag must contain the id attribute.  Quitting."<<endl;
+			return false;
+			}
+
+			string id = property->Attribute("id");
+
+			if(!property->Attribute("value")) {
+			cerr<<"!!!Error:  Model Property tag must contain the value attribute.  Quitting."<<endl;
+			return false;
+			}
+
+			string value = property->Attribute("value");
+			
+			//it its a parameter parse it out
+			if(property->Attribute("type") == string("num")){
+				double numericValue = stringToDouble(value, id);
+				stringstream ss;
+				ss.precision(17);
+				ss << numericValue;
+				value = ss.str();
+			}
+			//get the proper isntance class (normally a GenericPropery)
+			GenericProperty* newProperty = PropertyFactory::getPropertyClass(id, value);
+			//a property is also a hierarchical element that belongs to its hierarchical parent
+			newProperty->setContainer(entity);
+			//if this property has properties of its own then add them to the local namespace
+			TiXmlElement *localProperties = property->FirstChildElement("ListOfProperties");
+			if(localProperties){
+				initEntityProperties(localProperties, newProperty, parameter, verbose);
+			}
+
+			//finally add this property to its parents
+			entity->addProperty(id, newProperty);
+
+		}
+	}
+	return true;
+}
 /**
  *
  * The strategy is to look at one MoleculeType at a time, make sure that moleculeType contains
@@ -708,26 +829,39 @@ int NFinput::stringToInt(const std::string & specCount, const std::string & spec
 		// to the nearest whole integer.
 		try {
 			specCountInteger = (int) NFutil::convertToDouble(specCount);
-
 		} catch (std::runtime_error &e1) {
-			// if we cannot get it as an integer, try as a double (for instance, for notation
-			// such as 2e4).  We cast it as an int, which will always round the number down
-			// to the nearest whole integer.
-			try {
-				specCountInteger = (int) NFutil::convertToDouble(specCount);
-			} catch (std::runtime_error &e1) {
-				if(parameter.find(specCount)==parameter.end()) {
-					cerr<<"Could not find parameter: "<<specCount<<" when creating species "<<speciesName<<". Quitting"<<endl;
-					return false;
-				}
-				specCountInteger = (int)parameter.find(specCount)->second;
+			if(parameter.find(specCount)==parameter.end()) {
+				cerr<<"Could not find parameter: "<<specCount<<" when creating species "<<speciesName<<". Quitting"<<endl;
+				return false;
 			}
-
+			specCountInteger = (int)parameter.find(specCount)->second;
 		}
+
+		
 	}
 
 	return specCountInteger;
 
+
+}
+
+double NFinput::stringToDouble(const std::string &doubleNumber, const std::string & parentValue){
+	double result = 0.0;
+
+	try {
+		result = NFutil::convertToDouble(doubleNumber);
+	} catch (std::runtime_error &e1) {
+		if(parameter.find(doubleNumber)==parameter.end()) {
+			cerr<<"Could not find parameter: "<<doubleNumber<<" when extracting for entity "<<parentValue<<". Quitting"<<endl;
+			return false;
+		}
+		result = parameter.find(doubleNumber)->second;
+	}
+
+	
+	
+
+	return result;
 
 }
 

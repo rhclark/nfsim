@@ -56,6 +56,9 @@ Molecule::Molecule(MoleculeType * parentMoleculeType, int listId)
 	ID_unique = Molecule::uniqueIdCount++;
 	this->listId = listId;
 	isAliveInSim = false;
+
+	//set container to this molecule type for property namespace purposes
+	this->setContainer(parentMoleculeType);
 }
 
 // Molecule Deconstructor

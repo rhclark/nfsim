@@ -145,6 +145,8 @@ void MoleculeType::init(
 
 	//Register myself with the system, and get an ID number
 	this->system = system;
+
+	this->setContainer(this->system);
 	this->type_id = this->system->addMoleculeType(this);
 
 
@@ -784,6 +786,4 @@ NFstream& operator<<(NFstream& nfstream, const T& value)
 
     return nfstream;
 }
-
-
 

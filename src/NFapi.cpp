@@ -2,14 +2,14 @@
 #include <NFinput/NFinput.hh>
 #include <boost/range/irange.hpp>
 #include <NFapiAux.hh>
-
+#include <NFproperty.hh>
 
 namespace NFapi {
     NFinput::XMLStructures* xmlStructures = nullptr;
     System* system = nullptr;
     NFinput::XMLFlags xmlflags;
     map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
-    map<numReactantQueryIndex, vector<queryResults*>> mSystemQueryDict;
+    map<numReactantQueryIndex, vector<map<string, string>*>> mSystemQueryDict;
 }
 
 using namespace boost;
@@ -191,13 +191,13 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
 }
 
 bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query, 
-                                     vector<queryResults*> &labelSet)
+                                     vector<map<string, string>*> &labelSet)
 {
     //memoization
-    if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
-        labelSet = NFapi::mSystemQueryDict[query];
-    }
-    else{
+    //if(NFapi::mSystemQueryDict.find(query) != NFapi::mSystemQueryDict.end()){
+    //    labelSet = NFapi::mSystemQueryDict[query];
+    //}
+    //else{
         map<string, string> inputCompartments;
         if(!NFapi::resetSystem())
             return false;
@@ -215,28 +215,34 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
         if(query.options.find("reaction") != query.options.end()){
             NFapi::stepSimulation(query.options["reaction"]);
         }
-
         if(query.options.find("systemQuery") != query.options.end()){
-            NFapi::querySystemStatus(query.options["systemQuery"], labelSet);            
+            NFapi::querySystemStatus(query.options["systemQuery"], labelSet);
 
             if(query.options["systemQuery"] == "complex"){
                 for(auto it: labelSet){
-                    it->originalCompartment = calculateOriginalCompartment(it->label, inputCompartments);
+                    string origCompartment = calculateOriginalCompartment(it->find("label")->second, inputCompartments);
+                    it->insert(pair<string, string>("originalCompartment", origCompartment));
                 }
             }
-        }
+        //}
 
 
         //store for future use
-        NFapi::mSystemQueryDict[query] = labelSet;
+        //NFapi::mSystemQueryDict[query] = labelSet;
 
     }
     return true;
 
 }
 
+string doubleToString(double numericValue){
+    stringstream ss;
+    ss.precision(17);
+    ss << numericValue;
+    return ss.str();
+}
 
-void NFapi::querySystemStatus(std::string printParam, vector<queryResults*> &labelSet)
+void NFapi::querySystemStatus(std::string printParam, vector<map<string, string>*> &labelSet)
 {
 
     labelSet.clear();
@@ -248,9 +254,15 @@ void NFapi::querySystemStatus(std::string printParam, vector<queryResults*> &lab
         for(auto complex: complexList){
                 
             if(complex->isAlive()){
-                queryResults* results = new queryResults();
-                results->label = complex->getCanonicalLabel();
-                results->compartment = complex->getCompartment()->getName();
+                map<string, string>* results = new map<string,string>;
+                results->insert(pair<string, string>("label", complex->getCanonicalLabel()));
+                complex->getCompartment();
+                results->insert(pair<string, string>("compartment", complex->getCompartment()->getName()));
+                DiffusionClass* diffCalculator = dynamic_cast<DiffusionClass*>(complex->getProperty("diffusion_function"));
+                if(diffCalculator){
+                    string value = doubleToString(diffCalculator->getDiffusionValue());
+                    results->insert(pair<string, string>("diffusion_function", value));
+                }
                 labelSet.push_back(results);
             }
         }
@@ -261,8 +273,10 @@ void NFapi::querySystemStatus(std::string printParam, vector<queryResults*> &lab
         map<string,double> basicMolecules = NFapi::system->getAllObservableCounts();
         for(auto it: basicMolecules){
             for(int i: irange(0,(int)it.second)){
-                queryResults* results = new queryResults();
-                results->label = it.first;
+                map<string, string>* results = new map<string,string>;
+                //results["label"] = it.first;
+                results->insert(pair<string, string>("label", it.first));
+
                 labelSet.push_back(results);
             }
         }

@@ -26,6 +26,7 @@ set(SUB_DIRS
     include/NFtest/simple_system 
     include/NFtest/agentcell/cell 
     include/NFtest/agentcell 
+    include/NFproperty
     include/NFscheduler 
     include/NFreactions/transformations 
     include/NFreactions/reactions 
@@ -60,11 +61,10 @@ set(SRC_FILES
 )
 
 
+#add_executable(${PROJECT_NAME} ${SRC_FILES} )
 
 add_library(objlib OBJECT ${SRC_FILES})
 # shared libraries need PIC
 set_property(TARGET ${objlib} PROPERTY POSITION_INDEPENDENT_CODE 1)
-#add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:objlib>)
 add_library(${PROJECT_NAME} SHARED $<TARGET_OBJECTS:objlib>)
-#set_target_properties(${PROJECT_NAME}_shared PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-#add_executable(${PROJECT_NAME} ${SRC_FILES} )
+add_library(${PROJECT_NAME}_static STATIC $<TARGET_OBJECTS:objlib>)

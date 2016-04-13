@@ -18,11 +18,18 @@ Complex::Complex(System * s, int ID_complex, Molecule * m)
 	this->system = s;
 	this->ID_complex = ID_complex;
 	this->complexMembers.push_back(m);
+
+    //this->updateCompartment();
+    //this->setContainer(this->compartment);
+    
+
 }
 
 Complex::~Complex()
 {
 }
+
+
 
 bool Complex::isAlive() {
 	if(complexMembers.size()==0) return false;
@@ -31,19 +38,44 @@ bool Complex::isAlive() {
 
 Compartment* Complex::getCompartment()
 {
-    Compartment *compartment = nullptr;
+    //lazy calculation of a compartment since it is only used sparingly
+    this->updateProperties();
+    return (Compartment*) this->compartment;
+}
+
+HierarchicalNode* Complex::getContainer(){
+    if(this->getCompartment())
+        this->setContainer(this->getCompartment());
+    else
+        this->setContainer(this->system);
+
+    return this->parent;
+}
+
+
+void Complex::updateProperties()
+{
+    Molecule* referenceMolecule = nullptr;
+    Compartment* referenceCompartment = nullptr;
     Compartment* tmp = nullptr;
     for(auto mol: complexMembers){
         tmp = this->system->getAllCompartments().getCompartment(mol->getCompartmentName());
-        if(tmp->getSpatialDimensions() == 2){
-            compartment = tmp;
+        if(!tmp)
+            return;
+        if(tmp->getSpatialDimensions() == 2 || referenceMolecule == nullptr){
+            referenceMolecule = mol;
+            referenceCompartment = tmp;
         }
-        else if(compartment == nullptr){
-            compartment = tmp;
-        }
+
     }
 
-    return compartment;
+    this->compartment = referenceCompartment;
+    auto diffusion = referenceMolecule->getProperty("diffusion_function");
+    if(diffusion){
+        //you have a new parent!
+        diffusion->setContainer(this);
+        this->addProperty(diffusion);
+    }
 }
 
 
@@ -116,6 +148,9 @@ void Complex::refactorToNewComplex(int new_ID_complex)
 {
 	for( molIter = complexMembers.begin(); molIter != complexMembers.end(); molIter++ )
   		(*molIter)->moveToNewComplex(new_ID_complex);
+
+    this->setContainer(nullptr);
+    this->compartment = nullptr;
 }
 
 /* for binding, we want to merge a new complex, c, with our complex, this */
@@ -129,6 +164,9 @@ void Complex::mergeWithList(Complex * c)
 	c->refactorToNewComplex(this->ID_complex);
 	this->complexMembers.splice(complexMembers.end(),c->complexMembers);
 	(system->getAllComplexes()).notifyThatComplexIsAvailable(c->getComplexID());
+
+    //this->updateCompartment();
+    //this->setContainer(this->compartment);
 }
 
 
@@ -196,8 +234,9 @@ void Complex::updateComplexMembership(Molecule * m)
 	//remove all molecules from this that don't have the correct complex id
 	complexMembers.remove_if(IsInWrongComplex(this->ID_complex));
 
-
-
+    //we now belong to this compartment
+    //this->updateCompartment();
+    //this->setContainer(this->compartment);
 	//update new complex in reactions?
 
 	//
