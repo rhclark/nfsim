@@ -152,6 +152,7 @@ System::~System()
 		delete r;
 	}
 
+
 	//Delete all observables of this type that exist
 	Observable *o;
 	while(obsToOutput.size()>0)
@@ -1707,6 +1708,9 @@ HierarchicalNode::HierarchicalNode(HierarchicalNode* parent){
 }
 
 HierarchicalNode::~HierarchicalNode(){
+	for(auto it: propertyList){
+		delete it.second;
+	}
 	this->propertyList.clear();
 }
 
