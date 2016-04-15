@@ -14,7 +14,7 @@ double SaffmanDelbruck::getDiffusionValue(){
     //KB*T*LOG((mu_PM*h/(Rc*(mu_EC+mu_CP)/2))-gamma)/(4*PI*mu_PM*h)
     double kb = NFutil::convertToDouble(this->getProperty("kb")->getValue());
     double t =  NFutil::convertToDouble(this->getProperty("temperature")->getValue());
-    double rc = NFutil::convertToDouble(this->getProperty("rs")->getValue());
+    double rs = NFutil::convertToDouble(this->getProperty("rs")->getValue());
     double gamma = NFutil::convertToDouble(this->getProperty("gamma")->getValue());
     double width = NFutil::convertToDouble(this->getProperty("width")->getValue());
     double viscosity = NFutil::convertToDouble(this->getProperty("viscosity")->getValue());
@@ -22,13 +22,16 @@ double SaffmanDelbruck::getDiffusionValue(){
     double size = 1;
     double pi = 3.141592;
 
+    int complexSize = dynamic_cast<Complex*>(this->getContainer())->getComplexSize();
 
-    return kb*t*log((viscosity*width/(rc*surrounding_viscosity))-gamma)/(4*pi*viscosity*width);
+    return kb*t*log((viscosity*width/(rs*sqrt(complexSize)*surrounding_viscosity))-gamma)/(4*pi*viscosity*width);
 
 }
 
 double SaffmanDelbruck::getViscositySurroundingVolume(){
     //property->complex->compartment->system
+    ///this will not work in a system without compartments.
+    
     Compartment* compartment = dynamic_cast<Compartment*>(this->getContainer()->getContainer());
     if(!compartment){
         return -1.0;

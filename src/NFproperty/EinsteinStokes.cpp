@@ -16,8 +16,9 @@ double EinsteinStokes::getDiffusionValue(){
     double rs = NFutil::convertToDouble(this->getProperty("rs")->getValue());
     double viscosity = NFutil::convertToDouble(this->getProperty("viscosity")->getValue());
     double pi = 3.141592;
+    int complexSize = dynamic_cast<Complex*>(this->getContainer())->getComplexSize();
 
-    return kb*t/(6*pi*viscosity*rs);
+    return kb*t/(6*pi*viscosity*rs*cbrt(complexSize));
     //KB*T/(6*PI*mu_EC*Rs)
     //KB*T*LOG((mu_PM*h/(Rc*(mu_EC+mu_CP)/2))-gamma)/(4*PI*mu_PM*h)
     return 0;
