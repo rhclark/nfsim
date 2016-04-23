@@ -256,6 +256,9 @@ ReactionClass::ReactionClass(string name, double baseRate, string baseRateParame
 			}
 		}
 	}
+
+	//set the system as container for this node
+	this->setContainer(s);
 }
 
 

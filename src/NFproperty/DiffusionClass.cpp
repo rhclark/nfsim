@@ -13,11 +13,12 @@ double DiffusionClass::getDiffusionValue(){
 }
 
 void ConstantDiffusion::getValue(string& value){
-    value = "";
+    value = this->value;
 }
 
 double ConstantDiffusion::getDiffusionValue(){
-    //KB*T/(6*PI*mu_EC*Rs)
-    return 0;
+    return stof(this->value);
 }
+
+
 

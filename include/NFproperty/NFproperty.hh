@@ -7,6 +7,7 @@
 #include <map>
 #include "../NFcore/NFcore.hh"
 
+
 using namespace std;
 
 namespace NFcore{
@@ -20,6 +21,7 @@ namespace NFcore{
             DiffusionClass(string key, string value): GenericProperty(key, value) {};
             virtual void getValue(string& value);
             virtual double getDiffusionValue();
+            virtual shared_ptr<const GenericProperty> getDerivedProperty() const {return nullptr;};
 
         protected:
             map<string, double> parameters;
@@ -30,6 +32,17 @@ namespace NFcore{
             ConstantDiffusion(string key, string value): DiffusionClass(key, value) {};
             virtual void getValue(string& value);
             virtual double getDiffusionValue();
+            virtual shared_ptr<GenericProperty> getDerivedProperty() {
+                return PropertyFactory::getPropertyClass("diffusion_function", "Derived_Diffusion");
+            };
+    };
+
+    class DerivedDiffusion: public DiffusionClass{
+        public:
+            DerivedDiffusion(string key, string value): DiffusionClass(key, value) {};
+            virtual void getValue(string& value);
+            virtual double getDiffusionValue();
+
     };
 
 
@@ -47,6 +60,7 @@ namespace NFcore{
         virtual void getValue(string&);
         double getViscositySurroundingVolume();
     };
+
 
 }
 

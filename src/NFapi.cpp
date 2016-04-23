@@ -8,7 +8,7 @@ namespace NFapi {
     NFinput::XMLStructures* xmlStructures = nullptr;
     System* system = nullptr;
     NFinput::XMLFlags xmlflags;
-    map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
+    map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>*>*>> numReactantQueryDict;
     map<numReactantQueryIndex, vector<map<string, string>*>> mSystemQueryDict;
 }
 
@@ -19,9 +19,8 @@ shared_ptr<Compartment> NFapi::getCompartmentInformation(const std::string compa
     return NFapi::system->getAllCompartments().getCompartment(compartmentName);
 };
 //function declarations
-void NFapi::calculateRxnMembership(System *s, 
-                                        std::map<Complex*, vector<ReactionClass*>> &molMembership, 
-                                        const int numOfReactants)
+void NFapi::calculateRxnMembership(System *s, std::map<Complex*, vector<ReactionClass*>> &molMembership, 
+                                        const int numOfReactants, bool onlyActive)
 {
         Molecule* mol = nullptr;
         Complex* complex = nullptr;
@@ -37,8 +36,8 @@ void NFapi::calculateRxnMembership(System *s,
 
                 //keep only those reactions that match the number of reactants we are interested in
                 rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
-                              [numOfReactants](ReactionClass* p){
-                                return p->getNumOfReactants() != numOfReactants || p->get_a() == 0; 
+                              [numOfReactants, onlyActive](ReactionClass* p){
+                                return p->getNumOfReactants() != numOfReactants || (p->get_a() == 0 && onlyActive); 
                               }), rxnMembership.end() );
 
                 // if there's any reactions we qualify for store that molecule
@@ -102,19 +101,25 @@ bool NFapi::initSystemNauty(const std::map<std::string, int> localMap){
 }
 
 
-void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>>> &structData, const int numOfReactants) {
+
+void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>*>*> &structData, 
+                                const int numOfReactants, const bool onlyActive) {
     std::map<Complex*, vector<ReactionClass*>> molMembership;
-    NFapi::calculateRxnMembership(NFapi::system, molMembership, numOfReactants);
+    NFapi::calculateRxnMembership(NFapi::system, molMembership, numOfReactants, onlyActive);
 
     for(auto cpx: molMembership){
-        vector<map<string,string>> reactions;
+        vector<map<string,string>*>* reactions = new vector<map<string,string>*>;
         if (structData.find(cpx.first->getCanonicalLabel()) == structData.end()){
         for(auto rxn: cpx.second){
-                std::map<std::string, string> localData;
-                localData["rate"] = std::to_string(rxn->getBaseRate());
-                localData["name"] = rxn->getName();
+                //std::map<std::string, string> localData;
+                map<string, string>* localData = new map<string,string>;
+                localData->insert(pair<string, string>("rate", std::to_string(rxn->getBaseRate())));
+                localData->insert(pair<string, string>("name", rxn->getName()));
+                if(rxn->getProperty("reactionDimensionality"))
+                    localData->insert(pair<string, string>("reactionDimensionality",
+                                                           rxn->getProperty("reactionDimensionality")->getValue()));
                 //localData["numPlayers"] = 0;
-                reactions.push_back(localData);
+                reactions->push_back(localData);
             }
             structData[cpx.first->getCanonicalLabel()] = reactions;
         }
@@ -164,7 +169,7 @@ string NFapi::extractSpeciesCompartmentFromNauty(const std::string nauty){
 
 bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query, 
                                       std::map<std::string, vector<map<string,
-                                                     string>>> &structData)
+                                                     string>*>*> &structData)
 {
 
     //memoization
@@ -180,8 +185,12 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
         if(query.options.find("reaction") != query.options.end())
             NFapi::stepSimulation(query.options["reaction"]);
 
+        bool onlyActive = true;
+        if(query.options.find("onlyActive") != query.options.end())
+            onlyActive = query.options["onlyActive"] == "true";
+
         if(query.options.find("numReactants") != query.options.end())
-            NFapi::queryByNumReactant(structData, std::stoi(query.options["numReactants"]));
+            NFapi::queryByNumReactant(structData, std::stoi(query.options["numReactants"]), onlyActive);
 
 
         //store for future use

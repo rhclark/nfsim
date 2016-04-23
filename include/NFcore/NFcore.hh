@@ -10,6 +10,7 @@
 #include <string>
 
 //Include stl containerscl
+#include <memory>
 #include <vector>
 #include <list>
 #include <queue>
@@ -1153,7 +1154,7 @@ namespace NFcore
 	    implementing classes are declared in the file reactions.hh.
 	    @author Michael Sneddon
 	*/
-	class ReactionClass
+	class ReactionClass: public HierarchicalNode
 	{
 		// _NETGEN_
 		friend class MatchSetIter;
@@ -1360,6 +1361,8 @@ namespace NFcore
 			bool isCanonical ( ) const { return is_canonical; };
 			// unset canonical flag
 			void unsetCanonical ( ) { is_canonical = false; };
+			list <Molecule*> getComplexMembers() const {return complexMembers;};
+
 
 			//This is public so that anybody can access the molecules quickly
 			list <Molecule *> complexMembers;
@@ -1434,12 +1437,14 @@ namespace NFcore
 	properties assigned to objects
 	properties can potentially have properties too (functions, parameters)
 	*/
-	class GenericProperty: public HierarchicalNode{
+	class GenericProperty: public HierarchicalNode, public std::enable_shared_from_this<GenericProperty>{
 		public:
 			GenericProperty(string name, string value);
 			GenericProperty(shared_ptr<GenericProperty>);
 			//~GenericProperty();
 			virtual void getValue(string&);
+			virtual shared_ptr<GenericProperty> getDerivedProperty() {return make_shared<GenericProperty>(shared_from_this());};
+
 			string getValue() const { return value;};
 			string getName() const {return name;};
 

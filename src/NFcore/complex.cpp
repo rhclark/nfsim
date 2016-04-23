@@ -73,8 +73,10 @@ void Complex::updateProperties()
     auto diffusion = referenceMolecule->getProperty("diffusion_function");
     if(diffusion){
         //you have a new parent!
-        diffusion->setContainer(this);
-        this->addProperty(diffusion);
+        auto diffusionProperty = diffusion->getDerivedProperty();
+        diffusionProperty->setContainer(this);
+
+        this->addProperty(diffusionProperty);
     }
 }
 

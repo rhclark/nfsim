@@ -14,6 +14,21 @@ namespace NFinput{
 	map<string,int> allowedStates;
 }
 
+map<int,map<int,string>> reactionTypeArray ={
+	{1, {
+			{2, "SURF"},
+			{3, "VOL"}
+		},
+	},
+	{2,	{
+			{4, "SURFSURF"},
+			{5, "VOLSURF"},
+			{6, "VOLVOL"},
+		}
+	}
+};
+
+
 
 component::component(TemplateMolecule *t, string name)
 {
@@ -177,6 +192,22 @@ System* NFinput::initializeNFSimSystem(
 
 
 
+	///check for extended-xml stuff. Eventually this stuff should be integrated into the normal checks
+	//for now we read extended properties before reactions. eventually each section should have 
+	// their own extended properties
+	if(xmlDataStructures->pListOfExtendedBNGXML)
+	{
+		if(!initSystemExtendedProperties(xmlDataStructures->pListOfExtendedBNGXML, s, parameter, verbose))
+		{
+			cout<<"\n\nI failed at partsing your extended properties. We are all doomed. DOOOOOMED. Also, check standard error for a report."<<endl;
+			if(s!=NULL) delete s;
+			return NULL;
+
+		}
+	}
+
+
+
 	//We have to read reactionRules AFTER observables because sometimes reactions
 	//might depend on some observable...
 	
@@ -189,18 +220,6 @@ System* NFinput::initializeNFSimSystem(
 		return NULL;
 	}
 
-
-	///check for extended-xml stuff. Eventually this stuff should be integrated into the normal checks
-	if(xmlDataStructures->pListOfExtendedBNGXML)
-	{
-		if(!initSystemExtendedProperties(xmlDataStructures->pListOfExtendedBNGXML, s, parameter, verbose))
-		{
-			cout<<"\n\nI failed at partsing your extended properties. We are all doomed. DOOOOOMED. Also, check standard error for a report."<<endl;
-			if(s!=NULL) delete s;
-			return NULL;
-
-		}
-	}
 
 	/////////////////////////////////////////
 	// Parse is finally over!  Now we just have to take care of some final details.
@@ -443,6 +462,7 @@ bool NFinput::initSystemExtendedProperties(TiXmlElement* pListOfExtendedBNGXML, 
 	return true;
 }
 
+
 bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* entity,
 							  map <string,double> &parameter, bool verbose)
 {
@@ -474,7 +494,7 @@ bool NFinput::initEntityProperties(TiXmlElement* pEntityXML, HierarchicalNode* e
 				ss << numericValue;
 				value = ss.str();
 			}
-			//get the proper isntance class (normally a GenericPropery)
+			//get the proper isntance class (normally a GenericProperty)
 			shared_ptr<GenericProperty> newProperty = PropertyFactory::getPropertyClass(id, value);
 			//a property is also a hierarchical element that belongs to its hierarchical parent
 			newProperty->setContainer(entity);
@@ -2712,6 +2732,10 @@ bool NFinput::initReactionRules(
 				if(r==0) {
 					cout<<"\n!! Warning!! Unable to create a reaction for some reason!!\n\n"<<endl;
 				} else {
+				
+			    	//eventually we will also pass over the listofproperties field
+					setReactionRuleExtendedProperties(r, reactants);
+					
 					//Finally, add the completed rxn rule to the system
 					s->addReaction(r);
 					r->setTotalRateFlag(totalRateFlag);
@@ -2722,6 +2746,7 @@ bool NFinput::initReactionRules(
 
 		} //end loop through all reaction rules
 
+
 		//If we got here, then by golly, I think we have a new reaction rule
 		return true;
 
@@ -2731,6 +2756,60 @@ bool NFinput::initReactionRules(
 	}
 
 	return false;
+}
+
+bool NFinput::calculateReactionDimensionality(map<string, vector<MoleculeType*>> mtByPattern, int& dimensionality){
+	//get reactant dimensionality information
+	vector<int> reactionDimensionality;
+	for(auto patternList: mtByPattern){
+		bool dimensionalityFlag = false;
+		for(auto moleculeType: patternList.second){
+
+			if(!moleculeType->getProperty("dimensionality")){
+				// if there is no dimensionality information just can the whole thing
+				return false;
+			}
+			if(moleculeType->getProperty("dimensionality")->getValue() == "2"){
+				reactionDimensionality.push_back(2);
+				dimensionalityFlag = true;
+				break;
+			}
+		}
+		if(!dimensionalityFlag)
+			reactionDimensionality.push_back(3);
+	}
+
+	int acc=0;
+	for(auto it: reactionDimensionality)
+		acc+= it;
+	dimensionality = acc;
+	return true;
+}
+
+
+bool NFinput::setReactionRuleExtendedProperties(ReactionClass* rxn, map<string,TemplateMolecule *> reactants){
+	vector<string> identifiers;
+	map<string,vector<MoleculeType*>> mtByPattern;
+
+	//organize templates by reaction and pattern
+	for(auto it: reactants){
+		//get those molecules that belong to the same pattern
+		boost::split(identifiers,it.first,boost::is_from_range('_', '_'));
+		mtByPattern[identifiers[1]].push_back(it.second->getMoleculeType());
+	}
+	int dimensionality;
+	//if each individual reactant has dimensionality information use it to calculate the reaciton dimensionality
+	if(calculateReactionDimensionality(mtByPattern, dimensionality)){
+		string dimensionalityString = reactionTypeArray[rxn->getNumOfReactants()][dimensionality];
+
+		shared_ptr<GenericProperty> newProperty = PropertyFactory::getPropertyClass("reactionDimensionality", dimensionalityString);
+		//a property is also a hierarchical element that belongs to its hierarchical parent
+		newProperty->setContainer(rxn);
+		rxn->addProperty("reactionDimensionality", newProperty);
+	}
+
+	//add other reaction properties later
+
 }
 
 

@@ -290,6 +290,21 @@ namespace NFinput {
 			bool verbose,
 			int &suggestedTraversalLimit);
 
+
+	//! Sets the properties associated to a reaction rule
+	/*!
+		TODO: when the ListOfProperties field is created send it in too as a parameter
+		@author Jose Juan Tapia
+	*/
+	bool setReactionRuleExtendedProperties(ReactionClass*, map<string,TemplateMolecule *>);
+
+	//Sums the dimensionality of individual reactants
+	/*
+		@author Jose Juan Tapia
+	*/
+	bool calculateReactionDimensionality(map<string, vector<MoleculeType*>>, int&);
+
+
 	//! Reads an observable XML block and adds the new observables to the system.
 	/*!
     	@author Michael Sneddon
@@ -421,6 +436,7 @@ namespace NFinput {
 
 	bool readRNFfile(map<string,string> &argMap, vector<string> &commands, bool verbose);
 	bool runRNFcommands(System *s, map<string,string> &argMap, vector<string> &commands, bool verbose);
+
 
 
 	//bool runRNFscript(map<string,string> argMap) {};

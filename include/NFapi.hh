@@ -54,6 +54,8 @@ namespace NFapi{
     }
 
 
+
+
     //results container
     /*struct queryResults{
         string label;
@@ -71,14 +73,14 @@ namespace NFapi{
     bool stepSimulation(const string rxn);
 
 
-    void queryByNumReactant(std::map<std::string, vector<map<string,string>>> &, const int);
+    void queryByNumReactant(std::map<std::string, vector<map<string,string>*>*> &, const int, const bool onlyActive=true);
     void querySystemStatus(std::string, vector<map<string, string>*> &);
     void calculateRxnMembership(System *, std::map<Complex*, vector<ReactionClass*>> &, 
-                                            const int);
+                                            const int, const bool);
 
     //convenience function that calls reset, initializes the system as indicated by the query and queryByNumReactant while performing memoization
     bool initAndQueryByNumReactant(NFapi::numReactantQueryIndex &, 
-                                   std::map<std::string, vector<map<string,string>>> &);
+                                   std::map<std::string, vector<map<string,string>*>*> &);
 
 
 
@@ -95,8 +97,7 @@ namespace NFapi{
     //receives a nauty string, returns the compartment associated to the string
     string extractSpeciesCompartmentFromNauty(const std::string nautyString);
 
-
-    extern map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>>>> numReactantQueryDict;
+    extern map<numReactantQueryIndex, std::map<std::string, vector<map<string,string>*>*>> numReactantQueryDict;
     extern map<numReactantQueryIndex, vector<map<string, string>*>> mSystemQueryDict;
 
     extern NFinput::XMLFlags xmlflags;

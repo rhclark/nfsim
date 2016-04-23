@@ -28,6 +28,8 @@ shared_ptr<GenericProperty> PropertyFactory::getPropertyClass(string id, string 
             property = std::make_shared<EinsteinStokes>(id, value);
         else if(value =="Saffman_Delbruck")
             property = std::make_shared<SaffmanDelbruck>(id, value);
+        else if(value =="Derived_Diffusion")
+            property = std::make_shared<DerivedDiffusion>(id, value);
         else
             property = std::make_shared<ConstantDiffusion>(id, value);
     }
