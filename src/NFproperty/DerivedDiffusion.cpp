@@ -14,7 +14,7 @@ double DerivedDiffusion::getDiffusionValue(){
     //KB*T/(6*PI*mu_EC*Rs)
     vector<double> subunits2D;
     vector<double> subunits3D;
-    double acc;
+    double acc =0;
     Complex* complex = dynamic_cast<Complex*>(this->getContainer());
     for(auto it: complex->getComplexMembers()){
         string dimensionality = "";
@@ -34,7 +34,7 @@ double DerivedDiffusion::getDiffusionValue(){
         acc =  pow(acc,-(0.5));
     }
     else{
-        for(auto it:subunits2D){
+        for(auto it:subunits3D){
             acc += pow(it, -3);
         }
         acc = pow(acc,-(0.3333333333333));
