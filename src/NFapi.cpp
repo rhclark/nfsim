@@ -187,7 +187,7 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
 
         bool onlyActive = true;
         if(query.options.find("onlyActive") != query.options.end())
-            onlyActive = query.options["onlyActive"] == "true";
+            onlyActive = std::stoi(query.options["onlyActive"]) != 0;
 
         if(query.options.find("numReactants") != query.options.end())
             NFapi::queryByNumReactant(structData, std::stoi(query.options["numReactants"]), onlyActive);
