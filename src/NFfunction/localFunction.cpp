@@ -260,12 +260,13 @@ double LocalFunction::getValue(Molecule *m, int scope)
 
 
 	} else {
-		cout<<"Internal error in LocalFunction::evaluateOn()! trying to evaluate a function with unknown scope."<<endl;
+		cout<<"Internal error in LocalFunction::getValue()! trying to evaluate a function with unknown scope."<<endl;
 		exit(1);
 
 	}
 
-	cout<<"Internal error in LocalFunction::evaluateOn()! trying to evaluate a function with unknown scope."<<endl;
+	cout << "----"<<scope<<"\n";
+	cout<<"Internal error in LocalFunction::getValue()! trying to evaluate a function with unknown scope."<<endl;
 	exit(1);
 	return -1;
 

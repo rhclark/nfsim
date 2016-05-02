@@ -18,6 +18,12 @@ shared_ptr<Compartment> NFapi::getCompartmentInformation(const std::string compa
 {
     return NFapi::system->getAllCompartments().getCompartment(compartmentName);
 };
+
+/*
+    checks that it is a reaction that will not produce null events
+*/
+
+
 //function declarations
 void NFapi::calculateRxnMembership(System *s, std::map<Complex*, vector<ReactionClass*>> &molMembership, 
                                         const int numOfReactants, bool onlyActive)
@@ -39,6 +45,11 @@ void NFapi::calculateRxnMembership(System *s, std::map<Complex*, vector<Reaction
                               [numOfReactants, onlyActive](ReactionClass* p){
                                 return p->getNumOfReactants() != numOfReactants || (p->get_a() == 0 && onlyActive); 
                               }), rxnMembership.end() );
+                if(onlyActive)
+                    rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
+                                  [](ReactionClass* p){
+                                    return !p->checkMolecularity(); 
+                                  }), rxnMembership.end() );
 
                 // if there's any reactions we qualify for store that molecule
                 if ((rxnMembership.size()) > 0){
@@ -52,6 +63,7 @@ void NFapi::calculateRxnMembership(System *s, std::map<Complex*, vector<Reaction
         }
 
 }
+
 
 
 bool NFapi::setupNFSim(const char* filename, bool verbose){
@@ -210,6 +222,7 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
         map<string, string> inputCompartments;
         if(!NFapi::resetSystem())
             return false;
+
         if(!NFapi::initSystemNauty(query.initMap))
         {
             return false;
@@ -222,7 +235,9 @@ bool NFapi::initAndQuerySystemStatus(NFapi::numReactantQueryIndex &query,
 
 
         if(query.options.find("reaction") != query.options.end()){
+
             NFapi::stepSimulation(query.options["reaction"]);
+
         }
         if(query.options.find("systemQuery") != query.options.end()){
             NFapi::querySystemStatus(query.options["systemQuery"], labelSet);
@@ -303,8 +318,16 @@ bool NFapi::stepSimulation(const std::string rxnName){
     auto rxn = NFapi::system->getReaction(rxnName);
     //sending a negative number causes the firing function to recalculate the random number used
     //for argument
-    rxn->fire(-1);
-    return 0;
+    int retry = 100;
+    while(!rxn->fire(-1)){
+        if(retry == 0)
+            break;
+        retry--;
+    }
+    //assert(retry != 0);
+    if(retry == 0)
+        return false;
+    return true;
 }
 
 bool NFapi::stepSimulation(){

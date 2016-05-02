@@ -322,8 +322,21 @@ void ReactionClass::printDetails() const {
 	cout<<"\n";
 }
 
+bool ReactionClass::checkMolecularity(){
+    int retry = 10;
+    while(retry > 0){
+        this->pickMappingSets(-1.0);
+        if(transformationSet->checkMolecularity(mappingSet))
+            return true;
+        retry--;
+    }
 
-void ReactionClass::fire(double random_A_number) {
+    return false;
+
+}
+
+
+bool ReactionClass::fire(double random_A_number) {
 	//cout<<endl<<">FIRE "<<getName()<<endl;
 	fireCounter++;
 
@@ -335,7 +348,7 @@ void ReactionClass::fire(double random_A_number) {
 	if ( ! transformationSet->checkMolecularity(mappingSet) ) {
 		// wrong molecularity!  this is a NULL event
 		++(System::NULL_EVENT_COUNTER);
-		return;
+		return false;
 	}
 
 
@@ -560,6 +573,7 @@ void ReactionClass::fire(double random_A_number) {
 	//Tidy up
 	products.clear();
 	productComplexes.clear();
+	return true;
 }
 
 

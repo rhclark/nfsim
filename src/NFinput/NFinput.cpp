@@ -969,7 +969,7 @@ void NFinput::transformComplexString(const std::string &label,
     		std::sort ( componentList[graphIndex].begin(), componentList[graphIndex].end()
     			,[](const shared_ptr<componentStruct> & a, const shared_ptr<componentStruct> & b) -> bool
 					{ 
-					    return a->order < b->order; 
+					    return a->order > b->order; 
 					});
 
     		definitions.clear();

@@ -1187,7 +1187,7 @@ namespace NFcore
 
 			double get_a() const { return a; };
 			virtual void printDetails() const;
-			void fire(double random_A_number);
+			bool fire(double random_A_number);
 
 			//For DOR reactions
 			virtual void notifyRateFactorChange(Molecule * m, int reactantIndex, int rxnListIndex) = 0;
@@ -1226,18 +1226,21 @@ namespace NFcore
 
 			void setTotalRateFlag(bool totalRate) { totalRateFlag = totalRate; };
 
-
+			//exposed for manipulation within NFapi
+			bool checkMolecularity();
 			// _NETGEN_
 			void set_match( vector <MappingSet *> & match_set );
 			void apply( vector <Molecule *> & product_molecules );
+
 			bool tagged;
 
 
 
 		protected:
-			virtual void pickMappingSets(double randNumber) const=0;
+			
 
 			int rxnId;
+			virtual void pickMappingSets(double randNumber) const=0;
 
 			/* if this reaction is tagged, it outputs a message everytime it is fired */
 			
