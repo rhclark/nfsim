@@ -886,10 +886,10 @@ double NFinput::stringToDouble(const std::string &doubleNumber, const std::strin
 }
 
 void NFinput::transformComplexString(const std::string &label, 
-									 map<int, vector<componentStruct>> &componentList,
+									 map<int, vector<shared_ptr<componentStruct>>> &componentList,
 									 map<int, string> &moleculeIndex,
 									 map<int, string> &moleculeCompartment,
-									 vector<componentStruct> &componentIndex,
+									 vector<shared_ptr<componentStruct>> &componentIndex,
 									 vector<pair<int, int>> &bondNumbers)
 {
 
@@ -908,7 +908,7 @@ void NFinput::transformComplexString(const std::string &label,
     {
         //if its a component
     	if (graphEntity[0] == 'c'){
-    		componentStruct component;
+    		auto component = make_shared<componentStruct>();
 	    	
     		auto componentInfo = graphEntity.substr(2,graphEntity.size());
 
@@ -920,14 +920,14 @@ void NFinput::transformComplexString(const std::string &label,
 				//name +state
 				if (index == 0){
 					auto tildeIndex = element.find('~');
-					component.name = element.substr(0,tildeIndex);
-					component.state = element.substr(tildeIndex+1,element.size());
-					component.id = graphIndex;
+					component->name = element.substr(0,tildeIndex);
+					component->state = element.substr(tildeIndex+1,element.size());
+					component->id = graphIndex;
 				}
 				//parent molecule
 				else if(index == 1){
 					parentMoleculeIdx = stoi(element);
-					component.membership = parentMoleculeIdx;
+					component->membership = parentMoleculeIdx;
 					componentList[parentMoleculeIdx].push_back(component);
 
 				}
@@ -956,6 +956,22 @@ void NFinput::transformComplexString(const std::string &label,
     		boost::split(moleculeAndCompartment,definitions[0],boost::is_from_range('@', '@'));
     		moleculeIndex[graphIndex] = moleculeAndCompartment[0];
     		moleculeCompartment[graphIndex] = moleculeAndCompartment[1];
+
+    		for(int i = 1; i < definitions.size(); i++){
+    			for(auto cmp: componentList[graphIndex]){
+    				if(cmp->id == stoi(definitions[i])){
+    					cmp->order = i-1;
+    					break;
+    				}
+    			}
+    		}
+
+    		std::sort ( componentList[graphIndex].begin(), componentList[graphIndex].end()
+    			,[](const shared_ptr<componentStruct> & a, const shared_ptr<componentStruct> & b) -> bool
+					{ 
+					    return a->order < b->order; 
+					});
+
     		definitions.clear();
     		moleculeAndCompartment.clear();
     	}
@@ -987,17 +1003,14 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 		vector<string>::iterator snIter;
 
 		//temporarily map a molecule idx to its children components
-		map<int, vector<componentStruct>> componentList;
+		map<int, vector<shared_ptr<componentStruct>>> componentList;
 		//a list containing an id-> molecule name equivalence list
 		map<int, string> moleculeIndex; 
 		map<int, string> moleculeCompartment;
 		//stores molecule and component information
-		vector<componentStruct> componentIndex;
+		vector<shared_ptr<componentStruct>> componentIndex;
 		vector<pair<int, int>> bondNumbers;
 
-		//more auxiliary structures
-		componentStruct* firstComponent;
-		componentStruct* secondComponent;
 
 
 		//iterate over all complexes
@@ -1021,8 +1034,8 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 						//Get the basic properties of the component
 					string compId,compBondCount;
 
-					string compName = compIt.name;
-					string compStateValue = compIt.state;
+					string compName = compIt->name;
+					string compStateValue = compIt->state;
 			
 					//First, if the site is symmetric, we have to relabel it correctly...
 					if(mt->isEquivalentComponent(compName)) {
@@ -1085,8 +1098,8 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 					//finally, we have to add the b site mapping that will let us later
 					//easily connect binding sites with the molecules involved
-					bSiteSiteMapping[compIt.id] = compName;
-					bSiteMolMapping[compIt.id] = molecules.size();
+					bSiteSiteMapping[compIt->id] = compName;
+					bSiteMolMapping[compIt->id] = molecules.size();
 				}
 
 
@@ -1122,8 +1135,8 @@ bool NFinput::initStartSpeciesFromCannonicalLabels(
 
 
 			for(auto bondInfo: bondNumbers){
-				firstComponent = &componentIndex[bondInfo.first];
-				secondComponent = &componentIndex[bondInfo.second];
+				auto firstComponent = componentIndex[bondInfo.first];
+				auto secondComponent = componentIndex[bondInfo.second];
 				int bSiteMolIndex1 = bSiteMolMapping.find(firstComponent->id)->second;
 				int bSiteMolIndex2 = bSiteMolMapping.find(secondComponent->id)->second;
 				string bSiteCompName1 = bSiteSiteMapping[firstComponent->id];
@@ -2833,7 +2846,7 @@ bool NFinput::readObservableForTemplateMolecules(TiXmlElement *pObs,
 	}
 
 
-	map <string, TemplateMolecule *> templates;
+	//map <string, TemplateMolecule *> templates;
 
 	//Read the pattern for symmetry
 	TiXmlElement *pPattern;

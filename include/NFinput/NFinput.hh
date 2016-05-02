@@ -77,6 +77,7 @@ namespace NFinput {
 		string state;
 		int id;
 		int membership;
+		int order;
 		vector<int> bonds;
 	};
 
@@ -253,10 +254,10 @@ namespace NFinput {
 		bool verbose);
 
 	void transformComplexString(const string &,
-								map<int, vector<componentStruct>> &,
+								map<int, vector<shared_ptr<componentStruct>>> &,
 								map<int, string> &,
 								map<int, string> &,
-								vector<componentStruct> &,
+								vector<shared_ptr<componentStruct>> &,
 								vector<pair<int, int >> &bondNumbers);
 
 	//! Reads a Species XML block, creates the molecules and adds them to the system.

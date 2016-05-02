@@ -5,12 +5,12 @@
 using namespace std;
 
 string calculateOriginalCompartment(string referenceSpecies, map<string, string> originalCompartments){
-    map<int, vector<NFinput::componentStruct>> componentList;
+    map<int, vector<shared_ptr<NFinput::componentStruct>>> componentList;
     //a list containing an id-> molecule name equivalence list
     map<int, string> moleculeIndex; 
     map<int, string> moleculeCompartment;
     //stores molecule and component information
-    vector<NFinput::componentStruct> componentIndex;
+    vector<shared_ptr<NFinput::componentStruct>> componentIndex;
     vector<pair<int, int>> bondNumbers;
 
     map<string, string> speciesCompartmentMap;

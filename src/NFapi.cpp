@@ -130,12 +130,12 @@ void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>*>
 
 map<string, string> NFapi::extractSpeciesCompartmentMapFromNauty(const std::string nauty){
     //temporarily map a molecule idx to its children components
-    map<int, vector<NFinput::componentStruct>> componentList;
+    map<int, vector<shared_ptr<NFinput::componentStruct>>> componentList;
     //a list containing an id-> molecule name equivalence list
     map<int, string> moleculeIndex; 
     map<int, string> moleculeCompartment;
     //stores molecule and component information
-    vector<NFinput::componentStruct> componentIndex;
+    vector<shared_ptr<NFinput::componentStruct>> componentIndex;
     vector<pair<int, int>> bondNumbers;
 
     map<string, string> speciesCompartmentMap;
