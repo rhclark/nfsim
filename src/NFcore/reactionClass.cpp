@@ -323,7 +323,7 @@ void ReactionClass::printDetails() const {
 }
 
 bool ReactionClass::checkMolecularity(){
-    int retry = 10;
+    int retry = 100;
     while(retry > 0){
         this->pickMappingSets(-1.0);
         if(transformationSet->checkMolecularity(mappingSet))
