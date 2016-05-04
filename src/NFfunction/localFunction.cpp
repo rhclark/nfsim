@@ -110,7 +110,7 @@ LocalFunction::LocalFunction(System *s,
 
 	//Identify the type II molecules - those molecules that when changed
 	//cause this function to change
-	vector <TemplateMolecule *> tmList;
+	vector <shared_ptr<TemplateMolecule>> tmList;
 	vector <MoleculeType *> addedMoleculeTypes;
 
 //	cout<<"Now remembering type II molecules..."<<endl;
@@ -119,7 +119,7 @@ LocalFunction::LocalFunction(System *s,
 
 		//Go through each template molecule from each observable, and remember the moleculetypes
 		//that we will need to keep track of
-		TemplateMolecule **tmHeads=0; int n_tmHeads=0;
+		shared_ptr<TemplateMolecule> *tmHeads=0; int n_tmHeads=0;
 		if(varRefScope[i]==-1) {//handle global scopes
 			s->getObservableByName(this->varObservableNames[i])->getTemplateMoleculeList(n_tmHeads,tmHeads);
 			for(int k=0; k<n_tmHeads; k++) {

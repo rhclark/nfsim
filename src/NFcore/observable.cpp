@@ -130,7 +130,7 @@ void Observable::straightSubtract(int n_matches)
 
 
 
-void Observable::getTemplateMoleculeList(int &n_templates, TemplateMolecule **&tmList)
+void Observable::getTemplateMoleculeList(int &n_templates, shared_ptr<TemplateMolecule>*&tmList)
 {
 	n_templates = this->n_templates;
 	tmList = this->templateMolecules;
@@ -166,20 +166,20 @@ void Observable::addDependentRxn(ReactionClass *r)
 
 
 
-MoleculesObservable::MoleculesObservable(string name, TemplateMolecule *tm) :
+MoleculesObservable::MoleculesObservable(string name, shared_ptr<TemplateMolecule> tm) :
 	Observable(name)
 {
 	n_templates=1;
-	templateMolecules = new TemplateMolecule * [n_templates];
+	templateMolecules = new shared_ptr<TemplateMolecule> [n_templates];
 	templateMolecules[0]=tm;
 
 	this->type=Observable::MOLECULES;
 }
-MoleculesObservable::MoleculesObservable(string name, vector <TemplateMolecule *> &tmList) :
+MoleculesObservable::MoleculesObservable(string name, vector <shared_ptr<TemplateMolecule>> &tmList) :
 	Observable(name)
 {
 	n_templates=tmList.size();
-	templateMolecules = new TemplateMolecule * [n_templates];
+	templateMolecules = new shared_ptr<TemplateMolecule> [n_templates];
 	for(int t=0; t<n_templates; t++) {
 		templateMolecules[t] = tmList.at(t);
 	}
@@ -214,7 +214,7 @@ MoleculesObservable::~MoleculesObservable()
 //add that again to this observable, if there are any.  This is the behaviour, because
 //observables are generally only cloned in this way for local functions
 Observable * MoleculesObservable::clone() {
-	vector <TemplateMolecule *> tmList;
+	vector <shared_ptr<TemplateMolecule>> tmList;
 	for(int t=0; t<n_templates; t++)
 		tmList.push_back(templateMolecules[t]);
 	return new MoleculesObservable(obsName+"_clone",tmList);
@@ -261,11 +261,11 @@ int MoleculesObservable::isObservable(Complex *c) const
 ///////////////////////////////////////////////////////////////////
 
 
-SpeciesObservable::SpeciesObservable(string name, vector <TemplateMolecule *> &tmList, vector <string> &stochRelation, vector <int> &stochQuantity) :
+SpeciesObservable::SpeciesObservable(string name, vector <shared_ptr<TemplateMolecule>> &tmList, vector <string> &stochRelation, vector <int> &stochQuantity) :
 	Observable(name)
 {
 	n_templates=tmList.size();
-	templateMolecules = new TemplateMolecule * [n_templates];
+	templateMolecules = new shared_ptr<TemplateMolecule> [n_templates];
 	for(int t=0; t<n_templates; t++) {
 		templateMolecules[t] = tmList.at(t);
 	}
@@ -322,7 +322,7 @@ SpeciesObservable::~SpeciesObservable()
 //add that again to this observable, if there are any.  This is the behaviour, because
 //observables are generally only cloned in this way for local functions
 Observable * SpeciesObservable::clone() {
-	vector <TemplateMolecule *> tmList;
+	vector <shared_ptr<TemplateMolecule>> tmList;
 	cout<<"in clone species observable, this is not yet updated to handle stoch observables.  fix me."<<endl;
 	exit(1);
 	for(int t=0; t<n_templates; t++)

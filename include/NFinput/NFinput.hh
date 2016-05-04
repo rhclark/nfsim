@@ -117,11 +117,11 @@ namespace NFinput {
 	 */
 	class component {
 		public:
-			component(TemplateMolecule *t, string name);
+			component(weak_ptr<TemplateMolecule> t, string name);
 			component(MoleculeType *mt, string name);
 			~component();
 
-			TemplateMolecule * t;
+			weak_ptr<TemplateMolecule> t;
 			MoleculeType *mt;
 			string name;
 			string uniqueId;
@@ -235,7 +235,7 @@ namespace NFinput {
 	bool readObservableForTemplateMolecules(
 			TiXmlElement *pObs,
 			string observableName,
-			vector <TemplateMolecule *> &tmList,
+			vector <shared_ptr<TemplateMolecule>> &tmList,
 			vector <string> &stochRelation,
 			vector <int> &stochQuantity,
 			System *s,
@@ -297,7 +297,7 @@ namespace NFinput {
 		TODO: when the ListOfProperties field is created send it in too as a parameter
 		@author Jose Juan Tapia
 	*/
-	bool setReactionRuleExtendedProperties(ReactionClass*, map<string,TemplateMolecule *>);
+	bool setReactionRuleExtendedProperties(ReactionClass*, map<string,weak_ptr<TemplateMolecule>>);
 
 	//Sums the dimensionality of individual reactants
 	/*
@@ -323,12 +323,12 @@ namespace NFinput {
 	/*!
     	@author Michael Sneddon
 	 */
-	TemplateMolecule *readPattern(
+	shared_ptr<TemplateMolecule> readPattern(
 			TiXmlElement * pListOfMol,
 			System * s, map <string,double> &parameter,
 			map<string,int> &allowedStates,
 			string patternName,
-			map <string, TemplateMolecule *> &templates,
+			map <string, weak_ptr<TemplateMolecule>> &templates,
 			map <string, component> &comps,
 			map <string, component> &symMap,
 			bool verbose,

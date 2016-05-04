@@ -748,7 +748,7 @@ namespace NFcore
 			void addReactionClass(ReactionClass * r, int rPosition);
 			void addMolObs(MoleculesObservable * mo) { molObs.push_back(mo); }; //could add check here to make sure observable is of this type
 			int createComplex(Molecule *m) { return (system->getAllComplexes()).createComplex(m); };
-			void addTemplateMolecule(TemplateMolecule *t);
+			void addTemplateMolecule(shared_ptr<TemplateMolecule> t);
 
 			/* handle DOR reactions */
 			//void addDORrxnClass(ReactionClass * r, int rPosition);
@@ -858,7 +858,7 @@ namespace NFcore
 
 			vector <MoleculesObservable *> molObs;  /* list of things to keep track of */
 
-			vector <TemplateMolecule *> allTemplates; /* keep track of all templates that exist of this type
+			vector <shared_ptr<TemplateMolecule>> allTemplates; /* keep track of all templates that exist of this type
 															so that they are easy to delete from memory at the end */
 
 			ReactionClass *rxn; /*used so we don't need to redeclare this at every call to updateRxnMembership */
@@ -1035,7 +1035,7 @@ namespace NFcore
 			/* used for traversing a molecule complex */
 			bool hasVisitedMolecule;
 			bool * hasVisitedBond;
-			TemplateMolecule *isMatchedTo;
+			shared_ptr<TemplateMolecule> isMatchedTo;
 
 			/* used when reevaluating local functions */
 			bool hasEvaluatedMolecule;
@@ -1258,7 +1258,7 @@ namespace NFcore
 
 			unsigned int traversalLimit;
 
-			TemplateMolecule **reactantTemplates;
+			shared_ptr<TemplateMolecule>*reactantTemplates;
 			TransformationSet * transformationSet;
 			MappingSet **mappingSet;
 

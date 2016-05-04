@@ -163,7 +163,7 @@ namespace NFcore
 
 			////////////////////////////////
 			/*!	Return a pointer to the transformation that is needed by a local function */
-			static Transformation * genLocalFunctionReference(string PointerName, int type, TemplateMolecule *tm);
+			static Transformation * genLocalFunctionReference(string PointerName, int type, shared_ptr<TemplateMolecule> tm);
 			static const unsigned int LOCAL_FUNCTION_REFERENCE = 8;
 			////////////////////////////////
 
@@ -199,12 +199,12 @@ namespace NFcore
 
 	class LocalFunctionReference : public Transformation {
 		public:
-			LocalFunctionReference(string PointerName, int scope, TemplateMolecule *tm);
+			LocalFunctionReference(string PointerName, int scope, shared_ptr<TemplateMolecule> tm);
 			virtual ~LocalFunctionReference() {};
 			virtual void apply(Mapping *m, MappingSet **ms) {};
 			virtual int getComponentIndex() const { return -1; };
 
-			TemplateMolecule *getTemplateObject() const {return tm;};
+			shared_ptr<TemplateMolecule> getTemplateObject() const {return tm;};
 			string getPointerName() const { return PointerName; };
 			int getFunctionScope() const {return scope; };
 
@@ -213,7 +213,7 @@ namespace NFcore
 		protected:
 			string PointerName;
 			int scope;
-			TemplateMolecule *tm;
+			shared_ptr<TemplateMolecule> tm;
 	};
 
 

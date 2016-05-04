@@ -182,12 +182,13 @@ MoleculeType::~MoleculeType()
 
 
 	//Delete all template molecules of this type that exist
-	TemplateMolecule *t;
+	shared_ptr<TemplateMolecule> t;
 	while(allTemplates.size()>0)
 	{
 		t = allTemplates.back();
 		allTemplates.pop_back();
-		delete t;
+		//delete t;
+		t.reset();
 	}
 
 
@@ -408,7 +409,7 @@ int MoleculeType::getMoleculeCount() const {
 }
 
 
-void MoleculeType::addTemplateMolecule(TemplateMolecule *t)
+void MoleculeType::addTemplateMolecule(shared_ptr<TemplateMolecule> t)
 {
 	if(t->getMoleculeType()==this)
 		allTemplates.push_back(t);

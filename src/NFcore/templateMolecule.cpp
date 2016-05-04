@@ -7,10 +7,10 @@ using namespace NFcore;
 
 
 
-queue <TemplateMolecule *> TemplateMolecule::q;
+queue <shared_ptr<TemplateMolecule>> TemplateMolecule::q;
 queue <int> TemplateMolecule::d;
-vector <TemplateMolecule *>::iterator TemplateMolecule::tmVecIter;
-list <TemplateMolecule *>::iterator TemplateMolecule::tmIter;
+vector <shared_ptr<TemplateMolecule>>::iterator TemplateMolecule::tmVecIter;
+list <shared_ptr<TemplateMolecule>>::iterator TemplateMolecule::tmIter;
 
 int TemplateMolecule::TotalTemplateMoleculeCount=0;
 
@@ -39,13 +39,13 @@ TemplateMolecule::TemplateMolecule(MoleculeType * moleculeType){
 	this->n_bonds=0;
 	this->bondComp=new int[0];
 	this->bondCompName=new string[0];
-	this->bondPartner=new TemplateMolecule * [0];
+	this->bondPartner=new shared_ptr<TemplateMolecule> [0];
 	this->bondPartnerCompName=new string[0];
 	this->bondPartnerCompIndex=new int[0];
 	this->hasVisitedBond=new bool[0];
 
 	this->n_connectedTo=0;
-	this->connectedTo=new TemplateMolecule*[n_connectedTo];
+	this->connectedTo=new shared_ptr<TemplateMolecule>[n_connectedTo];
 	this->hasTraversedDownConnectedTo=new bool[n_connectedTo];
 	this->otherTemplateConnectedToIndex=new int[n_connectedTo];
 	this->connectedToHasRxnCenter=new bool[n_connectedTo];
@@ -58,7 +58,7 @@ TemplateMolecule::TemplateMolecule(MoleculeType * moleculeType){
 	this->symCompUniqueId=new string[0];
 	this->symCompStateConstraint=new int[0];
 	this->symCompBoundState=new int[0];  //either Empty (0) or Occupied (1);
-	this->symBondPartner=new TemplateMolecule * [0];
+	this->symBondPartner=new shared_ptr<TemplateMolecule> [0];
 	this->symBondPartnerCompName=new string[0];
 	this->symBondPartnerCompIndex=new int[0];
 	this->hasTraversedDownSym=new bool[0];
@@ -80,7 +80,9 @@ TemplateMolecule::TemplateMolecule(MoleculeType * moleculeType){
 
 	//finally, we have to register this template molecule with the molecule
 	//type so that we can easily destroy them at the end.
-	this->moleculeType->addTemplateMolecule(this);
+	//JJT: we are now using shared pointers so the garbage collector takes care of this
+	// when the references are freed.
+	//this->moleculeType->addTemplateMolecule(this->getptr());
 }
 
 
@@ -251,18 +253,18 @@ void TemplateMolecule::clearConnectedTo()
 	delete [] otherTemplateConnectedToIndex;
 	delete [] connectedToHasRxnCenter;
 	this->n_connectedTo=0;
-	this->connectedTo=new TemplateMolecule*[n_connectedTo];
+	this->connectedTo=new shared_ptr<TemplateMolecule>[n_connectedTo];
 	this->hasTraversedDownConnectedTo=new bool[n_connectedTo];
 	this->otherTemplateConnectedToIndex=new int[n_connectedTo];
 	this->connectedToHasRxnCenter=new bool[n_connectedTo];
 }
 
-void TemplateMolecule::addConnectedTo(TemplateMolecule *t2, int otherConToIndex) {
+void TemplateMolecule::addConnectedTo(shared_ptr<TemplateMolecule> t2, int otherConToIndex) {
 	addConnectedTo(t2,otherConToIndex,false);
 }
-void TemplateMolecule::addConnectedTo(TemplateMolecule *t2, int otherConToIndex,bool otherHasRxnCenter) {
+void TemplateMolecule::addConnectedTo(shared_ptr<TemplateMolecule> t2, int otherConToIndex,bool otherHasRxnCenter) {
 
-	TemplateMolecule **newConnectedTo = new TemplateMolecule * [n_connectedTo+1];
+	shared_ptr<TemplateMolecule> *newConnectedTo = new shared_ptr<TemplateMolecule> [n_connectedTo+1];
 	bool * newHasTraversedDownConnectedTo = new bool[n_connectedTo+1];
 	int * newOtherTemplateConnectedToIndex = new int[n_connectedTo+1];
 	bool *newConnectedToHasRxnCenter = new bool[n_connectedTo+1];
@@ -393,7 +395,7 @@ void TemplateMolecule::addSymCompConstraint(string cName, string uniqueId,
 	string *newSymCompUniqueId = new string[n_symComps+1];
 	int *newSymCompStateConstraint = new int[n_symComps+1];
 	int *newSymBoundState = new int[n_symComps+1];
-	TemplateMolecule **newSymBondPartner = new TemplateMolecule *[n_symComps+1];
+	shared_ptr<TemplateMolecule> *newSymBondPartner = new shared_ptr<TemplateMolecule> [n_symComps+1];
 	string *newSymBondPartnerCompName = new string[n_symComps+1];
 	int *newSymBondPartnerCompIndex = new int[n_symComps+1];
 	bool *newHasTraversedDownSym = new bool[n_symComps+1];
@@ -447,7 +449,7 @@ void TemplateMolecule::addSymCompConstraint(string cName, string uniqueId,
 }
 
 void TemplateMolecule::addSymBond(string thisBsiteName, string thisCompId,
-		TemplateMolecule *t2, string bSiteName2)
+		shared_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	//find thisCompId in our set of symmetric sites, and make changes
 	//to it.  We have to register this symmetric site before we can make
@@ -479,14 +481,14 @@ void TemplateMolecule::addSymBond(string thisBsiteName, string thisCompId,
 
 
 void TemplateMolecule::addBond(string thisBsiteName,
-		TemplateMolecule *t2, string bSiteName2)
+		shared_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	//If we called this, then we are adding a bond to a nonsymmetric site
 
 	//First, initialize the new arrays
 	int *newBondComp = new int[n_bonds+1];
 	string *newBondCompName = new string[n_bonds+1];
-	TemplateMolecule **newBondPartner = new TemplateMolecule *[n_bonds+1];
+	shared_ptr<TemplateMolecule> *newBondPartner = new shared_ptr<TemplateMolecule>[n_bonds+1];
 	string *newBondPartnerCompName = new string[n_bonds+1];
 	int *newBondPartnerCompIndex = new int[n_bonds+1];
 	bool *newHasVisitedBond = new bool[n_bonds+1];
@@ -537,8 +539,8 @@ void TemplateMolecule::addBond(string thisBsiteName,
 
 
 
-void TemplateMolecule::bind(TemplateMolecule *t1, string bSiteName1, string compId1,
-				TemplateMolecule *t2, string bSiteName2, string compId2)
+void TemplateMolecule::bind(shared_ptr<TemplateMolecule> t1, string bSiteName1, string compId1,
+				shared_ptr<TemplateMolecule> t2, string bSiteName2, string compId2)
 {
 	if(t1->moleculeType->isEquivalentComponent(bSiteName1)) {
 		t1->addSymBond(bSiteName1, compId1, t2, bSiteName2);
@@ -556,20 +558,20 @@ void TemplateMolecule::bind(TemplateMolecule *t1, string bSiteName1, string comp
 }
 
 
-bool TemplateMolecule::contains(TemplateMolecule *tempMol)
+bool TemplateMolecule::contains(shared_ptr<TemplateMolecule> tempMol)
 {
 	bool found = false;
 	//the queues and lists should be static for efficiency
 	//queue Q, depth queue D, and list T
 	//queue <TemplateMolecule *> q;
-	list <TemplateMolecule *> t;
+	list <shared_ptr<TemplateMolecule>> t;
 	//queue <int> d;
 
 	int currentDepth = 0;
 
 	//First add this molecule
-	q.push(this);
-	t.push_back(this);
+	q.push(shared_from_this());
+	t.push_back(shared_from_this());
 	d.push(currentDepth+1);
 	this->hasVisitedThis=true;
 
@@ -577,7 +579,7 @@ bool TemplateMolecule::contains(TemplateMolecule *tempMol)
 	while(!q.empty())
 	{
 		//Get the next parent to look at (currentMolecule)
-		TemplateMolecule *cTM = q.front();
+		shared_ptr<TemplateMolecule> cTM = q.front();
 		currentDepth = d.front();
 		q.pop();
 		d.pop();
@@ -593,7 +595,7 @@ bool TemplateMolecule::contains(TemplateMolecule *tempMol)
 
 			//If we are connected through this bond, retrieve the connection
 			if(cTM->bondPartner[b]!=0) {
-				TemplateMolecule *neighbor = cTM->bondPartner[b];
+				shared_ptr<TemplateMolecule> neighbor = cTM->bondPartner[b];
 				if(!neighbor->hasVisitedThis) {
 					neighbor->hasVisitedThis=true;
 					t.push_back(neighbor);
@@ -605,7 +607,7 @@ bool TemplateMolecule::contains(TemplateMolecule *tempMol)
 		//we should add those as well
 		for(int b=0; b<cTM->n_symComps;b++) {
 			if(cTM->symBondPartner[b]!=0) {
-				TemplateMolecule *neighbor = cTM->symBondPartner[b];
+				shared_ptr<TemplateMolecule> neighbor = cTM->symBondPartner[b];
 				if(!neighbor->hasVisitedThis) {
 					neighbor->hasVisitedThis=true;
 					t.push_back(neighbor);
@@ -616,7 +618,7 @@ bool TemplateMolecule::contains(TemplateMolecule *tempMol)
 		//Finally, also loop through the "connected-to" molecules
 		for(int b=0; b<cTM->n_connectedTo;b++) {
 			if(cTM->connectedTo[b]!=0) {
-				TemplateMolecule *neighbor = cTM->connectedTo[b];
+				shared_ptr<TemplateMolecule> neighbor = cTM->connectedTo[b];
 				if(!neighbor->hasVisitedThis) {
 					neighbor->hasVisitedThis=true;
 					t.push_back(neighbor);
@@ -639,7 +641,7 @@ bool TemplateMolecule::contains(TemplateMolecule *tempMol)
 }
 
 
-void TemplateMolecule::traverse(TemplateMolecule *tempMol, vector <TemplateMolecule *> &tmList, bool skipConnectedTo)
+void TemplateMolecule::traverse(shared_ptr<TemplateMolecule> tempMol, vector <shared_ptr<TemplateMolecule>> &tmList, bool skipConnectedTo)
 {
 	//cout<<"traversing"<<endl;
 	//the queues and lists should be static for efficiency
@@ -657,7 +659,7 @@ void TemplateMolecule::traverse(TemplateMolecule *tempMol, vector <TemplateMolec
 	while(!q.empty())
 	{
 		//Get the next parent to look at (currentMolecule)
-		TemplateMolecule *cTM = q.front();
+		shared_ptr<TemplateMolecule> cTM = q.front();
 		currentDepth = d.front();
 		q.pop();
 		d.pop();
@@ -667,7 +669,7 @@ void TemplateMolecule::traverse(TemplateMolecule *tempMol, vector <TemplateMolec
 
 		//If we are connected through this bond, retrieve the connection
 		if(cTM->bondPartner[b]!=0) {
-			TemplateMolecule *neighbor = cTM->bondPartner[b];
+			shared_ptr<TemplateMolecule> neighbor = cTM->bondPartner[b];
 			if(!neighbor->hasVisitedThis) {
 				neighbor->hasVisitedThis=true;
 				tmList.push_back(neighbor);
@@ -679,7 +681,7 @@ void TemplateMolecule::traverse(TemplateMolecule *tempMol, vector <TemplateMolec
 		//we should add those as well
 		for(int b=0; b<cTM->n_symComps;b++) {
 			if(cTM->symBondPartner[b]!=0) {
-				TemplateMolecule *neighbor = cTM->symBondPartner[b];
+				shared_ptr<TemplateMolecule> neighbor = cTM->symBondPartner[b];
 				if(!neighbor->hasVisitedThis) {
 					neighbor->hasVisitedThis=true;
 					tmList.push_back(neighbor);
@@ -691,7 +693,7 @@ void TemplateMolecule::traverse(TemplateMolecule *tempMol, vector <TemplateMolec
 			//Finally, also loop through the "connected-to" molecules
 			for(int b=0; b<cTM->n_connectedTo;b++) {
 				if(cTM->connectedTo[b]!=0) {
-					TemplateMolecule *neighbor = cTM->connectedTo[b];
+					shared_ptr<TemplateMolecule> neighbor = cTM->connectedTo[b];
 					if(!neighbor->hasVisitedThis) {
 						neighbor->hasVisitedThis=true;
 						tmList.push_back(neighbor);
@@ -839,8 +841,8 @@ bool TemplateMolecule::tryToMap(Molecule *toMap, string toMapComponent,
 	return true;
 }
 
-int TemplateMolecule::getNumDisjointSets(vector < TemplateMolecule * > &tMolecules,
-				vector <vector <TemplateMolecule *> > &sets,
+int TemplateMolecule::getNumDisjointSets(vector < shared_ptr<TemplateMolecule> > &tMolecules,
+				vector <vector <shared_ptr<TemplateMolecule>> > &sets,
 				vector <int> &uniqueSetId)
 {
 	int setCount=0;
@@ -860,7 +862,7 @@ int TemplateMolecule::getNumDisjointSets(vector < TemplateMolecule * > &tMolecul
 			//If we found it, remember the uniqueSetId of set J
 			if(alreadyFound) {
 				uniqueSetId.push_back(uniqueSetId.at(j));
-				vector <TemplateMolecule *> thisSet;
+				vector <shared_ptr<TemplateMolecule>> thisSet;
 				sets.push_back(thisSet);
 				break;
 			}
@@ -872,7 +874,7 @@ int TemplateMolecule::getNumDisjointSets(vector < TemplateMolecule * > &tMolecul
 
 			uniqueSetId.push_back(setCount);
 			setCount++;
-			vector <TemplateMolecule *> thisSet;
+			vector <shared_ptr<TemplateMolecule>> thisSet;
 			TemplateMolecule::traverse(tMolecules.at(i),thisSet,TemplateMolecule::SKIP_CONNECTED_TO);
 			sets.push_back(thisSet);
 		}
@@ -1070,7 +1072,7 @@ bool TemplateMolecule::compare(Molecule *m, ReactantContainer *rc, MappingSet *m
 
 	//cout<<"1!"<<endl;
 	if(m->isMatchedTo!=0) {
-		if(m->isMatchedTo!=this) {
+		if(m->isMatchedTo.get() !=this) {
 			clear();
 			//if(this->uniqueTemplateID==3) {cout<<"matched to somethang else."<<endl; exit(1);}
 			return false;
@@ -1113,7 +1115,7 @@ bool TemplateMolecule::compare(Molecule *m, ReactantContainer *rc, MappingSet *m
 	//cout<<"all the basic things match."<<endl;
 	//Good, good - everything matches so let's set our match molecule
 	matchMolecule = m;
-	m->isMatchedTo=this;
+	m->isMatchedTo=shared_from_this();
 	//cout<<"Assigning match molecule: "<<m->getUniqueID()<<" to template "<<this->uniqueTemplateID<<endl;
 
 
@@ -1135,7 +1137,7 @@ bool TemplateMolecule::compare(Molecule *m, ReactantContainer *rc, MappingSet *m
 		}
 
 		//Grab the template molecule and the actual molecule that we have to compare
-		TemplateMolecule *t2=bondPartner[b];
+		shared_ptr<TemplateMolecule> t2=bondPartner[b];
 		Molecule *m2=m->getBondedMolecule(bondComp[b]);
 
 		//If this template has been matched already, then it should be matched
@@ -1250,7 +1252,7 @@ bool TemplateMolecule::compare(Molecule *m, ReactantContainer *rc, MappingSet *m
 
 
 				//Grab the template molecule and the actual molecule that we have to compare
-				TemplateMolecule *t2=symBondPartner[c];
+				shared_ptr<TemplateMolecule> t2=symBondPartner[c];
 				Molecule *m2=m->getBondedMolecule(molEqComp[sc]);
 
 				//Check for a matched molecule, if we are already connected to something
@@ -1556,13 +1558,13 @@ string addBondConstraint(string original, string compName, int bondNumber)
 
 string TemplateMolecule::getPatternString() {
 
-	vector <TemplateMolecule *> tmList;
+	vector <shared_ptr<TemplateMolecule>> tmList;
 	vector <string> patternString;
-	TemplateMolecule::traverse(this,tmList,false);
+	TemplateMolecule::traverse(shared_from_this(),tmList,false);
 
 	//First put in the basic information, from non symmetric constraints...
 	for(unsigned int t=0; t<tmList.size(); t++) {
-		TemplateMolecule *tm = tmList.at(t);
+		shared_ptr<TemplateMolecule> tm = tmList.at(t);
 		//tm->printDetails(cout);
 		MoleculeType * mt = tm->getMoleculeType();
 		string str = mt->getName() + "(";
@@ -1583,7 +1585,7 @@ string TemplateMolecule::getPatternString() {
 	//Now, put in the bond connections
 	int bondNumber = 1;
 	for(unsigned int t=0; t<tmList.size(); t++) {
-		TemplateMolecule *tm = tmList.at(t);
+		shared_ptr<TemplateMolecule> tm = tmList.at(t);
 		string str = patternString.at(t);
 
 		for(int c=0; c<tm->n_bonds; c++) {
@@ -1612,7 +1614,7 @@ string TemplateMolecule::getPatternString() {
 
 	//Put in the component states (MUST BE DONE AFTER PUTTING IN THE BONDS!)
 	for(unsigned int t=0; t<tmList.size(); t++) {
-		TemplateMolecule *tm = tmList.at(t);
+		shared_ptr<TemplateMolecule> tm = tmList.at(t);
 		MoleculeType * mt = tm->getMoleculeType();
 		string str = patternString.at(t);
 
@@ -1643,7 +1645,7 @@ string TemplateMolecule::getPatternString() {
 
 	//Put in the symmetric components
 	for(unsigned int t=0; t<tmList.size(); t++) {
-		TemplateMolecule *tm = tmList.at(t);
+		shared_ptr<TemplateMolecule> tm = tmList.at(t);
 		MoleculeType * mt = tm->getMoleculeType();
 		string str = patternString.at(t);
 
@@ -1677,7 +1679,7 @@ string TemplateMolecule::getPatternString() {
 
 								//remember that we added this bond number here
 								knownBondTMindex.push_back(k);
-								TemplateMolecule *tm2 = tm->symBondPartner[c];
+								shared_ptr<TemplateMolecule> tm2 = tm->symBondPartner[c];
 								bool found = false;
 								for(int kk=0; kk<tm2->n_symComps; kk++) {
 									if(tm2->symBondPartner[kk]==tm) {
@@ -1759,7 +1761,7 @@ void TemplateMolecule::printPattern(ostream &o) {
 
 
 
-bool TemplateMolecule::checkSymmetry(TemplateMolecule *tm1, TemplateMolecule *tm2, string bSite1, string bSite2)
+bool TemplateMolecule::checkSymmetry(shared_ptr<TemplateMolecule> tm1, shared_ptr<TemplateMolecule> tm2, string bSite1, string bSite2)
 {
 	//first, they have to be of the same type
 	if(tm1->getMoleculeType()->getTypeID() != tm2->getMoleculeType()->getTypeID())
@@ -1769,9 +1771,9 @@ bool TemplateMolecule::checkSymmetry(TemplateMolecule *tm1, TemplateMolecule *tm
 	if( bSite1.compare(bSite2)!=0 ) return false;
 
 	// traverse both templates, the numbers on either side must match
-	vector <TemplateMolecule *> t1Partners;
+	vector <shared_ptr<TemplateMolecule>> t1Partners;
 	TemplateMolecule::traverse(tm1,t1Partners,false);
-	vector <TemplateMolecule *> t2Partners;
+	vector <shared_ptr<TemplateMolecule>> t2Partners;
 	TemplateMolecule::traverse(tm2,t2Partners,false);
 
 	if(t1Partners.size()!=t2Partners.size()) return false;
@@ -1932,7 +1934,7 @@ bool TemplateMolecule::checkSymmetry(TemplateMolecule *tm1, TemplateMolecule *tm
 }
 
 
-bool TemplateMolecule::checkSymmetryAroundBond(TemplateMolecule *tm1, TemplateMolecule *tm2, string bSite1, string bSite2)
+bool TemplateMolecule::checkSymmetryAroundBond(shared_ptr<TemplateMolecule> tm1, shared_ptr<TemplateMolecule> tm2, string bSite1, string bSite2)
 {
 	//first, they have to be of the same type
 	if(tm1->getMoleculeType()->getTypeID() != tm2->getMoleculeType()->getTypeID())
@@ -1978,7 +1980,7 @@ bool TemplateMolecule::checkSymmetryAroundBond(TemplateMolecule *tm1, TemplateMo
 					}
 
 
-					vector <TemplateMolecule *> t1Partners;
+					vector <shared_ptr<TemplateMolecule>> t1Partners;
 					TemplateMolecule::traverse(tm1,t1Partners,false);
 					tm1->bondPartner[i]=tm2;
 				} else {

@@ -178,14 +178,14 @@ ReactionClass * NFtest_transcription::createReactionRNAdegrades(MoleculeType *mo
 	//First, you have to define the set of TemplateMolecules that represent the possible reactants.
 	//Here, we create a templateMolecule representing molecules of type X, and set the state to
 	//be phosphorylated.
-	TemplateMolecule *rnaTemp = new TemplateMolecule(molRNA);
+	shared_ptr<TemplateMolecule> rnaTemp = make_shared<TemplateMolecule>(molRNA);
 	//xTemp->addStateValue("activated",1);
 
 
 	//We have to create a vector (basically a storage array) for the Template Molecules that we
 	//want to add to our reaction.  We do this using the standard library class std::vector.  We
 	//only have one reactant in this reaction, so we just put it on the vector.
-	vector <TemplateMolecule *> templates;
+	vector <shared_ptr<TemplateMolecule>> templates;
 	templates.push_back( rnaTemp );
 
 	TransformationSet *ts = new TransformationSet(templates);
@@ -201,10 +201,10 @@ ReactionClass * NFtest_transcription::createReactionRNAdegrades(MoleculeType *mo
 
 ReactionClass * NFtest_transcription::createReactionRNAtranscribed(MoleculeType *molRNA, double rate)
 {
-	vector <TemplateMolecule *> templates;
-	vector <TemplateMolecule *> newProduct;
+	vector <shared_ptr<TemplateMolecule>> templates;
+	vector <shared_ptr<TemplateMolecule>> newProduct;
 
-	TemplateMolecule *newRnaTemp = new TemplateMolecule(molRNA);
+	shared_ptr<TemplateMolecule> newRnaTemp = make_shared<TemplateMolecule>(molRNA);
 	newProduct.push_back(newRnaTemp);
 
 
@@ -227,7 +227,7 @@ void NFtest_transcription::addObs(System * s, MoleculeType *molRNA)
 	//To create an observable, we must first create a TemplateMolecule that we would
 	//like to match.  For instance, to create an observable for X, first create a template
 	//molecule like this:
-	TemplateMolecule *totalRNA = new TemplateMolecule(molRNA);
+	shared_ptr<TemplateMolecule> totalRNA = make_shared<TemplateMolecule>(molRNA);
 
 
 

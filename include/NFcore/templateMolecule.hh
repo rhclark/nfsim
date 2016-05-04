@@ -32,11 +32,13 @@ namespace NFcore
 	    as soon as a single difference in component states or molecule connectivity is found.
         @author Michael Sneddon
 	 */
-	class TemplateMolecule {
+	class TemplateMolecule: public std::enable_shared_from_this<TemplateMolecule>{
 	public:
 		TemplateMolecule(MoleculeType * moleculeType);
 		~TemplateMolecule();
-
+	    std::shared_ptr<TemplateMolecule> getptr() {
+	        return shared_from_this();
+	    }
 
 		/* get functions */
 		MoleculeType *getMoleculeType() const {return moleculeType;};
@@ -60,13 +62,13 @@ namespace NFcore
 		void addComponentConstraint(string cName, int stateValue);
 		void addComponentExclusion(string cName, string stateName);
 		void addComponentExclusion(string cName, int stateValue);
-		void addBond(string thisBsiteName,TemplateMolecule *t2, string bSiteName2);
+		void addBond(string thisBsiteName,shared_ptr<TemplateMolecule> t2, string bSiteName2);
 
 		/* Methods for adding a disjoint component to a template pattern
 		 *  e.g.  X.Y
 		 */
-		void addConnectedTo(TemplateMolecule *t2, int otherConToIndex);
-		void addConnectedTo(TemplateMolecule *t2, int otherConToIndex,bool otherHasRxnCenter);
+		void addConnectedTo(shared_ptr<TemplateMolecule> t2, int otherConToIndex);
+		void addConnectedTo(shared_ptr<TemplateMolecule> t2, int otherConToIndex,bool otherHasRxnCenter);
 		void clearConnectedTo();
 
 
@@ -77,26 +79,26 @@ namespace NFcore
 		void addSymCompConstraint(string cName, string uniqueId,
 				int bondState,int stateConstraint);
 		void addSymBond(string thisBsiteName, string thisCompId,
-				TemplateMolecule *t2, string bSiteName2);
+				shared_ptr<TemplateMolecule> t2, string bSiteName2);
 
 		/* static function for binding two templates together */
-		static void bind(TemplateMolecule *t1, string bSiteName1, string compId1,
-				TemplateMolecule *t2, string bSiteName2, string compId2);
+		static void bind(shared_ptr<TemplateMolecule> t1, string bSiteName1, string compId1,
+				shared_ptr<TemplateMolecule> t2, string bSiteName2, string compId2);
 
 		/* functions that provide mapping capabilities */
 		void addMapGenerator(MapGenerator *mg);
 
 		/* functions that are needed to perform TemplateMolecule operations */
-		bool contains(TemplateMolecule *tempMol);
+		bool contains(shared_ptr<TemplateMolecule> tempMol);
 
 		const static bool FIND_ALL = false;
 		const static bool SKIP_CONNECTED_TO = true;
-		static void traverse(TemplateMolecule *tempMol, vector <TemplateMolecule *> &tmList, bool skipConnectedTo);
+		static void traverse(shared_ptr<TemplateMolecule> tempMol, vector <shared_ptr<TemplateMolecule>> &tmList, bool skipConnectedTo);
 
 		/* searches the list of template molecules and identifies the number of disjoint
 		   sets, and also returns the mapping onto those sets*/
-		static int getNumDisjointSets(vector < TemplateMolecule * > &tMolecules,
-				vector <vector <TemplateMolecule *> > &sets,
+		static int getNumDisjointSets(vector < shared_ptr<TemplateMolecule> > &tMolecules,
+				vector <vector <shared_ptr<TemplateMolecule>> > &sets,
 				vector <int> &uniqueSetId);
 
 		/* functions that are needed to match to a molecule instance */
@@ -111,8 +113,8 @@ namespace NFcore
 
 		//////////////////////////////////////////////////////////////////////////////////////////////
 		//returns false if they are not symmetric, or true if they are
-		static bool checkSymmetry(TemplateMolecule *tm1, TemplateMolecule *tm2, string bSite1, string bSite2);
-		static bool checkSymmetryAroundBond(TemplateMolecule *tm1, TemplateMolecule *tm2, string bSite1, string bSite2);
+		static bool checkSymmetry(shared_ptr<TemplateMolecule> tm1, shared_ptr<TemplateMolecule> tm2, string bSite1, string bSite2);
+		static bool checkSymmetryAroundBond(shared_ptr<TemplateMolecule> tm1, shared_ptr<TemplateMolecule> tm2, string bSite1, string bSite2);
 
 
 
@@ -170,7 +172,7 @@ namespace NFcore
 		int n_bonds;
 		int *bondComp;
 		string *bondCompName;
-		TemplateMolecule **bondPartner;
+		shared_ptr<TemplateMolecule> *bondPartner;
 		string *bondPartnerCompName; //used if nonsymmetric bond is connected to partner symmetric site
 		int *bondPartnerCompIndex; //used if nonsymmetric bond is connected to partner nonsymmetric site else =-1
 		bool *hasVisitedBond;
@@ -179,7 +181,7 @@ namespace NFcore
 		//This stores disjoint sets, in other words, this Template is
 		//connected to some other Template via .. the dot operator "."
 		int n_connectedTo;
-		TemplateMolecule ** connectedTo;
+		shared_ptr<TemplateMolecule> *connectedTo;
 		bool *hasTraversedDownConnectedTo;
 		int *otherTemplateConnectedToIndex;
 		bool *connectedToHasRxnCenter;
@@ -191,7 +193,7 @@ namespace NFcore
 		string *symCompUniqueId; //Used to match up a particular component when creating bonds
 		int *symCompStateConstraint;
 		int *symCompBoundState;  //either Empty (0), Occupied (1), or No constraint(2)
-		TemplateMolecule **symBondPartner; //the bound template, if this component is bound
+		shared_ptr<TemplateMolecule> *symBondPartner; //the bound template, if this component is bound
 		string *symBondPartnerCompName;
 		int *symBondPartnerCompIndex;
 		vector < vector <int> > canBeMappedTo; //might want to change this to a 2d array for memory/speed?
@@ -207,10 +209,10 @@ namespace NFcore
 
 
 		//For depth first traversals on a template molecule
-		static queue <TemplateMolecule *> q;
+		static queue <shared_ptr<TemplateMolecule>> q;
 		static queue <int> d;
-		static vector <TemplateMolecule *>::iterator tmVecIter;
-		static list <TemplateMolecule *>::iterator tmIter;
+		static vector <shared_ptr<TemplateMolecule>>::iterator tmVecIter;
+		static list <shared_ptr<TemplateMolecule>>::iterator tmIter;
 
 	};
 

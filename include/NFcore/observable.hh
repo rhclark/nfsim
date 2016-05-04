@@ -94,7 +94,7 @@ namespace NFcore
 			string getName() const { return obsName; };
 			int getType() const { return type; };
 
-			void getTemplateMoleculeList(int &n_templates, TemplateMolecule **&tmList);
+			void getTemplateMoleculeList(int &n_templates, shared_ptr<TemplateMolecule>*&tmList);
 
 			void addReferenceToMyself(mu::Parser *p);
 			void addReferenceToMyself(string referenceName, mu::Parser *p);
@@ -135,7 +135,7 @@ namespace NFcore
 
 
 			int n_templates;
-			TemplateMolecule ** templateMolecules;
+			shared_ptr<TemplateMolecule>* templateMolecules;
 
 			int n_dependentRxns;
 			ReactionClass ** dependentRxns;
@@ -148,8 +148,8 @@ namespace NFcore
 	class MoleculesObservable : public Observable
 	{
 		public:
-			MoleculesObservable(string name, TemplateMolecule *tm);
-			MoleculesObservable(string name, vector <TemplateMolecule *> &tmList);
+			MoleculesObservable(string name, shared_ptr<TemplateMolecule>tm);
+			MoleculesObservable(string name, vector <shared_ptr<TemplateMolecule>> &tmList);
 
 			virtual ~MoleculesObservable();
 
@@ -171,7 +171,7 @@ namespace NFcore
 	class SpeciesObservable : public Observable
 	{
 		public:
-			SpeciesObservable(string name, vector <TemplateMolecule *> &tmList, vector <string> &stochRelation, vector <int> &stochQuantity);
+			SpeciesObservable(string name, vector <shared_ptr<TemplateMolecule>> &tmList, vector <string> &stochRelation, vector <int> &stochQuantity);
 
 			virtual ~SpeciesObservable();
 

@@ -10,7 +10,7 @@ list <Molecule *> TransformationSet::deleteList;
 list <Molecule *> TransformationSet::updateAfterDeleteList;
 list <Molecule *>::iterator TransformationSet::it;
 
-TransformationSet::TransformationSet(vector <TemplateMolecule *> reactantTemplates)
+TransformationSet::TransformationSet(vector <shared_ptr<TemplateMolecule>> reactantTemplates)
 {
 	this->hasSymUnbinding=false;
 	this->hasSymBinding = false;
@@ -20,11 +20,11 @@ TransformationSet::TransformationSet(vector <TemplateMolecule *> reactantTemplat
 	this->n_reactants = reactantTemplates.size();
 	this->n_addmol  = 0;
 
-	this->reactants = new TemplateMolecule *[n_reactants];
+	this->reactants = new shared_ptr<TemplateMolecule>[n_reactants];
 	for(unsigned int r=0; r<n_reactants; r++)
 		this->reactants[r] = reactantTemplates.at(r);
 
-	this->addmol = new TemplateMolecule *[n_addmol];
+	this->addmol = new shared_ptr<TemplateMolecule>[n_addmol];
 
 	// complex bookkeeping is off by default
 	this->complex_bookkeeping = false;
@@ -42,8 +42,8 @@ TransformationSet::TransformationSet(vector <TemplateMolecule *> reactantTemplat
 }
 
 
-TransformationSet::TransformationSet(vector <TemplateMolecule *> reactantTemplates,
-		                             vector <TemplateMolecule *> addMoleculeTemplates )
+TransformationSet::TransformationSet(vector <shared_ptr<TemplateMolecule>> reactantTemplates,
+		                             vector <shared_ptr<TemplateMolecule>> addMoleculeTemplates )
 {
 	this->hasSymUnbinding = false;
 	this->hasSymBinding   = false;
@@ -51,13 +51,13 @@ TransformationSet::TransformationSet(vector <TemplateMolecule *> reactantTemplat
 	//cout<<"creating transformationSet..."<<endl;
 	//Remember our reactants
 	this->n_reactants = reactantTemplates.size();
-	this->reactants = new TemplateMolecule *[n_reactants];
+	this->reactants = new shared_ptr<TemplateMolecule>[n_reactants];
 	for(unsigned int r=0; r<n_reactants; r++)
 		this->reactants[r] = reactantTemplates.at(r);
 
 	//Remember our add molecules
 	this->n_addmol = addMoleculeTemplates.size();
-	this->addmol = new TemplateMolecule *[n_addmol];
+	this->addmol = new shared_ptr<TemplateMolecule>[n_addmol];
 	for(unsigned int r=0; r<n_addmol; r++)
 		this->addmol[r] = addMoleculeTemplates.at(r);
 
@@ -113,7 +113,7 @@ TransformationSet::~TransformationSet()
 }
 
 
-TemplateMolecule *
+shared_ptr<TemplateMolecule>
 TransformationSet::getTemplateMolecule( unsigned int reactantIndex ) const
 {
 	if ( reactantIndex < n_reactants )
@@ -128,7 +128,7 @@ TransformationSet::getTemplateMolecule( unsigned int reactantIndex ) const
 
 
 
-bool TransformationSet::addStateChangeTransform(TemplateMolecule *t, string cName, int finalStateValue)
+bool TransformationSet::addStateChangeTransform(shared_ptr<TemplateMolecule> t, string cName, int finalStateValue)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	// 1) Check that the template molecule is contained in one of the reactant templates we have
@@ -155,10 +155,10 @@ bool TransformationSet::addStateChangeTransform(TemplateMolecule *t, string cNam
 	return true;
 }
 
-bool TransformationSet::addLocalFunctionReference(TemplateMolecule *t, string PointerName, int scope)
+bool TransformationSet::addLocalFunctionReference(weak_ptr<TemplateMolecule> t, string PointerName, int scope)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
-	int reactantIndex = find(t);
+	int reactantIndex = find(t.lock());
 	if(reactantIndex==-1) {
 		cerr<<"Couldn't find the template you gave me!  In transformation set - addStateChangeTransform!\n";
 		cerr<<"This might be caused if you declare that two molecules are connected, but you\n";
@@ -167,15 +167,15 @@ bool TransformationSet::addLocalFunctionReference(TemplateMolecule *t, string Po
 		return false;
 	}
 
-	Transformation *transformation = TransformationFactory::genLocalFunctionReference(PointerName,scope,t);
+	Transformation *transformation = TransformationFactory::genLocalFunctionReference(PointerName,scope,t.lock());
 	transformations[reactantIndex].push_back(transformation);
 	MapGenerator *mg = new MapGenerator(transformations[reactantIndex].size()-1);
-	t->addMapGenerator(mg);
+	t.lock()->addMapGenerator(mg);
 	return true;
 }
 
 
-bool TransformationSet::addIncrementStateTransform(TemplateMolecule *t, string cName)
+bool TransformationSet::addIncrementStateTransform(shared_ptr<TemplateMolecule> t, string cName)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	// 1) Check that the template molecule is contained in one of the reactant templates we have
@@ -200,7 +200,7 @@ bool TransformationSet::addIncrementStateTransform(TemplateMolecule *t, string c
 	t->addMapGenerator(mg);
 	return true;
 }
-bool TransformationSet::addDecrementStateTransform(TemplateMolecule *t, string cName)
+bool TransformationSet::addDecrementStateTransform(shared_ptr<TemplateMolecule> t, string cName)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	// 1) Check that the template molecule is contained in one of the reactant templates we have
@@ -228,7 +228,7 @@ bool TransformationSet::addDecrementStateTransform(TemplateMolecule *t, string c
 
 
 
-bool TransformationSet::addStateChangeTransform(TemplateMolecule *t, string cName, string finalStateValue)
+bool TransformationSet::addStateChangeTransform(shared_ptr<TemplateMolecule> t, string cName, string finalStateValue)
 {
 	int cIndex = t->getMoleculeType()->getCompIndexFromName(cName);
 	int fStateValue = t->getMoleculeType()->getStateValueFromName(cIndex,finalStateValue);
@@ -236,7 +236,7 @@ bool TransformationSet::addStateChangeTransform(TemplateMolecule *t, string cNam
 }
 
 
-bool TransformationSet::addBindingTransform(TemplateMolecule *t1, string bSiteName1, TemplateMolecule *t2, string bSiteName2)
+bool TransformationSet::addBindingTransform(shared_ptr<TemplateMolecule> t1, string bSiteName1, shared_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	//Again, first find the reactants that the binding pertains to
@@ -285,7 +285,7 @@ bool TransformationSet::addBindingTransform(TemplateMolecule *t1, string bSiteNa
 
 
 
-bool TransformationSet::addNewMoleculeBindingTransform(TemplateMolecule *t1, string bSiteName1, TemplateMolecule *t2, string bSiteName2)
+bool TransformationSet::addNewMoleculeBindingTransform(shared_ptr<TemplateMolecule> t1, string bSiteName1, shared_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	//Again, first find the reactants that the binding pertains to
@@ -388,11 +388,11 @@ bool TransformationSet::addNewMoleculeBindingTransform(TemplateMolecule *t1, str
 
 
 
-bool TransformationSet::addUnbindingTransform(TemplateMolecule *t, string bSiteName, TemplateMolecule *t2, string bSiteName2)
+bool TransformationSet::addUnbindingTransform(shared_ptr<TemplateMolecule> t, string bSiteName, shared_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 
-	TemplateMolecule *tToTransform = 0;
+	shared_ptr<TemplateMolecule> tToTransform = 0;
 	if(t==0 && t2==0) {
 		cerr<<"Error in transformation set! when creating unbinding transform!"<<endl;
 		cerr<<"Both molecules you gave me are null!\n";
@@ -445,7 +445,7 @@ bool TransformationSet::addUnbindingTransform(TemplateMolecule *t, string bSiteN
 	Adds a delete rule to the given TemplateMolecule.
 	@author Michael Sneddon
 */
-bool TransformationSet::addDeleteMolecule(TemplateMolecule *t, int deletionType) {
+bool TransformationSet::addDeleteMolecule(shared_ptr<TemplateMolecule> t, int deletionType) {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	int reactantIndex = find(t);
 	if(reactantIndex==-1) {
@@ -471,7 +471,7 @@ bool TransformationSet::addDeleteMolecule(TemplateMolecule *t, int deletionType)
 	Adds a decrement population rule to the given TemplateMolecule.
 	@author Justin Hogg
 */
-bool TransformationSet::addDecrementPopulation(TemplateMolecule *t)
+bool TransformationSet::addDecrementPopulation(shared_ptr<TemplateMolecule> t)
 {
 	if(finalized) { cerr<<"TransformationSet cannot add another transformation once it has been finalized!"<<endl; exit(1); }
 	int reactantIndex = find(t);
@@ -529,7 +529,7 @@ bool TransformationSet::addAddMolecule( MoleculeCreator *mc )
 
 
 
-int TransformationSet::find(TemplateMolecule *t)
+int TransformationSet::find(shared_ptr<TemplateMolecule> t)
 {
 	if(finalized) { cerr<<"TransformationSet cannot search for a templateMolecule once it has been finalized!"<<endl; exit(1); }
 	int findIndex = -1;
@@ -804,9 +804,9 @@ void TransformationSet::finalize()
 	//   (e.g. pattern overlap) to avoid extra work.
 	if ( (n_reactants>1)  &&  !complex_bookkeeping )
 	{
-		vector <TemplateMolecule *> tmList1;
-		vector <TemplateMolecule *> tmList2;
-		vector <TemplateMolecule *>::iterator tm_iter;
+		vector <shared_ptr<TemplateMolecule>> tmList1;
+		vector <shared_ptr<TemplateMolecule>> tmList2;
+		vector <shared_ptr<TemplateMolecule>>::iterator tm_iter;
 
 		vector <MoleculeType *> moltypes;
 		vector <MoleculeType *>::iterator  found_iter;

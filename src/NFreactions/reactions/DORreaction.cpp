@@ -21,7 +21,7 @@ DORRxnClass::DORRxnClass(
 	ReactionClass(name,baseRate,baseRateName,transformationSet,s)
 {
 //	cout<<"ok, here we go..."<<endl;
-	vector <TemplateMolecule *> dorMolecules;
+	vector <shared_ptr<TemplateMolecule>> dorMolecules;
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//Step 1: Find the DOR reactant, and make sure there is only one.  DOR reactants

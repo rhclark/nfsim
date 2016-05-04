@@ -30,15 +30,15 @@ ReactionClass::ReactionClass(string name, double baseRate, string baseRateParame
 	//Set up the template molecules from the transformationSet
 	this->n_reactants   = transformationSet->getNreactants();
 	this->n_mappingsets = transformationSet->getNmappingSets();
-	this->reactantTemplates = new TemplateMolecule *[n_reactants];
-	vector <TemplateMolecule*> tmList;
+	this->reactantTemplates = new shared_ptr<TemplateMolecule> [n_reactants];
+	vector <shared_ptr<TemplateMolecule>> tmList;
 	vector <int> hasMapGenerator;
 	for(unsigned int r=0; r<n_reactants; r++)
 	{
 		//The main reactant should be the one that is getting modified...
 		//In other words, we select the reactant that has at least one map generator, and
 		//to minimize mistakes, with the least sym sites...
-		TemplateMolecule *curTemplate = transformationSet->getTemplateMolecule(r);
+		shared_ptr<TemplateMolecule> curTemplate = transformationSet->getTemplateMolecule(r);
 		TemplateMolecule::traverse(curTemplate,tmList,TemplateMolecule::FIND_ALL);
 
 		//First, single out all the templates that have at least one map generator
@@ -86,11 +86,11 @@ ReactionClass::ReactionClass(string name, double baseRate, string baseRateParame
 		tmList.clear();
 
 		// Get the connected set of molecules
-		TemplateMolecule *curTemplate = reactantTemplates[r];
+		shared_ptr<TemplateMolecule> curTemplate = reactantTemplates[r];
 		TemplateMolecule::traverse(curTemplate,tmList,TemplateMolecule::FIND_ALL);
 
 		//Label the unique sets, and only continue if we have more than one set
-		vector <vector <TemplateMolecule *> > sets;
+		vector <vector <shared_ptr<TemplateMolecule>>> sets;
 		vector <int> uniqueSetId;
 		int setCount = TemplateMolecule::getNumDisjointSets(tmList,sets,uniqueSetId);
 		if(setCount<=1) continue;
@@ -143,7 +143,7 @@ ReactionClass::ReactionClass(string name, double baseRate, string baseRateParame
 					otherHasRxnCenter=true;
 					rxnCenterSets++;
 				}
-				TemplateMolecule *otherTemplate = tmList.at(i);
+				shared_ptr<TemplateMolecule> otherTemplate = tmList.at(i);
 				int ctIndex1=curTemplate->getN_connectedTo();
 				int ctIndex2=otherTemplate->getN_connectedTo();
 				curTemplate->addConnectedTo(otherTemplate,ctIndex2,otherHasRxnCenter);

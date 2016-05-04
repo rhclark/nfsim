@@ -67,7 +67,7 @@ SpeciesCreator::SpeciesCreator(
 	}
 }
 
-SpeciesCreator::SpeciesCreator(vector <TemplateMolecule *> &templates)
+SpeciesCreator::SpeciesCreator(vector <shared_ptr<TemplateMolecule>> &templates)
 {
 
 	cerr<<"Calling an old and nonfunctional SpeciesCreator constructor.  Quitting."<<endl;

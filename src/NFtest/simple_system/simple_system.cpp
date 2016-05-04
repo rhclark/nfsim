@@ -227,14 +227,14 @@ ReactionClass * NFtest_ss::createReactionXDephos(MoleculeType *molX, double rate
 	//First, you have to define the set of TemplateMolecules that represent the possible reactants.
 	//Here, we create a templateMolecule representing molecules of type X, and set the state to
 	//be phosphorylated.
-	TemplateMolecule *xTemp = new TemplateMolecule(molX);
+	shared_ptr<TemplateMolecule> xTemp = make_shared<TemplateMolecule>(molX);
 	xTemp->addComponentConstraint("p","Phos");
 
 
 	//We have to create a vector (basically a storage array) for the Template Molecules that we
 	//want to add to our reaction.  We do this using the standard library class std::vector.  We
 	//only have one reactant in this reaction, so we just put it on the vector.
-	vector <TemplateMolecule *> templates;
+	vector <shared_ptr<TemplateMolecule>> templates;
 	templates.push_back( xTemp );
 
 
@@ -266,10 +266,10 @@ ReactionClass * NFtest_ss::createReactionXYbind(MoleculeType *molX,MoleculeType 
 	//Y has an empty binding site for X!  This is not done for you and can lead to errors if
 	//you try to bind a site that is already bound!  Also, we want to bind only if X is not
 	//phosphorylated.
-	TemplateMolecule *xTemp = new TemplateMolecule(molX);
+	shared_ptr<TemplateMolecule> xTemp = make_shared<TemplateMolecule>(molX);
 	xTemp->addEmptyComponent("y");
 	xTemp->addComponentConstraint("p","Unphos");
-	TemplateMolecule *yTemp = new TemplateMolecule(molY);
+	shared_ptr<TemplateMolecule> yTemp = make_shared<TemplateMolecule>(molY);
 	yTemp->addEmptyComponent("x");
 
 
@@ -280,7 +280,7 @@ ReactionClass * NFtest_ss::createReactionXYbind(MoleculeType *molX,MoleculeType 
 	//In general, there will only be one or two templates added to this vector (for unimolecular and
 	//bimolecular reactions) no matter how many templates are actually involved!  Reactions are still
 	//able to access all of them, however, by traversing the bonds of these two "head" molecules.
-	vector <TemplateMolecule *> templates;
+	vector <shared_ptr<TemplateMolecule>> templates;
 	templates.push_back( xTemp );
 	templates.push_back( yTemp );
 
@@ -302,15 +302,15 @@ ReactionClass * NFtest_ss::createReactionXYunbind(MoleculeType *molX, MoleculeTy
 	//the molecules X and Y must be bound.  To do this, again create the two template molecules for
 	//X and Y, and now we must specify that they are bound through the named binding sites.  We
 	//do that with the bind function in the TemplateMolecule class.
-	TemplateMolecule *xTemp = new TemplateMolecule(molX);
-	TemplateMolecule *yTemp = new TemplateMolecule(molY);
+	shared_ptr<TemplateMolecule> xTemp = make_shared<TemplateMolecule>(molX);
+	shared_ptr<TemplateMolecule> yTemp = make_shared<TemplateMolecule>(molY);
 	TemplateMolecule::bind(xTemp,"y","",yTemp,"x","");
 
 	//Like before, we create the vector of templates.  Notice that this is a unimolecular reaction!
 	//even though there are two templates, only one "species" or reactant is involved.  Therefore, we
 	//have to only insert one of the templates into this list.  It doesn't matter whether it is
 	//the template for X or the template for Y.  Just pick one!
-	vector <TemplateMolecule *> templates;
+	vector <shared_ptr<TemplateMolecule>> templates;
 	templates.push_back( yTemp );
 
 	//Again, here we go with the transformationSet.  We only have to specify one unbinding transform.
@@ -333,13 +333,13 @@ ReactionClass * NFtest_ss::createReactionYphosX(MoleculeType *molX, MoleculeType
 	//as we did for the unbinding reaction, we create the templates and bind them.  We would also
 	//like to specify that molecule X must be dephosphorylated for this reaction to fire, so add
 	//that constraint too.
-	TemplateMolecule *xTemp = new TemplateMolecule(molX);
+	shared_ptr<TemplateMolecule> xTemp = make_shared<TemplateMolecule>(molX);
 	xTemp->addComponentConstraint("p",0);
-	TemplateMolecule *yTemp = new TemplateMolecule(molY);
+	shared_ptr<TemplateMolecule> yTemp = make_shared<TemplateMolecule>(molY);
 	TemplateMolecule::bind(xTemp,"y","",yTemp,"x","");
 
 	//Again, just like in the unbinding reaction, just add one of the templates to the vector
-	vector <TemplateMolecule *> templates;
+	vector <shared_ptr<TemplateMolecule>> templates;
 	templates.push_back( xTemp );
 
 	//Create the transformation set.  Add all the operations you want and finalize once you are done.
@@ -368,7 +368,7 @@ void NFtest_ss::addObs(System * s, MoleculeType *molX, MoleculeType *molY)
 	//To create an observable, we must first create a TemplateMolecule that we would
 	//like to match.  For instance, to create an observable for X, first create a template
 	//molecule like this:
-	TemplateMolecule *xNotPhos = new TemplateMolecule(molX);
+	shared_ptr<TemplateMolecule> xNotPhos = make_shared<TemplateMolecule>(molX);
 
 	//Then, we would like to set some constraints.  For this, let us set the constraint
 	//that X has an open binding site at 'y' and it is not phosphorylated.

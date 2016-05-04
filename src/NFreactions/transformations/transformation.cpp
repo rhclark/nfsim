@@ -239,7 +239,7 @@ void DecrementPopulationTransform::apply(Mapping *m, MappingSet **ms)
 
 /////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
-LocalFunctionReference::LocalFunctionReference(string PointerName, int scope, TemplateMolecule *tm)
+LocalFunctionReference::LocalFunctionReference(string PointerName, int scope, shared_ptr<TemplateMolecule> tm)
 	: Transformation(TransformationFactory::LOCAL_FUNCTION_REFERENCE) {
 
 	this->PointerName=PointerName;
@@ -312,7 +312,7 @@ NFcore::Transformation * TransformationFactory::genDecrementPopulationTransform(
 }
 
 
-Transformation * TransformationFactory::genLocalFunctionReference(string PointerName, int type, TemplateMolecule *tm)
+Transformation * TransformationFactory::genLocalFunctionReference(string PointerName, int type, shared_ptr<TemplateMolecule> tm)
 {
 	return new LocalFunctionReference(PointerName, type, tm);
 }

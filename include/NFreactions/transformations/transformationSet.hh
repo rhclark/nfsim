@@ -49,15 +49,15 @@ namespace NFcore
 			 	in a ReactionClass!
 				@author Michael Sneddon
 			*/
-			TransformationSet(vector <TemplateMolecule *> reactantTemplates);
+			TransformationSet(vector <shared_ptr<TemplateMolecule>> reactantTemplates);
 
 			/*!
 			 	Creates a new TransformationSet that includds addMolecule
 			 	Transformations
 				@author Justin Hogg
 			*/
-			TransformationSet(vector <TemplateMolecule *> reactantTemplates,
-					          vector <TemplateMolecule *> addMoleculeTemplates );
+			TransformationSet(vector <shared_ptr<TemplateMolecule>> reactantTemplates,
+					          vector <shared_ptr<TemplateMolecule>> addMoleculeTemplates );
 
 			/*!
 				Destroys the TransformationSet and associated Transformation objects.
@@ -74,7 +74,7 @@ namespace NFcore
 				of the state to be transformed.
 				@author Michael Sneddon
 			*/
-			bool addStateChangeTransform(TemplateMolecule *t, string cName, int finalStateValue);
+			bool addStateChangeTransform(shared_ptr<TemplateMolecule> t, string cName, int finalStateValue);
 
 			/*!
 				Adds a state change transformation on the given TemplateMolecule (that must have been included
@@ -82,19 +82,19 @@ namespace NFcore
 				of the state to be transformed.
 				@author Michael Sneddon
 			*/
-			bool addStateChangeTransform(TemplateMolecule *t, string cName, string finalStateValue);
+			bool addStateChangeTransform(shared_ptr<TemplateMolecule> t, string cName, string finalStateValue);
 
 			/*!
 				Adds an increment state change to the given templateMolecule
 				@author Michael Sneddon
 			*/
-			bool addIncrementStateTransform(TemplateMolecule *t, string cName);
+			bool addIncrementStateTransform(shared_ptr<TemplateMolecule> t, string cName);
 
 			/*!
 				Adds an decrement state change to the given templateMolecule
 				@author Michael Sneddon
 			*/
-			bool addDecrementStateTransform(TemplateMolecule *t, string cName);
+			bool addDecrementStateTransform(shared_ptr<TemplateMolecule> t, string cName);
 
 
 			/*!
@@ -102,7 +102,7 @@ namespace NFcore
 				binding sites.
 				@author Michael Sneddon
 			*/
-			bool addBindingTransform(TemplateMolecule *t1, string bSiteName1, TemplateMolecule *t2, string bSiteName2);
+			bool addBindingTransform(shared_ptr<TemplateMolecule>t1, string bSiteName1, shared_ptr<TemplateMolecule> t2, string bSiteName2);
 
 			/*!
 				Adds a binding reaction between the two given TemplateMolecules at the specified
@@ -110,7 +110,7 @@ namespace NFcore
 				avoid any null condition checks.
 				@author Michael Sneddon
 			*/
-			bool addNewMoleculeBindingTransform(TemplateMolecule *t1, string bSiteName1, TemplateMolecule *t2, string bSiteName2);
+			bool addNewMoleculeBindingTransform(shared_ptr<TemplateMolecule> t1, string bSiteName1, shared_ptr<TemplateMolecule> t2, string bSiteName2);
 
 
 			/*!
@@ -119,7 +119,7 @@ namespace NFcore
 				the binding transform!  It does not prevent the entire reaction!  That is not programmed in yet!
 				@author Michael Sneddon
 			*/
-			bool addBindingSeparateComplexTransform(TemplateMolecule *t1, string bSiteName1, TemplateMolecule *t2, string bSiteName2);
+			bool addBindingSeparateComplexTransform(shared_ptr<TemplateMolecule> t1, string bSiteName1, shared_ptr<TemplateMolecule> t2, string bSiteName2);
 
 
 
@@ -127,21 +127,21 @@ namespace NFcore
 				Adds an unbinding reaction at the given site of the given TemplateMolecule
 				@author Michael Sneddon
 			*/
-			bool addUnbindingTransform(TemplateMolecule *t, string bSiteName, TemplateMolecule *t2, string bSiteName2);
+			bool addUnbindingTransform(shared_ptr<TemplateMolecule> t, string bSiteName, shared_ptr<TemplateMolecule> t2, string bSiteName2);
 
 
 			/*!
 				Adds a delete rule to the given TemplateMolecule.
 				@author Michael Sneddon
 			*/
-			bool addDeleteMolecule(TemplateMolecule *t, int deletionType);
+			bool addDeleteMolecule(shared_ptr<TemplateMolecule> t, int deletionType);
 
 
 			/*!
 				Adds a decrement population transform to the given TemplateMolecule.
 				@author Justin Hogg
 			*/
-			bool addDecrementPopulation(TemplateMolecule *t);
+			bool addDecrementPopulation(shared_ptr<TemplateMolecule> t);
 
 			/*!
 				Adds a create species transform (this was formerly "addAddMolecule")
@@ -159,7 +159,7 @@ namespace NFcore
 				Adds a create molecule rule, but has not been implemented yet.
 				@author Michael Sneddon
 			*/
-			bool addLocalFunctionReference(TemplateMolecule *t, string PointerName, int scope);
+			bool addLocalFunctionReference(weak_ptr<TemplateMolecule> t, string PointerName, int scope);
 
 
 			/*!
@@ -184,7 +184,7 @@ namespace NFcore
 				used for initial initializations of a ReactionClass.
 				@author Michael Sneddon
 			*/
-			TemplateMolecule * getTemplateMolecule(unsigned int reactantIndex) const;
+			shared_ptr<TemplateMolecule> getTemplateMolecule(unsigned int reactantIndex) const;
 
 			/*!
 				Get the number of reactants in the rule governed by this TransformationSet.  This
@@ -306,7 +306,7 @@ namespace NFcore
 				add a transformation to exists and does not exist in multiple places.
 				@author Michael Sneddon
 			*/
-			int find(TemplateMolecule *t);
+			int find(shared_ptr<TemplateMolecule> t);
 
 			/*!	Remembers if the finalize function has been called	*/
 			bool finalized;
@@ -321,11 +321,11 @@ namespace NFcore
 			unsigned int n_addmol;
 
 			/*!	The array of TemplateMolecules that represent the reactants */
-			TemplateMolecule ** reactants;
+			shared_ptr<TemplateMolecule>* reactants;
 
 			/*!	The array of TemplateMolecules that represent the added molecules.
 			 *   Not sure if this will be used.  --Justin */
-			TemplateMolecule ** addmol;
+			shared_ptr<TemplateMolecule>* addmol;
 
 			/*!	A vector that holds the actual Transformation objects	*/
 			vector <Transformation *> *transformations;

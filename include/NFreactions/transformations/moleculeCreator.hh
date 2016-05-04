@@ -22,7 +22,7 @@ namespace NFcore
 	class MoleculeCreator
 	{
 		public:
-			MoleculeCreator( TemplateMolecule *          _template_molecule,
+			MoleculeCreator( shared_ptr<TemplateMolecule>,
 					         MoleculeType *              _molecule_type,
 			                 vector < pair<int,int> > &  _component_states    );
 
@@ -35,7 +35,7 @@ namespace NFcore
 			Molecule * create_molecule( );
 
 			// get the template molecule
-			TemplateMolecule * getTemplateMolecule () const { return template_molecule; };
+			shared_ptr<TemplateMolecule> getTemplateMolecule () const { return template_molecule; };
 
 			// check if this is a population type
 			bool isPopulationType () const { return population_type; }
@@ -56,7 +56,7 @@ namespace NFcore
 			bool               population_type;
 
 			// template that matches created molecule
-			TemplateMolecule * template_molecule;
+			shared_ptr<TemplateMolecule> template_molecule;
 
 			// type of molecule to create
 			MoleculeType *      molecule_type;

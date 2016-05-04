@@ -10,7 +10,7 @@
 using namespace NFcore;
 
 MoleculeCreator::MoleculeCreator(
-		TemplateMolecule           * _template_molecule,
+		shared_ptr<TemplateMolecule> _template_molecule,
 		MoleculeType               * _molecule_type,
 		vector < pair <int,int> >  & _component_states   )
 {
