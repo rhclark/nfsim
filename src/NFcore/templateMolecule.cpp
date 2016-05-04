@@ -7,10 +7,10 @@ using namespace NFcore;
 
 
 
-queue <shared_ptr<TemplateMolecule>> TemplateMolecule::q;
+queue <weak_ptr<TemplateMolecule>> TemplateMolecule::q;
 queue <int> TemplateMolecule::d;
 vector <shared_ptr<TemplateMolecule>>::iterator TemplateMolecule::tmVecIter;
-list <shared_ptr<TemplateMolecule>>::iterator TemplateMolecule::tmIter;
+list <weak_ptr<TemplateMolecule>>::iterator TemplateMolecule::tmIter;
 
 int TemplateMolecule::TotalTemplateMoleculeCount=0;
 
@@ -39,7 +39,7 @@ TemplateMolecule::TemplateMolecule(MoleculeType * moleculeType){
 	this->n_bonds=0;
 	this->bondComp=new int[0];
 	this->bondCompName=new string[0];
-	this->bondPartner=new shared_ptr<TemplateMolecule> [0];
+	this->bondPartner=new weak_ptr<TemplateMolecule> [0];
 	this->bondPartnerCompName=new string[0];
 	this->bondPartnerCompIndex=new int[0];
 	this->hasVisitedBond=new bool[0];
@@ -58,7 +58,7 @@ TemplateMolecule::TemplateMolecule(MoleculeType * moleculeType){
 	this->symCompUniqueId=new string[0];
 	this->symCompStateConstraint=new int[0];
 	this->symCompBoundState=new int[0];  //either Empty (0) or Occupied (1);
-	this->symBondPartner=new shared_ptr<TemplateMolecule> [0];
+	this->symBondPartner=new weak_ptr<TemplateMolecule> [0];
 	this->symBondPartnerCompName=new string[0];
 	this->symBondPartnerCompIndex=new int[0];
 	this->hasTraversedDownSym=new bool[0];
@@ -344,7 +344,7 @@ void TemplateMolecule::printDetails(ostream &o) {
 	if(n_bonds==0)o<<"none";
 	for(int i=0;i<n_bonds; i++) {
 		o<<moleculeType->getComponentName(bondComp[i])<<"(index="<<bondComp[i]<<"):";
-		o<<bondPartner[i]->getMoleculeTypeName()<<"("<<bondPartnerCompName[i]<<")";
+		o<<bondPartner[i].lock()->getMoleculeTypeName()<<"("<<bondPartnerCompName[i]<<")";
 	}
 
 	o<<"\n  Symmetric Constraints:               ";
@@ -358,10 +358,10 @@ void TemplateMolecule::printDetails(ostream &o) {
 		if(symCompBoundState[i]==EMPTY) {
 			o<<",notBonded";
 		} else if (this->symCompBoundState[i]==OCCUPIED) {
-			if(symBondPartner[i]==0) {
+			if(symBondPartner[i].lock()==0) {
 				o<<"!+";
 			} else {
-				o<<"!"<<symBondPartner[i]->getMoleculeTypeName();
+				o<<"!"<<symBondPartner[i].lock()->getMoleculeTypeName();
 				o<<"("<<symBondPartnerCompName[i]<<")";
 
 			}
@@ -395,7 +395,7 @@ void TemplateMolecule::addSymCompConstraint(string cName, string uniqueId,
 	string *newSymCompUniqueId = new string[n_symComps+1];
 	int *newSymCompStateConstraint = new int[n_symComps+1];
 	int *newSymBoundState = new int[n_symComps+1];
-	shared_ptr<TemplateMolecule> *newSymBondPartner = new shared_ptr<TemplateMolecule> [n_symComps+1];
+	weak_ptr<TemplateMolecule> *newSymBondPartner = new weak_ptr<TemplateMolecule> [n_symComps+1];
 	string *newSymBondPartnerCompName = new string[n_symComps+1];
 	int *newSymBondPartnerCompIndex = new int[n_symComps+1];
 	bool *newHasTraversedDownSym = new bool[n_symComps+1];
@@ -417,7 +417,7 @@ void TemplateMolecule::addSymCompConstraint(string cName, string uniqueId,
 	newSymCompUniqueId[n_symComps] = uniqueId;
 	newSymCompStateConstraint[n_symComps] = stateConstraint;
 	newSymBoundState[n_symComps] = bondState;
-	newSymBondPartner[n_symComps] = 0;
+	newSymBondPartner[n_symComps] = weak_ptr<TemplateMolecule>();
 	newSymBondPartnerCompName[n_symComps] = "";
 	newSymBondPartnerCompIndex[n_symComps] = -1;
 	newHasTraversedDownSym[n_symComps]=false;
@@ -449,22 +449,22 @@ void TemplateMolecule::addSymCompConstraint(string cName, string uniqueId,
 }
 
 void TemplateMolecule::addSymBond(string thisBsiteName, string thisCompId,
-		shared_ptr<TemplateMolecule> t2, string bSiteName2)
+		weak_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	//find thisCompId in our set of symmetric sites, and make changes
 	//to it.  We have to register this symmetric site before we can make
 	//a bond to it...
 	for(int i=0; i<n_symComps; i++) {
 		if(symCompUniqueId[i].compare(thisCompId)==0) {
-			if(symBondPartner[i]!=0) {
+			if(symBondPartner[i].lock() !=0) {
 				printErrorAndExit("Trying to bind a symmetric site that is already bound!");
 			}
 			symBondPartner[i]=t2;
 			symBondPartnerCompName[i]=bSiteName2;
-			if(t2->moleculeType->isEquivalentComponent(bSiteName2)) {
+			if(t2.lock()->moleculeType->isEquivalentComponent(bSiteName2)) {
 				symBondPartnerCompIndex[i]=-1;
 			} else {
-				symBondPartnerCompIndex[i]=t2->moleculeType->getCompIndexFromName(bSiteName2);
+				symBondPartnerCompIndex[i]=t2.lock()->moleculeType->getCompIndexFromName(bSiteName2);
 			}
 			symCompBoundState[i]=OCCUPIED;
 			return;
@@ -481,14 +481,14 @@ void TemplateMolecule::addSymBond(string thisBsiteName, string thisCompId,
 
 
 void TemplateMolecule::addBond(string thisBsiteName,
-		shared_ptr<TemplateMolecule> t2, string bSiteName2)
+		weak_ptr<TemplateMolecule> t2, string bSiteName2)
 {
 	//If we called this, then we are adding a bond to a nonsymmetric site
 
 	//First, initialize the new arrays
 	int *newBondComp = new int[n_bonds+1];
 	string *newBondCompName = new string[n_bonds+1];
-	shared_ptr<TemplateMolecule> *newBondPartner = new shared_ptr<TemplateMolecule>[n_bonds+1];
+	weak_ptr<TemplateMolecule> *newBondPartner = new weak_ptr<TemplateMolecule>[n_bonds+1];
 	string *newBondPartnerCompName = new string[n_bonds+1];
 	int *newBondPartnerCompIndex = new int[n_bonds+1];
 	bool *newHasVisitedBond = new bool[n_bonds+1];
@@ -509,10 +509,10 @@ void TemplateMolecule::addBond(string thisBsiteName,
 	newBondCompName[n_bonds] = thisBsiteName;
 	newBondPartner[n_bonds] = t2;
 	newBondPartnerCompName[n_bonds] = bSiteName2;
-	if(t2->moleculeType->isEquivalentComponent(bSiteName2)) {
+	if(t2.lock()->moleculeType->isEquivalentComponent(bSiteName2)) {
 		newBondPartnerCompIndex[n_bonds] = -1;
 	} else {
-		newBondPartnerCompIndex[n_bonds]=t2->moleculeType->getCompIndexFromName(bSiteName2);
+		newBondPartnerCompIndex[n_bonds]=t2.lock()->moleculeType->getCompIndexFromName(bSiteName2);
 	}
 	newHasVisitedBond[n_bonds] = false;
 
@@ -542,6 +542,7 @@ void TemplateMolecule::addBond(string thisBsiteName,
 void TemplateMolecule::bind(shared_ptr<TemplateMolecule> t1, string bSiteName1, string compId1,
 				shared_ptr<TemplateMolecule> t2, string bSiteName2, string compId2)
 {
+
 	if(t1->moleculeType->isEquivalentComponent(bSiteName1)) {
 		t1->addSymBond(bSiteName1, compId1, t2, bSiteName2);
 		//cout<<"cannot handle symmetric binding yet."<<endl;
@@ -564,7 +565,7 @@ bool TemplateMolecule::contains(shared_ptr<TemplateMolecule> tempMol)
 	//the queues and lists should be static for efficiency
 	//queue Q, depth queue D, and list T
 	//queue <TemplateMolecule *> q;
-	list <shared_ptr<TemplateMolecule>> t;
+	list <weak_ptr<TemplateMolecule>> t;
 	//queue <int> d;
 
 	int currentDepth = 0;
@@ -579,7 +580,7 @@ bool TemplateMolecule::contains(shared_ptr<TemplateMolecule> tempMol)
 	while(!q.empty())
 	{
 		//Get the next parent to look at (currentMolecule)
-		shared_ptr<TemplateMolecule> cTM = q.front();
+		shared_ptr<TemplateMolecule> cTM = q.front().lock();
 		currentDepth = d.front();
 		q.pop();
 		d.pop();
@@ -594,10 +595,10 @@ bool TemplateMolecule::contains(shared_ptr<TemplateMolecule> tempMol)
 		for(int b=0; b<cTM->n_bonds; b++) {
 
 			//If we are connected through this bond, retrieve the connection
-			if(cTM->bondPartner[b]!=0) {
-				shared_ptr<TemplateMolecule> neighbor = cTM->bondPartner[b];
-				if(!neighbor->hasVisitedThis) {
-					neighbor->hasVisitedThis=true;
+			if(cTM->bondPartner[b].lock()!=0) {
+				weak_ptr<TemplateMolecule> neighbor = cTM->bondPartner[b];
+				if(!neighbor.lock()->hasVisitedThis) {
+					neighbor.lock()->hasVisitedThis=true;
 					t.push_back(neighbor);
 					q.push(neighbor);
 					d.push(currentDepth+1);
@@ -606,10 +607,10 @@ bool TemplateMolecule::contains(shared_ptr<TemplateMolecule> tempMol)
 		//Loop through the bonds for the symmetric sites, because
 		//we should add those as well
 		for(int b=0; b<cTM->n_symComps;b++) {
-			if(cTM->symBondPartner[b]!=0) {
-				shared_ptr<TemplateMolecule> neighbor = cTM->symBondPartner[b];
-				if(!neighbor->hasVisitedThis) {
-					neighbor->hasVisitedThis=true;
+			if(cTM->symBondPartner[b].lock()!=0) {
+				weak_ptr<TemplateMolecule> neighbor = cTM->symBondPartner[b];
+				if(!neighbor.lock()->hasVisitedThis) {
+					neighbor.lock()->hasVisitedThis=true;
 					t.push_back(neighbor);
 					q.push(neighbor);
 					d.push(currentDepth+1);
@@ -629,7 +630,7 @@ bool TemplateMolecule::contains(shared_ptr<TemplateMolecule> tempMol)
 
 	//clear the hasVisitedMolecule values
 	for( tmIter = t.begin(); tmIter != t.end(); tmIter++ )
-		(*tmIter)->hasVisitedThis=false;
+		(*tmIter).lock()->hasVisitedThis=false;
 
 	//the queues should be empty, but we should clear the list of
 	//Template molecules that we have aggregated.
@@ -659,7 +660,7 @@ void TemplateMolecule::traverse(shared_ptr<TemplateMolecule> tempMol, vector <sh
 	while(!q.empty())
 	{
 		//Get the next parent to look at (currentMolecule)
-		shared_ptr<TemplateMolecule> cTM = q.front();
+		shared_ptr<TemplateMolecule> cTM = q.front().lock();
 		currentDepth = d.front();
 		q.pop();
 		d.pop();
@@ -668,8 +669,8 @@ void TemplateMolecule::traverse(shared_ptr<TemplateMolecule> tempMol, vector <sh
 		for(int b=0; b<cTM->n_bonds; b++) {
 
 		//If we are connected through this bond, retrieve the connection
-		if(cTM->bondPartner[b]!=0) {
-			shared_ptr<TemplateMolecule> neighbor = cTM->bondPartner[b];
+		if(cTM->bondPartner[b].lock() !=0) {
+			shared_ptr<TemplateMolecule> neighbor = cTM->bondPartner[b].lock();
 			if(!neighbor->hasVisitedThis) {
 				neighbor->hasVisitedThis=true;
 				tmList.push_back(neighbor);
@@ -680,8 +681,8 @@ void TemplateMolecule::traverse(shared_ptr<TemplateMolecule> tempMol, vector <sh
 		//Loop through the bonds for the symmetric sites, because
 		//we should add those as well
 		for(int b=0; b<cTM->n_symComps;b++) {
-			if(cTM->symBondPartner[b]!=0) {
-				shared_ptr<TemplateMolecule> neighbor = cTM->symBondPartner[b];
+			if(cTM->symBondPartner[b].lock()!=0) {
+				shared_ptr<TemplateMolecule> neighbor = cTM->symBondPartner[b].lock();
 				if(!neighbor->hasVisitedThis) {
 					neighbor->hasVisitedThis=true;
 					tmList.push_back(neighbor);
@@ -809,7 +810,7 @@ bool TemplateMolecule::tryToMap(Molecule *toMap, string toMapComponent,
 
 			//cout<<"state constraints are fine."<<endl;
 
-			if(symBondPartner[c]!=0) {
+			if(symBondPartner[c].lock()!=0) {
 				Molecule *m2=toMap->getBondedMolecule(molEqComp[sc]);
 				if(m2!=0) {
 					if(m2!=mappedFrom) {
@@ -1137,7 +1138,7 @@ bool TemplateMolecule::compare(Molecule *m, ReactantContainer *rc, MappingSet *m
 		}
 
 		//Grab the template molecule and the actual molecule that we have to compare
-		shared_ptr<TemplateMolecule> t2=bondPartner[b];
+		shared_ptr<TemplateMolecule> t2=bondPartner[b].lock();
 		Molecule *m2=m->getBondedMolecule(bondComp[b]);
 
 		//If this template has been matched already, then it should be matched
@@ -1246,13 +1247,13 @@ bool TemplateMolecule::compare(Molecule *m, ReactantContainer *rc, MappingSet *m
 			//if(this->uniqueTemplateID==41) { cout<<"  -basic bound states match"<<endl; }
 
 			//Now make sure binding sites match up.  This can be tricky!
-			if(symBondPartner[c]!=0) {
+			if(symBondPartner[c].lock()!=0) {
 				//if(this->uniqueTemplateID==41)
 				//cout<<"  -checking if bond partner matches..."<<endl;
 
 
 				//Grab the template molecule and the actual molecule that we have to compare
-				shared_ptr<TemplateMolecule> t2=symBondPartner[c];
+				shared_ptr<TemplateMolecule> t2=symBondPartner[c].lock();
 				Molecule *m2=m->getBondedMolecule(molEqComp[sc]);
 
 				//Check for a matched molecule, if we are already connected to something
@@ -1590,13 +1591,13 @@ string TemplateMolecule::getPatternString() {
 
 		for(int c=0; c<tm->n_bonds; c++) {
 			//If we are bonded to an equivalent component, then we skip this and handle it later
-			if(tm->bondPartner[c]->moleculeType->isEquivalentComponent(tm->bondPartnerCompName[c])) continue;
+			if(tm->bondPartner[c].lock()->moleculeType->isEquivalentComponent(tm->bondPartnerCompName[c])) continue;
 
 			string newStr = addBondConstraint(str,tm->bondCompName[c],bondNumber);
 			if(newStr.compare(str)!=0){
 				str = newStr;
 				for(unsigned int k=0; k<tmList.size(); k++) {
-					if(tm->bondPartner[c]==tmList.at(k)) {
+					if(tm->bondPartner[c].lock()==tmList.at(k)) {
 						patternString.at(k)=addBondConstraint(patternString.at(k),tm->bondPartnerCompName[c],bondNumber);
 						break;
 					}
@@ -1657,7 +1658,7 @@ string TemplateMolecule::getPatternString() {
 				str+="~"+mt->getComponentStateName(compIndex,tm->symCompStateConstraint[c]);
 			}
 
-			if(tm->symBondPartner[c]!=0) {
+			if(tm->symBondPartner[c].lock()!=0) {
 
 				int currentBondNumber = -1;
 				for(unsigned int jj=0; jj<knownBondTMindex.size(); jj++) {
@@ -1670,19 +1671,19 @@ string TemplateMolecule::getPatternString() {
 					//Handle the case that we already know this bond number...
 					str+="!"+NFutil::toString(currentBondNumber);
 				}
-				else if(tm->symBondPartner[c]->moleculeType->isEquivalentComponent(tm->symBondPartnerCompName[c])) {
+				else if(tm->symBondPartner[c].lock()->moleculeType->isEquivalentComponent(tm->symBondPartnerCompName[c])) {
 					//Handle the case where the symBondPartner is connected to some other sym component
 					for(unsigned int k=0; k<tmList.size(); k++) {
-						if(tm->symBondPartner[c] == tmList.at(k)) {
+						if(tm->symBondPartner[c].lock() == tmList.at(k)) {
 							if((int)k>c) {  //check here, so we only add this bond in once
 								str+="!"+NFutil::toString(bondNumber);
 
 								//remember that we added this bond number here
 								knownBondTMindex.push_back(k);
-								shared_ptr<TemplateMolecule> tm2 = tm->symBondPartner[c];
+								shared_ptr<TemplateMolecule> tm2 = tm->symBondPartner[c].lock();
 								bool found = false;
 								for(int kk=0; kk<tm2->n_symComps; kk++) {
-									if(tm2->symBondPartner[kk]==tm) {
+									if(tm2->symBondPartner[kk].lock() ==tm) {
 										knownBondCompIndex.push_back(kk);
 										found = true; break;
 									}
@@ -1702,7 +1703,7 @@ string TemplateMolecule::getPatternString() {
 					//Handle the case where the symBondPartner is connected to a non-sym component
 					str+="!"+NFutil::toString(bondNumber);
 					for(unsigned int k=0; k<tmList.size(); k++) {
-						if(tm->symBondPartner[c] == tmList.at(k)) {
+						if(tm->symBondPartner[c].lock() == tmList.at(k)) {
 							patternString.at(k)=addBondConstraint(patternString.at(k),tm->symBondPartnerCompName[c],bondNumber);
 							break;
 						}
@@ -1893,7 +1894,7 @@ bool TemplateMolecule::checkSymmetry(shared_ptr<TemplateMolecule> tm1, shared_pt
 					//First make sure the bond partner exists (it might not be there
 					//if we are calling from the finding symmetry about a bond because
 					//we would have had to remove a bond!)
-					if(tm1->bondPartner[i]==NULL && tm2->bondPartner[j]==NULL) {
+					if(tm1->bondPartner[i].lock() ==NULL && tm2->bondPartner[j].lock() ==NULL) {
 						//If they are both null, then that makes sense and we
 						//can map this site.
 						if(mapped[j]==false) {
@@ -1903,10 +1904,10 @@ bool TemplateMolecule::checkSymmetry(shared_ptr<TemplateMolecule> tm1, shared_pt
 					}
 
 					//If one or the other is null, then we could not map
-					if(tm1->bondPartner[i]!=NULL && tm2->bondPartner[j]!=NULL ) {
+					if(tm1->bondPartner[i].lock() !=NULL && tm2->bondPartner[j].lock() !=NULL ) {
 						//then we can actually check the bond partner because we know it exists
-						if(tm1->bondPartner[i]->getMoleculeType()->getTypeID() ==
-								tm2->bondPartner[j]->getMoleculeType()->getTypeID())
+						if(tm1->bondPartner[i].lock()->getMoleculeType()->getTypeID() ==
+								tm2->bondPartner[j].lock()->getMoleculeType()->getTypeID())
 							if(mapped[j]==false) {
 								mapped[j]=true;
 								break;
@@ -1949,7 +1950,7 @@ bool TemplateMolecule::checkSymmetryAroundBond(shared_ptr<TemplateMolecule> tm1,
 	// syntax) because we can only remove bonds that are explicitly labeled.
 	for(int i=0; i<tm1->n_bonds; i++) {
 		if(tm1->bondCompName[i].compare(bSite1)==0) {
-			if(tm1->bondPartner[i]==tm2) {
+			if(tm1->bondPartner[i].lock()==tm2) {
 				if(tm1->bondPartnerCompName[i].compare(bSite2)==0) {
 
 					// WHEN WE GET HERE, WE KNOW WE HAVE FOUND THE BOND FROM TM1
@@ -1957,13 +1958,13 @@ bool TemplateMolecule::checkSymmetryAroundBond(shared_ptr<TemplateMolecule> tm1,
 					// so now search in tm2
 					for(int j=0; j<tm2->n_bonds; j++) {
 							if(tm2->bondCompName[j].compare(bSite2)==0) {
-								if(tm2->bondPartner[j]==tm1) {
+								if(tm2->bondPartner[j].lock()==tm1) {
 
 									// WHEN WE GET HERE, WE KNOW WE HAVE FOUND THE BOND FROM TM2
 
 									//Step 1: remove the bond.
-									tm1->bondPartner[i]=NULL;
-									tm2->bondPartner[j]=NULL;
+									tm1->bondPartner[i]=weak_ptr<TemplateMolecule>();
+									tm2->bondPartner[j]=weak_ptr<TemplateMolecule>();
 
 									//Step 2: figure out the deal using our other check symmetry function
 									bool isSymmetric = checkSymmetry(tm1, tm2, bSite1, bSite2);

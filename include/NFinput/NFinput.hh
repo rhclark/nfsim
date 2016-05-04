@@ -117,11 +117,11 @@ namespace NFinput {
 	 */
 	class component {
 		public:
-			component(weak_ptr<TemplateMolecule> t, string name);
+			component(shared_ptr<TemplateMolecule> t, string name);
 			component(MoleculeType *mt, string name);
 			~component();
 
-			weak_ptr<TemplateMolecule> t;
+			shared_ptr<TemplateMolecule> t;
 			MoleculeType *mt;
 			string name;
 			string uniqueId;

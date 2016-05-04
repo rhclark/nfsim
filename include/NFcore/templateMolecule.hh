@@ -48,7 +48,7 @@ namespace NFcore
 		int getN_symCompBonds() const {
 			int symCompBondCounter=0;
 			for(int i=0; i<n_symComps; i++) {
-				if(symBondPartner[i]!=0) symCompBondCounter++;
+				if(symBondPartner[i].lock() !=0) symCompBondCounter++;
 			}
 			return symCompBondCounter;
 		}
@@ -62,7 +62,7 @@ namespace NFcore
 		void addComponentConstraint(string cName, int stateValue);
 		void addComponentExclusion(string cName, string stateName);
 		void addComponentExclusion(string cName, int stateValue);
-		void addBond(string thisBsiteName,shared_ptr<TemplateMolecule> t2, string bSiteName2);
+		void addBond(string thisBsiteName,weak_ptr<TemplateMolecule> t2, string bSiteName2);
 
 		/* Methods for adding a disjoint component to a template pattern
 		 *  e.g.  X.Y
@@ -79,7 +79,7 @@ namespace NFcore
 		void addSymCompConstraint(string cName, string uniqueId,
 				int bondState,int stateConstraint);
 		void addSymBond(string thisBsiteName, string thisCompId,
-				shared_ptr<TemplateMolecule> t2, string bSiteName2);
+				weak_ptr<TemplateMolecule> t2, string bSiteName2);
 
 		/* static function for binding two templates together */
 		static void bind(shared_ptr<TemplateMolecule> t1, string bSiteName1, string compId1,
@@ -172,7 +172,7 @@ namespace NFcore
 		int n_bonds;
 		int *bondComp;
 		string *bondCompName;
-		shared_ptr<TemplateMolecule> *bondPartner;
+		weak_ptr<TemplateMolecule> *bondPartner;
 		string *bondPartnerCompName; //used if nonsymmetric bond is connected to partner symmetric site
 		int *bondPartnerCompIndex; //used if nonsymmetric bond is connected to partner nonsymmetric site else =-1
 		bool *hasVisitedBond;
@@ -193,7 +193,7 @@ namespace NFcore
 		string *symCompUniqueId; //Used to match up a particular component when creating bonds
 		int *symCompStateConstraint;
 		int *symCompBoundState;  //either Empty (0), Occupied (1), or No constraint(2)
-		shared_ptr<TemplateMolecule> *symBondPartner; //the bound template, if this component is bound
+		weak_ptr<TemplateMolecule> *symBondPartner; //the bound template, if this component is bound
 		string *symBondPartnerCompName;
 		int *symBondPartnerCompIndex;
 		vector < vector <int> > canBeMappedTo; //might want to change this to a 2d array for memory/speed?
@@ -209,10 +209,10 @@ namespace NFcore
 
 
 		//For depth first traversals on a template molecule
-		static queue <shared_ptr<TemplateMolecule>> q;
+		static queue <weak_ptr<TemplateMolecule>> q;
 		static queue <int> d;
 		static vector <shared_ptr<TemplateMolecule>>::iterator tmVecIter;
-		static list <shared_ptr<TemplateMolecule>>::iterator tmIter;
+		static list <weak_ptr<TemplateMolecule>>::iterator tmIter;
 
 	};
 

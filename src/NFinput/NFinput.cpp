@@ -30,7 +30,7 @@ map<int,map<int,string>> reactionTypeArray ={
 
 
 
-component::component(weak_ptr<TemplateMolecule> t, string name)
+component::component(shared_ptr<TemplateMolecule> t, string name)
 {
 	mt=0;
 	uniqueId="";
@@ -45,7 +45,7 @@ component::component(weak_ptr<TemplateMolecule> t, string name)
 
 component::component(MoleculeType *mt, string name)
 {
-	t=std::weak_ptr<TemplateMolecule>();
+	t=nullptr;
 	uniqueId="";
 	symPermutationName="";
 	numOfBondsLabel="";
@@ -57,7 +57,7 @@ component::component(MoleculeType *mt, string name)
 
 component::~component()
 {
-	t=std::weak_ptr<TemplateMolecule>();
+	t=nullptr;
 	mt=0;
 }
 
@@ -1935,7 +1935,7 @@ bool NFinput::initReactionRules(
 					if(!lookup(c, site, comps, symMap)) return false;
 
 					// Check if this is modifying a population (illegal!)
-					if ( c->t.lock()->getMoleculeType()->isPopulationType() )
+					if ( c->t->getMoleculeType()->isPopulationType() )
 					{
 						cerr << "Attempt to change state of a population type molecule in ReactionClass: '"
 						     << rxnName << "'. Quitting." << endl;
@@ -1944,18 +1944,18 @@ bool NFinput::initReactionRules(
 
 					//handle both increment and decrement states first...
 					if(finalState=="PLUS") {
-						if(!ts->addIncrementStateTransform(c->t.lock(),c->symPermutationName)) return false;
+						if(!ts->addIncrementStateTransform(c->t,c->symPermutationName)) return false;
 
 						if(verbose) {
-							cout<<"\t\t\t***Identified increment state of site: "+c->t.lock()->getMoleculeTypeName()+"("+c->symPermutationName;
+							cout<<"\t\t\t***Identified increment state of site: "+c->t->getMoleculeTypeName()+"("+c->symPermutationName;
 							cout<<") to new state value: oldStateValue+1"<<endl;
 						}
 					}
 					else if(finalState=="MINUS") {
-						if(!ts->addDecrementStateTransform(c->t.lock(),c->symPermutationName)) return false;
+						if(!ts->addDecrementStateTransform(c->t,c->symPermutationName)) return false;
 
 						if(verbose) {
-							cout<<"\t\t\t***Identified decrement state of site: "+c->t.lock()->getMoleculeTypeName()+"("+c->symPermutationName;
+							cout<<"\t\t\t***Identified decrement state of site: "+c->t->getMoleculeTypeName()+"("+c->symPermutationName;
 							cout<<") to new state value: oldStateValue-1"<<endl;
 						}
 
@@ -1966,27 +1966,27 @@ bool NFinput::initReactionRules(
 						try {
 
 							string lookupname = c->symPermutationName;
-							if(allowedStates.find(c->t.lock()->getMoleculeTypeName()+"_"+lookupname+"_"+finalState)==allowedStates.end()) {
+							if(allowedStates.find(c->t->getMoleculeTypeName()+"_"+lookupname+"_"+finalState)==allowedStates.end()) {
 
-								//if(c->t.lock()->getMoleculeType()->isEquivalentComponent(c->name)) {
+								//if(c->t->getMoleculeType()->isEquivalentComponent(c->name)) {
 								//	lookupname = c->name;
 								//}
-								//if(allowedStates.find(c->t.lock()->getMoleculeTypeName()+"_"+lookupname+"_"+finalState)==allowedStates.end()) {
-									cout<<"Error! in NFinput, when looking up state: "<<c->t.lock()->getMoleculeTypeName()+"_"+c->symPermutationName+"_"+finalState<<endl;
+								//if(allowedStates.find(c->t->getMoleculeTypeName()+"_"+lookupname+"_"+finalState)==allowedStates.end()) {
+									cout<<"Error! in NFinput, when looking up state: "<<c->t->getMoleculeTypeName()+"_"+c->symPermutationName+"_"+finalState<<endl;
 									cout<<"Could not find this in the list of allowed states!  exiting!"<<endl;
 									exit(1);
 								//}
 							}
-							finalStateInt = allowedStates.find(c->t.lock()->getMoleculeTypeName()+"_"+lookupname+"_"+finalState)->second;
+							finalStateInt = allowedStates.find(c->t->getMoleculeTypeName()+"_"+lookupname+"_"+finalState)->second;
 							//cout<<"found:"<<finalStateInt<<endl;
 						} catch (exception& e) {
 							cerr<<"Error in adding a state change operation in ReactionClass: '"+rxnName+"'."<<endl;
 							cerr<<"It seems that the final state is not valid."<<endl;
 							return false;
 						}
-						if(!ts->addStateChangeTransform(c->t.lock(),c->symPermutationName,finalStateInt)) return false;
+						if(!ts->addStateChangeTransform(c->t,c->symPermutationName,finalStateInt)) return false;
 						if(verbose) {
-							cout<<"\t\t\t***Identified state change of site: "+c->t.lock()->getMoleculeTypeName()+"("+c->symPermutationName;
+							cout<<"\t\t\t***Identified state change of site: "+c->t->getMoleculeTypeName()+"("+c->symPermutationName;
 							cout<<") to new state value: " + finalState<<endl;
 						}
 					}
@@ -2023,10 +2023,10 @@ bool NFinput::initReactionRules(
 
 					//Even though we had to make sure both ends exist, and we really only need one transformation
 					//we give both templates so we can check for symmetric unbinding
-					if(!ts->addUnbindingTransform(c1->t.lock(), c1->symPermutationName, c2->t.lock(), c2->symPermutationName)) return false;
+					if(!ts->addUnbindingTransform(c1->t, c1->symPermutationName, c2->t, c2->symPermutationName)) return false;
 					if(verbose) {
-						cout<<"\t\t\t***Identified unbinding of site: "+c1->t.lock()->getMoleculeTypeName()+"("+c1->symPermutationName + ")";
-						cout<<" to site " + c2->t.lock()->getMoleculeTypeName()+"("+c2->symPermutationName<<")"<<endl;
+						cout<<"\t\t\t***Identified unbinding of site: "+c1->t->getMoleculeTypeName()+"("+c1->symPermutationName + ")";
+						cout<<" to site " + c2->t->getMoleculeTypeName()+"("+c2->symPermutationName<<")"<<endl;
 					}
 
 				}
@@ -2093,8 +2093,8 @@ bool NFinput::initReactionRules(
 
 
 					// Check if this is binding a population (illegal!)
-					if (    c1->t.lock()->getMoleculeType()->isPopulationType()
-						 || c2->t.lock()->getMoleculeType()->isPopulationType() )
+					if (    c1->t->getMoleculeType()->isPopulationType()
+						 || c2->t->getMoleculeType()->isPopulationType() )
 					{
 						cerr << "Attempt to AddBond at site on a population type molecule in ReactionClass: '"
 						     << rxnName << "'. Quitting." << endl;
@@ -2125,7 +2125,7 @@ bool NFinput::initReactionRules(
 					{
 						//this means that they were on the same reactant, so we should always add
 						//this as a normal binding reaction...
-						if ( !ts->addBindingTransform( c1->t.lock(), c1->symPermutationName, c2->t.lock(), c2->symPermutationName) )
+						if ( !ts->addBindingTransform( c1->t, c1->symPermutationName, c2->t, c2->symPermutationName) )
 							return false;
 					}
 					else
@@ -2133,35 +2133,35 @@ bool NFinput::initReactionRules(
 						//Otherwise, we should check how we should add this reaction, depending on the input flags
 						if ( !blockSameComplexBinding )
 						{
-							if ( !ts->addBindingTransform( c1->t.lock(), c1->symPermutationName, c2->t.lock(), c2->symPermutationName) )
+							if ( !ts->addBindingTransform( c1->t, c1->symPermutationName, c2->t, c2->symPermutationName) )
 								return false;
 						}
 						else
 						{
-							if ( !ts->addBindingSeparateComplexTransform( c1->t.lock(), c1->symPermutationName, c2->t.lock(), c2->symPermutationName) )
+							if ( !ts->addBindingSeparateComplexTransform( c1->t, c1->symPermutationName, c2->t, c2->symPermutationName) )
 								return false;
 						}
 						if (verbose)
 						{
-							cout << "\t\t\t***Identified binding of site: " << c1->t.lock()->getMoleculeTypeName()
-							     << "(" << c1->symPermutationName << ")" << " to site " << c2->t.lock()->getMoleculeTypeName()
+							cout << "\t\t\t***Identified binding of site: " << c1->t->getMoleculeTypeName()
+							     << "(" << c1->symPermutationName << ")" << " to site " << c2->t->getMoleculeTypeName()
 							     << "(" << c2->symPermutationName << ")" << endl;
 						}
 					}*/
 
 					// Add binding transform
 					if(isNewMoleculeBond) {
-						if ( !ts->addNewMoleculeBindingTransform( c1->t.lock(), c1->symPermutationName, c2->t.lock(), c2->symPermutationName) )
+						if ( !ts->addNewMoleculeBindingTransform( c1->t, c1->symPermutationName, c2->t, c2->symPermutationName) )
 							return false;
 					} else {
-						if ( !ts->addBindingTransform( c1->t.lock(), c1->symPermutationName, c2->t.lock(), c2->symPermutationName) )
+						if ( !ts->addBindingTransform( c1->t, c1->symPermutationName, c2->t, c2->symPermutationName) )
 							return false;
 					}
 
 					if (verbose)
 					{
-						cout << "\t\t\t***Identified binding of site: " << c1->t.lock()->getMoleculeTypeName()
-						     << "(" << c1->symPermutationName << ")" << " to site " << c2->t.lock()->getMoleculeTypeName()
+						cout << "\t\t\t***Identified binding of site: " << c1->t->getMoleculeTypeName()
+						     << "(" << c1->symPermutationName << ")" << " to site " << c2->t->getMoleculeTypeName()
 						     << "(" << c2->symPermutationName << ")" << endl;
 						if(isNewMoleculeBond)
 							cout << "\t\t\t   (this bond connects a new molecule that was synthesized by this rule)" << endl;
@@ -2219,23 +2219,23 @@ bool NFinput::initReactionRules(
 
 									if ( c.mt->isPopulationType() )
 									{
-										if(!ts->addDeleteMolecule(c.t.lock(),TransformationFactory::DECREMENT_POPULATION)) return false;
+										if(!ts->addDeleteMolecule(c.t,TransformationFactory::DECREMENT_POPULATION)) return false;
 									}
 									else
 									{
-										if(!ts->addDeleteMolecule(c.t.lock(),TransformationFactory::DELETE_MOLECULES_NO_KEYWORD)) return false;
+										if(!ts->addDeleteMolecule(c.t,TransformationFactory::DELETE_MOLECULES_NO_KEYWORD)) return false;
 									}
 								} else {
 									//Pointing to a single molecule, DeleteMolecules keyword is on, so delete it regardless
 									//cout<<"Using the DeleteMolecules keyword, so delete only the molecules"
 									//	" that are being pointed to..."<<endl;
-									if ( c.t.lock()->getMoleculeType()->isPopulationType() )
+									if ( c.t->getMoleculeType()->isPopulationType() )
 									{
-										if(!ts->addDecrementPopulation(c.t.lock())) return false;
+										if(!ts->addDecrementPopulation(c.t)) return false;
 									}
 									else
 									{
-										if(!ts->addDeleteMolecule(c.t.lock(),TransformationFactory::DELETE_MOLECULES)) return false;
+										if(!ts->addDeleteMolecule(c.t,TransformationFactory::DELETE_MOLECULES)) return false;
 									}
 								}
 							}
@@ -2256,13 +2256,13 @@ bool NFinput::initReactionRules(
 									//Pointing to the whole complex, no DeleteMolecules keyword, so delete it all!
 									//cout<<"Pointing to the whole complex, without DeleteMolecules keyword, so delete it and all connected..."<<endl;
 									component c = comps.find(id)->second;
-									if ( c.t.lock()->getMoleculeType()->isPopulationType() )
+									if ( c.t->getMoleculeType()->isPopulationType() )
 									{   // we're dealing with a population here, create a decrement population transform
-										if(!ts->addDecrementPopulation(c.t.lock())) return false;
+										if(!ts->addDecrementPopulation(c.t)) return false;
 									}
 									else
 									{	// we're dealing with a particle here, create regular delete transform
-										if(!ts->addDeleteMolecule(c.t.lock(),TransformationFactory::COMPLETE_SPECIES_REMOVAL)) return false;
+										if(!ts->addDeleteMolecule(c.t,TransformationFactory::COMPLETE_SPECIES_REMOVAL)) return false;
 									}
 								}
 								else
@@ -2291,7 +2291,7 @@ bool NFinput::initReactionRules(
 								exit(1);
 							}
 							//cout<<"Templates.size() "<<templates.size()<<endl;
-							//c.t.lock()->printDetails();
+							//c.t->printDetails();
 
 						} catch (exception& e) {
 							cerr<<"Error in adding an delete molecule operation in ReactionClass: '"+rxnName+"'."<<endl;
@@ -2463,7 +2463,7 @@ bool NFinput::initReactionRules(
 									if ( comps.find(argValue)!=comps.end() ) {
 										// found good pattern reference!
 										component c = comps.find(argValue)->second;
-										ts->addLocalFunctionReference(c.t.lock(),argId,LocalFunction::SPECIES);
+										ts->addLocalFunctionReference(c.t,argId,LocalFunction::SPECIES);
 										if(verbose) {cout<<"\t\t\t\tScope of tag "<<argId<<" is SPECIES  (argValue="<<argValue<<")"<<endl; }
 									}
 									else {
@@ -2552,7 +2552,7 @@ bool NFinput::initReactionRules(
 								//add a reference to it with the given name
 								if(comps.find(argValue)!=comps.end()){
 									component c = comps.find(argValue)->second;
-									ts->addLocalFunctionReference(c.t.lock(),argId,LocalFunction::SPECIES);
+									ts->addLocalFunctionReference(c.t,argId,LocalFunction::SPECIES);
 									if(verbose) {cout<<"\t\t\t\tScope is SPECIES"<<endl; }
 									//exit(1); // set all local functions to allow species scope here!!
 								}
@@ -2587,7 +2587,7 @@ bool NFinput::initReactionRules(
 								//add a reference to it with the given name
 								if(comps.find(argValue)!=comps.end()){
 									component c = comps.find(argValue)->second;
-									ts->addLocalFunctionReference(c.t.lock(),argId,LocalFunction::SPECIES);
+									ts->addLocalFunctionReference(c.t,argId,LocalFunction::SPECIES);
 									if(verbose) {cout<<"\t\t\t\tScope is SPECIES"<<endl; }
 									//exit(1); // set all local functions to allow species scope here!!
 								}
@@ -3139,6 +3139,7 @@ shared_ptr<TemplateMolecule> NFinput::readPattern(
 			//Get the moleculeType and create the actual template
 			MoleculeType *moltype = s->getMoleculeTypeByName(molName);
 			shared_ptr<TemplateMolecule> tempmol = make_shared<TemplateMolecule>(moltype);
+			moltype->addTemplateMolecule(tempmol);
 			if(verbose) cout<<"\t\t\t\tIncluding Molecule of type: "<<molName<<" with local id: " << molUid<<endl;
 
 			//Create a comp element that matches onto this molecule so we can retrieve
@@ -3363,7 +3364,7 @@ shared_ptr<TemplateMolecule> NFinput::readPattern(
 
 
 			//Update our data storage with the new template and empty out the things we don't need
-			templates.insert(pair <string, weak_ptr<TemplateMolecule>> (molUid,tempmol));
+			templates.insert(pair <string, shared_ptr<TemplateMolecule>> (molUid,tempmol));
 			tMolecules.push_back(tempmol);
 			stateName.clear();
 			stateValue.clear();
@@ -3880,6 +3881,7 @@ bool NFinput::readProductMolecule(
 
 		// Create the TemplateMolecule
 		tempmol = make_shared<TemplateMolecule>( moltype );
+		moltype->addTemplateMolecule(tempmol);
 
 		// Create a component object for this molecule
 		component c_mol(tempmol,"");
