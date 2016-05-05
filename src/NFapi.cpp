@@ -90,6 +90,11 @@ bool NFapi::resetSystem(){
     return NFapi::system != NULL;
 }
 
+bool NFapi::deleteSystem(){
+    if(NFapi::system != NULL)
+        delete NFapi::system;
+}
+
 bool NFapi::initSystemXML(const string initXML){
     TiXmlDocument* doc = new TiXmlDocument();
     doc->Parse(initXML.c_str());

@@ -65,6 +65,8 @@ namespace NFapi{
 
     bool setupNFSim(const char* filename, bool);
     bool resetSystem();
+    bool deleteSystem();
+    
     bool initSystemXML(const string);
     bool initSystemNauty(const std::map<string, int>);
     //performs  exactly one simulation step
