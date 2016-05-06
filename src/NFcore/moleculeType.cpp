@@ -182,14 +182,16 @@ MoleculeType::~MoleculeType()
 
 
 	//Delete all template molecules of this type that exist
-	shared_ptr<TemplateMolecule> t;
-	while(allTemplates.size()>0)
+	
+	/*while(allTemplates.size()>0)
 	{
 		t = allTemplates.back();
 		allTemplates.pop_back();
 		//delete t;
 		t.reset();
-	}
+	}*/
+	//shared_ptr magic! the garbage collector automatically calls the destructors since this should be the last reference
+	allTemplates.clear();
 
 
 

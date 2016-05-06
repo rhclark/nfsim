@@ -190,10 +190,10 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
 {
 
     //memoization
-    if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
+    /*if(NFapi::numReactantQueryDict.find(query) != NFapi::numReactantQueryDict.end()){
         structData = NFapi::numReactantQueryDict[query];
     }
-    else{
+    else{*/
         if(!NFapi::resetSystem())
             return false;
         if(!NFapi::initSystemNauty(query.initMap)){
@@ -211,8 +211,8 @@ bool NFapi::initAndQueryByNumReactant(NFapi::numReactantQueryIndex &query,
 
 
         //store for future use
-        NFapi::numReactantQueryDict[query] = structData;
-    }
+        //NFapi::numReactantQueryDict[query] = structData;
+    //}
     return true;
 }
 
