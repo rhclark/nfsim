@@ -39,11 +39,15 @@ void NFapi::calculateRxnMembership(System *s, std::map<Complex*, vector<Reaction
                 mol = s->getMoleculeType(i)->getMolecule(m);
                 complex = mol->getComplex();
                 std::vector<ReactionClass*> rxnMembership = s->getMoleculeType(i)->getReactionClassMembership(mol);
-
                 //keep only those reactions that match the number of reactants we are interested in
+
                 rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
-                              [numOfReactants, onlyActive](ReactionClass* p){
-                                return p->getNumOfReactants() != numOfReactants || (p->get_a() == 0 && onlyActive); 
+                              [=](ReactionClass* p) mutable{
+                                //dont add this reaction if it already exists!
+                                bool alreadyExists = std::find(molMembership[complex].begin(),molMembership[complex].end(), \
+                                                               p) != molMembership[complex].end();
+                                //or if the nreactants doesnt match or propensity is 0
+                                return p->getNumOfReactants() != numOfReactants || (p->get_a() == 0 && onlyActive) || alreadyExists; 
                               }), rxnMembership.end() );
                 if(onlyActive)
                     rxnMembership.erase( std::remove_if( rxnMembership.begin(), rxnMembership.end(),
