@@ -127,15 +127,22 @@ void NFapi::queryByNumReactant(std::map<std::string, vector<map<string,string>*>
                                 const int numOfReactants, const bool onlyActive) {
     std::map<Complex*, vector<ReactionClass*>> molMembership;
     NFapi::calculateRxnMembership(NFapi::system, molMembership, numOfReactants, onlyActive);
-
     for(auto cpx: molMembership){
         vector<map<string,string>*>* reactions = new vector<map<string,string>*>;
         if (structData.find(cpx.first->getCanonicalLabel()) == structData.end()){
         for(auto rxn: cpx.second){
                 //std::map<std::string, string> localData;
                 map<string, string>* localData = new map<string,string>;
-                localData->insert(pair<string, string>("rate", std::to_string(rxn->getBaseRate())));
+                
                 localData->insert(pair<string, string>("name", rxn->getName()));
+                if(onlyActive){
+                   localData->insert(pair<string, string>("rate", std::to_string(rxn->get_a())));
+                   string resample = rxn->getBaseRate() != rxn->get_a()? "true" : "false";
+                   localData->insert(pair<string,string>("resample", resample));
+                }
+                else{
+                    localData->insert(pair<string, string>("rate", std::to_string(rxn->getBaseRate())));
+                }
                 if(rxn->getProperty("reactionDimensionality"))
                     localData->insert(pair<string, string>("reactionDimensionality",
                                                            rxn->getProperty("reactionDimensionality")->getValue()));
@@ -327,7 +334,9 @@ bool NFapi::stepSimulation(const std::string rxnName){
     auto rxn = NFapi::system->getReaction(rxnName);
     //sending a negative number causes the firing function to recalculate the random number used
     //for argument
-    int retry = 100;
+
+    return rxn->fire(-1);
+    /*int retry = 100;
     while(!rxn->fire(-1)){
         if(retry == 0)
             break;
@@ -336,7 +345,7 @@ bool NFapi::stepSimulation(const std::string rxnName){
     //assert(retry != 0);
     if(retry == 0)
         return false;
-    return true;
+    return true;*/
 }
 
 bool NFapi::stepSimulation(){
