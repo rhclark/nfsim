@@ -1,6 +1,6 @@
 #include <NFapi.hh>
 #include <NFinput/NFinput.hh>
-#include <boost/range/irange.hpp>
+//#include <boost/range/irange.hpp>
 #include <NFapiAux.hh>
 #include <NFproperty.hh>
 
@@ -12,7 +12,7 @@ namespace NFapi {
     map<numReactantQueryIndex, vector<map<string, string>*>> mSystemQueryDict;
 }
 
-using namespace boost;
+//using namespace boost;
 
 shared_ptr<Compartment> NFapi::getCompartmentInformation(const std::string compartmentName)
 {
@@ -33,9 +33,11 @@ void NFapi::calculateRxnMembership(System *s, std::map<Complex*, vector<Reaction
 
         molMembership.clear();
         //iterate over all molecule types...
-        for(auto i: irange(0, s->getNumOfMoleculeTypes())){
+        for(auto i=0; i<s->getNumOfMoleculeTypes(); i++){
+        //for(auto i: irange(0, s->getNumOfMoleculeTypes())){
             // and all molecule agents associated with those molecule types...
-            for(auto m: irange(0, s->getMoleculeType(i)->getMoleculeCount())){
+            for(auto m=0; m< s->getMoleculeType(i)->getMoleculeCount(); m++){
+            //for(auto m: irange(0, s->getMoleculeType(i)->getMoleculeCount())){
                 mol = s->getMoleculeType(i)->getMolecule(m);
                 complex = mol->getComplex();
                 std::vector<ReactionClass*> rxnMembership = s->getMoleculeType(i)->getReactionClassMembership(mol);
@@ -312,7 +314,8 @@ void NFapi::querySystemStatus(std::string printParam, vector<map<string, string>
     {
         map<string,double> basicMolecules = NFapi::system->getAllObservableCounts();
         for(auto it: basicMolecules){
-            for(int i: irange(0,(int)it.second)){
+            for(auto i=0; i<(int)it.second; i++){
+            //for(int i: irange(0,(int)it.second)){
                 map<string, string>* results = new map<string,string>;
                 //results["label"] = it.first;
                 results->insert(pair<string, string>("label", it.first));
