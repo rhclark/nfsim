@@ -45,8 +45,8 @@ set(SUB_DIRS
 )
 
 add_definitions("-Wno-deprecated-declarations")
-add_definitions(-std=c++11)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#add_definitions(-std=c++11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${SUB_DIRS})
 
