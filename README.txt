@@ -68,6 +68,7 @@ Enjoy your new network-free world!
 Release Notes
 
 v1.12   Dec, 2015
+    Bugfixes:
         (a) Changes to how molecule instances are mapped to BasicRxn's 
         (BasicRxnClass::tryToAdd()). It was possible for certain kinds of rules 
         that the mappingSets were not updated correctly because the head molecule 
@@ -87,6 +88,8 @@ v1.12   Dec, 2015
         (d) Updated the validation models to reflect current BNGL formatting standards. 
         Added a few new validation models that address the bugfixes included in this 
         version. This update also includes a Python version of the validation script.
+    Known issues:
+	Please refer to https://github.com/RuleWorld/nfsim/issues for a list of known NFsim issues.
 
 v1.11   Oct, 2012
         (a) Molecules without components may be treated as population variables
