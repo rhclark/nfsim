@@ -66,6 +66,7 @@ class TestNFSimFile(ParametrizedTestCase):
     def NFsimtrajectoryGeneration(self, outputDirectory, fileNumber, runOptions):
         runOptions = [x.strip() for x in runOptions.split(' ')]
         with open(os.devnull, "w") as fnull:
+
             subprocess.check_call([nfsimPath, '-xml', os.path.join(outputDirectory, 'v{0}.xml'.format(fileNumber)),
                                    '-o', os.path.join(outputDirectory, 'v{0}_nf.gdat'.format(fileNumber))] + runOptions,
                                   stdout=fnull)
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     tests = getTests(testFolder)
     for index in tests:
         suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index,
-                      'odir': 'basicModels', 'iterations': 60}))
+                      'odir': 'basicModels', 'iterations': 30}))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
 
     ret = (list(result.failures) == [] and list(result.errors) == [])
