@@ -36,6 +36,7 @@ script:
 before_deploy:
 - cd dist; python changeFilename.py; cd ..
 
+
 deploy:
   provider: gcs
   access_key_id: GOOGHK4SCMDVVDNXWLUF 	
