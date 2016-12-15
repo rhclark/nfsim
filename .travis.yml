@@ -1,6 +1,6 @@
 os:
 - linux
-- osx
+
 compiler:
   - clang
 language: c++
@@ -45,4 +45,4 @@ deploy:
   skip_cleanup: true
   local_dir: dist
   on:
-    branch: release
+    all_branches: true
