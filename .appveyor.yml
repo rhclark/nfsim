@@ -16,7 +16,7 @@ branches:
     - mcell
     - release-windows
     
-platform: x86
+platform: Win32
 
 
 build_script:
