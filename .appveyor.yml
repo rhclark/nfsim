@@ -4,7 +4,7 @@ environment:
     - generator: "Ninja"
 
 install:
-  - choco install -r -y mingw
+  - choco install -r -y mingw32
   - choco install -r -y ninja
   - "SET PATH=C:\\tools\\mingw32\\bin;%PATH%"
 
