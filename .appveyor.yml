@@ -22,18 +22,10 @@ build_script:
   - mingw32-make --version  
   - dir  C:\projects\nfsim\bin
   - mingw32-make  NFsim
+  - dir  
 
 
 artifacts:
  - path: build\NFsim.exe
    name: NFsim
-
-
-deploy:
-  - provider: gcs
-    access_key_id: GOOGHK4SCMDVVDNXWLUF 	
-    secret_access_key: 5+9g20s/y5pwm1Pt22RVb60pD8bNXqPgDLM6cs9m 	
-    bucket: appveyor-rhclark-nfsim
-    skip_cleanup: true
-    local_dir: dist
 
