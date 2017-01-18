@@ -21,7 +21,7 @@ build_script:
   - cmake --version
   - mingw32-make --version  
   - cmake  ..  
-  - dir  C:\projects\nfsim\build
+  - dir  C:\projects\nfsim\build\CMakeFiles
   - mingw32-make  NFsim
 
 
