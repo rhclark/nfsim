@@ -8,7 +8,7 @@
 using namespace NFinput;
 using namespace std;
 
-
+#define nullptr 0
 
 component::component(TemplateMolecule *t, string name)
 {
