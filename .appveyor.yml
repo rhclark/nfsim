@@ -6,7 +6,7 @@ environment:
 install:
   - choco install -r -y mingw 
   - choco install -r -y ninja
-  - "SET PATH=C:\\tools\\mingw530_32\\bin;%PATH%"
+  - "SET PATH=C:\\tools\\mingw\\bin;%PATH%"
 
 branches:
   # whitelist
@@ -21,7 +21,6 @@ platform: Win32
 
 build_script:
   - cmd: echo Running cmake ...
-  - dir C:
   - mkdir build
   - cd build
   - cmake -G "Ninja" ..
