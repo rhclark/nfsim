@@ -26,7 +26,7 @@ build_script:
 
 
 artifacts:
-  - path: bin\NFsim.exe
+  - path: Fsim.exe
     name: NFsim
 
 
@@ -37,5 +37,5 @@ deploy:
   username: roberthclark
   password:
     secure: K22E4pSAup6/htlGmoSBMw==
-  folder: midcap/d_appveyor/bin
+  folder: .
   artifact: NFsim
