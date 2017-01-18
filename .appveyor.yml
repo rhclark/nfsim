@@ -30,7 +30,6 @@ artifacts:
    name: NFsim
 
 
-
 deploy:
   provider: FTP
   protocol: ftp
