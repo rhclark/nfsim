@@ -17,11 +17,10 @@ platform: Win32
 build_script:
   - cmd: echo Running cmake ...
   - mkdir build
-  - cd build  
+  - cd bin
   - cmake --version
   - mingw32-make --version  
-  - cmake  ..  
-  - dir  C:\projects\nfsim\build\CMakeFiles
+  - dir  C:\projects\nfsim\bin
   - mingw32-make  NFsim
 
 
