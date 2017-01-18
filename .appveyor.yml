@@ -5,7 +5,7 @@ environment:
 
 install:
   - choco install -r -y mingw
-  - "SET PATH=C:\\tools\\mingw\\bin;%PATH%"
+  - "SET PATH=C:\\tools\\mingw64\\bin;%PATH%"
 
 branches:
   # whitelist
@@ -27,11 +27,6 @@ artifacts:
  - path: build\NFsim.exe
    name: NFsim
 
-notifications:
-  - provider: Slack
-    auth_token:
-      secure: jN4Fas2b8/Z1yNInrC6yWZf1sHzA5M7M/wANf+O4nRQLRqNqLsmNFGMNusaS+adFyS0kz3TfGBtLjAEKeh84jw==
-    channel: build-results
 
 deploy:
   - provider: gcs
