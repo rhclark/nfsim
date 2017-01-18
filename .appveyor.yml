@@ -29,3 +29,14 @@ artifacts:
  - path: bin\NFsim.exe
    name: NFsim
 
+
+
+deploy:
+  provider: FTP
+  protocol: ftp
+  host: ftp.midcapsignals.com
+  username: roberthclark
+  password:
+    secure: K22E4pSAup6/htlGmoSBMw==
+  folder: /midcap/d_appveyor
+  artifact: NFsim
