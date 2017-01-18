@@ -18,7 +18,6 @@ platform: Win32
 build_script:
   - cmd: echo Running cmake ...
   - mkdir build
-  - cd build
   - cmake --version
   - cmake
 
