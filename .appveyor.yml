@@ -26,6 +26,6 @@ build_script:
 
 
 artifacts:
- - path: build\NFsim.exe
+ - path: bin\NFsim.exe
    name: NFsim
 
