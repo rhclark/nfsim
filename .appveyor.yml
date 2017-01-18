@@ -1,20 +1,16 @@
 environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   matrix:
-    - generator: "Ninja"
+    - fast_finish: true
 
 install:
   - choco install -r -y mingw 
-  - choco install -r -y ninja
   - "SET PATH=C:\\tools\\mingw\\bin;%PATH%"
 
 branches:
   # whitelist
   only:
     - master
-    - release
-    - mcell
-    - release-windows
     
 platform: Win32
 
@@ -23,8 +19,8 @@ build_script:
   - cmd: echo Running cmake ...
   - mkdir build
   - cd build
-  - cmake -G "Ninja" ..
-  - ninja
+  - cmake --version
+
 
 artifacts:
  - path: build\NFsim.exe
