@@ -4,7 +4,7 @@ environment:
     - fast_finish: true
 
 install:
-  - choco install -r -y mingw 
+  - choco install -r -y Qt
   - "SET PATH=C:\\tools\\mingw\\bin;%PATH%"
 
 branches:
