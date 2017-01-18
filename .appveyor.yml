@@ -11,6 +11,9 @@ branches:
   # whitelist
   only:
     - master
+     
+cache:
+    - i686-4.9.2-release-win32-dwarf-rt_v4-rev4.7z
     
 platform: Win32
 
