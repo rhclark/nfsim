@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "templateMolecule.hh"
+#define nullptr 0
 
 using namespace std;
 using namespace NFcore;
