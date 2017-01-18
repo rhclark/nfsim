@@ -21,7 +21,7 @@ build_script:
   - cd build  
   - cmake --version
   - cmake ..
-  - make  
+  - dir
 
 
 artifacts:
