@@ -2,6 +2,7 @@
 #include "NFcore.hh"
 #include <queue>
 
+#define nullptr 0
 
 using namespace std;
 using namespace NFcore;
