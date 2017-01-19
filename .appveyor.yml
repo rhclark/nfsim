@@ -20,9 +20,9 @@ build_script:
   - cd bin
   - cmake --version
   - mingw32-make --version  
-  - dir  C:\projects\nfsim\bin
+  - dir  C:\tools
   - mingw32-make  NFsim
-  - dir  
+  
 
 
 artifacts:
