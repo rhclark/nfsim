@@ -19,13 +19,11 @@ build_script:
   - mkdir build
   - cd bin
   - cmake --version
-  - mingw32-make --version  
   - dir  C:\MinGW\bin
   - dir  C:\MinGW\mingw32
   - make  NFsim
+#  - mingw32-make --version  
   
-
-
 artifacts:
   - path: bin\NFsim.exe
     name: NFsim
