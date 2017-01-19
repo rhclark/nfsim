@@ -5,7 +5,7 @@ environment:
 
 install:
   - choco install -r -y mingw
-#  - "SET PATH=C:\\tools\\mingw64\\bin;%PATH%"
+  - "SET PATH=C:\\tools\\mingw64\\bin;%PATH%"
 
 branches:
   # whitelist
