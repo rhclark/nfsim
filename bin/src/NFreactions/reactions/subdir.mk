@@ -1,5 +1,5 @@
 ################################################################################
-# Automatically-generated file. Do not edit!   -std=c++11
+# Automatically-generated file. Do not edit!   
 ################################################################################
 
 # Add inputs and outputs from these tool invocations to the build variables 
@@ -20,7 +20,7 @@ CPP_DEPS += \
 src/NFreactions/reactions/%.o: ../src/NFreactions/reactions/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -O3 -Wall -c -fmessage-length=0  -std=gnu++   -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -O3 -Wall -c -fmessage-length=0  -std=c++11   -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
