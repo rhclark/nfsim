@@ -28,7 +28,6 @@ artifacts:
   - path: bin\NFsim.exe
     name: NFsim
 
-
 deploy:
   provider: FTP
   protocol: ftp
