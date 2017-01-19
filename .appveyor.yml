@@ -20,7 +20,7 @@ build_script:
   - cd bin
   - cmake --version
   - mingw32-make --version  
-  - dir  C:\.
+  - dir  C:\MinGW
   - mingw32-make  NFsim
   
 
