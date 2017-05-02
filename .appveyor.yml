@@ -31,7 +31,7 @@ artifacts:
 deploy:
   provider: FTP
   protocol: ftp
-  host: ftp.midcapsignals.com/midcap/d_appveyor_cvode
+  host: ftp.midcapsignals.com/midcap/d_appveyor
   username: roberthclark
   password:
     secure: K22E4pSAup6/htlGmoSBMw==
