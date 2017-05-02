@@ -35,5 +35,5 @@ deploy:
   username: roberthclark
   password:
     secure: K22E4pSAup6/htlGmoSBMw==
-    folder: midcap/d_appveyor_cvode
+    folder: midcap\d_appveyor_cvode
   artifact: NFsim
