@@ -47,3 +47,11 @@ before_deploy:
 #  local_dir: dist
 #  on:
 #    all_branches: true
+deploy:
+  provider: releases
+  user: rhclark
+  password: DqgNc5GyYgzr2RLXNiw5YNXKASSh5mK1diVItvx3Q89KAnsgwYf0pHzKHqaOwMjlMfKDcQkWiVh6LckajuoERbyo8OeE1PslwGVxujm7Bdpt5sM5yXo6EPwro52Nmr/Z9XUN9mFzLlUuH/KQu9XVZ6ObDojFtYSw9eWcoKuFvUKL1ABEGW1QjKee0rBR4zXK20rgsY5P0BfQZ0MFZIAGPi6pxAg4IJWw9Awsrv08FDOSqiIqvxdoiZleTO6Cj9RTYjSIsQCDG5n2DlLOEV0RfYoFxIumN9LNrVM/ZAMU2fo6pEMwCo+LvkOQYXBLzNGG5+th+f323de0t8clDvLAmnyek5ZoV4qf/1s2oEOVpuYKhVbD9/ndbaA0HL65PmrFl5OVNd6+uXrnrxaYDM0JV2C+mMLHD1CPCQGVmDeg7nRhN3p7co2gIoL0ckQT8yLgKBLIjBHDl9ZqMsY2PbqM27tZGBWuOg9h/eFgSxktjwuNT6f4Qe779yulIWl0bx3MpNqwV4/VmHklOz8NEPUiaT+efmCCUuQseTmwPtpOsIvBKOLpQbX0QWAVAJ6irJ6uGzSHZqQQ4J11HzRG0/hxqxA1cQjoS9trX47x1QRBf/O3r7uJtoG00dNr5XBamlBUKffzgTj68d9nmeUhvKHaNpuNb21KnW+9kuQkZRcCrT8=
+  file: ../dist/NFsim
+  skip_cleanup: true
+  on:
+    tags: true
