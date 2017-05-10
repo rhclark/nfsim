@@ -28,6 +28,7 @@ before_install:
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
+
 script: 
   - mkdir -p build; mkdir -p dist; cd build; cmake ..; make; cp NFsim ../dist; cd ..; 
   - cd validate;tar xfj bionetgen-2.2.6.tar.bz2
