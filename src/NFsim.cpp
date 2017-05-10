@@ -581,7 +581,7 @@ void printLogo(int indent, string version)
 	cout<<s<<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"<<endl;
 	cout<<s<<"%                                   %"<<endl;
 	cout<<s<<"%     @@    @  @@@@@      v"<<version<<s2<<"%"<<endl;
-	cout<<s<<"%     @ @   @  @                       %"<<endl;
+	cout<<s<<"%     @ @   @  @                    %"<<endl;
 	cout<<s<<"%     @  @  @  @@@@  ___            %"<<endl;
 	cout<<s<<"%     @   @ @  @    /__  | |\\ /|    %"<<endl;
 	cout<<s<<"%     @    @@  @    ___\\ | | v |    %"<<endl;
