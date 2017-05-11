@@ -22,6 +22,7 @@ addons:
 
 
 after_success:
+- sh chmod +x set_tags.sh
 - sh set_tags.sh
 
 notifications:
