@@ -1,3 +1,6 @@
+
+echo 'Running  OSX Install '
+
 if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
     uname -a
 else
