@@ -1,5 +1,7 @@
 BRANCH="master"
 
+echo -e "Entering  set_tags.sh.\n"
+
 if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
   if [ "$TRAVIS_PULL_REQUEST" = false ]; then
   	if [ -z "$TRAVIS_TAG" ]; then
