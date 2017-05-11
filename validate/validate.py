@@ -115,7 +115,7 @@ def getTests(directory):
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
-    testFolder = './basicModels'
+    testFolder = './basicModels1'
     tests = getTests(testFolder)
     for index in tests:
         suite.addTest(ParametrizedTestCase.parametrize(TestNFSimFile, param={'num': index,
