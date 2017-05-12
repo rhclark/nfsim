@@ -20,10 +20,6 @@ addons:
     - cmake
 
 
-
-after_success:
-- source set_tags.sh
-
 notifications:
   email: true
   slack:  faederlab:l0waIGp58v8ZV74N7QmXGoWs
@@ -34,12 +30,15 @@ before_install:
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
-
 script: 
   - mkdir -p build; mkdir -p dist; cd build; cmake ..; make; cp NFsim ../dist; cd ..; 
   - cd validate;tar xfj bionetgen-2.2.6.tar.bz2
   - python validate.py
   - cd ..
+
+after_success:
+- source set_tags.sh
+
 before_deploy:
 - cd dist; python changeFilename.py; cd ..
 
@@ -61,6 +60,8 @@ before_deploy:
 deploy:
   provider: releases
   user: rhclark
+  password:
+    - secure: "CaFXoGwNrWNp8Zq9zHSDKPGJLbEFz2jNqdPLrKUc6xp2AfhRxe3JTZYEj/bko4yGbyPXcp0VybmN1U/jgzuV/czLS+ZsQtZ7X2OtM3v/f+SEMQ/aK65VSgoaVHqvLLBN69vM/3SZQDzjSNF5yMDbbCVBXPrTg15aiUJLXjPbzzUqTcvBe4pYscugpHV5EsVyNQm8gQc2jkIxfGxif94qeTGWM78fU8OhcSdUoC0H/oZdu7thSLynQcICZbPtYAz5H4373GY5sQkSrHS/uuhLRl8OY+5hs2vbOKvehjX3JkjUTfbAKRTJg0KQrSIKLLzCrv/uxNlsIeDmhgRx5kxrcFMFPdYLeQXSbTuRTuQzjK2uIDHXMfEvNmUV4chFCrn8W7uG3RYzs3vfShh9YEmUd4uhjXK+AUSpgk6S+3iQeJE9dFBZUc+1IhtkJlpd8+V+U03B5c4eWG2kVM+Px0OSP6AejcuYBVoDNEJRzx8U+jYrMZ1sGadgXB3/dh+7CMpqPi9qdGcNSFoUnxjZfsfKvzzM64+L2cflm9y9TJX1+DRXvTRyQmxjpaWD0odm0703XQwo1q10QDBscWNSWbdNcLP8rvS2ZGX8K2p9Y5/c8GylOnwwG9WLWc1dsuzH/EMzyIvErK5Xy3cD7XWNM43ejajTKuCDRgiG165Ni8b0N2c="
   api_key:
     - secure: "RIxzTbcROPaRtW5CVmvHrV31FWmcvm/IySuXiRwGgZcH9MRkHx0nNRj6R796L01PdGlC3t/ezkCOpR6pXd2ynGiKsiGdWh5unriiO37sNqDukV1cjQj3y5ZoxDoxKaJvql2UQUtDsFPaM3BiQeKUbv6VAXLlgglNyWgxrInbIeJZbKbpPZIiZN1uhZtbKWZ4yu+/zhN5JcLSUocbmvBSokjW60y/D6Q+I5ji0lRFvQ7vQdqPXmWBlOyLan4lg792yk/UZnJeiyB78apl8yFNVNCnFo+shYKWpKQVePL6/+HbC9XTy+V6SO4O5l7f520hmV4A2Dbw1AenvGd5MrrQ05llJXnovxam9UJqZWWe2/kMVZ1oEDbcKy2gfcH+yCJrCl5XGD9Zv2J28o/YeIdP6vWy0jgRMZccILiZVde7RJpX/z4VXWeEKBYNC+qppo5AS8ROxZs7FDYVJrm85/GOBzyvmEeXR9P/I+dEqk5vKxyRznUag5DCDLbfaLLABSwY99BUZSSfDdC+nEUz+2H59QNrz8EhM0xf2vmyDYdH+VeV9bJyniZSLzVY3p/aR9XDTR1AgnKOwXDEhJ6lO+gcGH1ZFzuLRiLBk310RfRTvI1+zXB6fukKWj/DDndhH2wFjdsiC2ep36dKEEbVcxD1aZIsT28yC0i9gb1UmIzDeMM="
     - secure: "hu1VTTSY4U1hdoBPQqtaMm7Mj6dSma40/6/zgxk++/hoNBqsBSp1AxeP1EaYwVTmv+IhWH/mcU2sP9t29nL+Ueear0zECx9msbzFq6QMSwFvvao7KuCx4HYBgEtniSEKpLgDPA+imwD3OrkXtQiE3L3yYK1BMYhvWntAW1IXaB/GdhtBHJnGQhjIgHsfkJ2cFKmEu5f3UcDa807uAo2kNQuHn+kW3eC3MOksMFPqzADOC3U4FB0lsLt5Tkhz3lXwNXK8nqE73V0HT4sudVqdR7kyNu6/vhDoLRWgJXuwH4wmB4vhQ5ZE2HohnKWEKu64DTSCNiBjKI4Tz17TyMhbGnfZMWIUnE6Ko56ihRPwtMtmMZQz0GVfepMPMuXbpwx5zvwnJmah5q3x3V/HmZNEF9/craJMVoicPmiZBYkwtl2xMAt/RJHXkKPzlZxLNyOrWAlYoT/xjOjX1zHNaeCpzPJjzNgA+ftcRVXfcLjb6UGhITXlTMu7OCTkwNIDAonq5YtwMKB0PAQBkBeW49I3jI3ue2c+ZObNwOZuPnFvr7xWOE94MNON6e/12f71cKpt0bITHDK5lAl3Sdq8NjFH1GAiLsVULB2Xsa3sJtFeiJrgLGbDldR6eEFeX6qrzhhfnLQAlmNZ8LcK6xS6CObwTUOPvugBBybCl8+KFbqBtRo="
