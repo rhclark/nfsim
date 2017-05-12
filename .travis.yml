@@ -39,8 +39,8 @@ install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
     
 before_script: 
-  - git config --global user.email ${GIT_EMAIL}
-  - git config --global user.name  ${GIT_NAME}
+  - git config --global user.email "rhclark.pitt@gmail.com"
+  - git config --global user.name  "Robert Clark"
 #  - git remote rm origin
 #  - git remote add origin https://rhclark:${GH_TOKEN}@github.com/rhclark/nfsim.git
 
