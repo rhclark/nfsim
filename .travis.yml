@@ -78,9 +78,11 @@ before_deploy:
 
 deploy:
   provider: releases
-  user: rhclark
-  api_key: ${GH_TOKEN}
-  file: "./dist/NFsim"
+  prerelease: true
+  api_key:
+    secure: ${GH_TOKEN}
+  file: 
+    - ./dist/NFsim
   file_glob: "true"
   skip_cleanup: true
   on:
