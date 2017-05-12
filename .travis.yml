@@ -55,6 +55,8 @@ before_deploy:
 #  on:
 #    all_branches: true
 
+# A good link:
+#   http://szagurskii.com/blog/how-to-deploy-apk-to-github-releases-with-travis-ci/
 
 deploy:
   provider: releases
