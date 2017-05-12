@@ -12,9 +12,6 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
 	    echo -e "Starting to tag commit.\n"
             pwd
 	    
-	    git config --global user.email ${GIT_EMAIL}
-	    git config --global user.name  ${GIT_NAME}
-
             echo -e "TRAVIS_BUILD_NUMBER = " $TRAVIS_BUILD_NUMBER
 
 	    # Add tag and push to master.
