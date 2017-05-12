@@ -80,7 +80,7 @@ deploy:
   provider: releases
   prerelease: true
   api_key:
-    secure: ${GH_TOKEN}
+    secure: ${GITHUB_API_KEY}
   file: 
     - ./dist/NFsim
   file_glob: "true"
