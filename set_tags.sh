@@ -12,8 +12,8 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
 	    echo -e "Starting to tag commit.\n"
             pwd
 	    
-	    git config --global user.email "rhclark.pitt@gmail.com"
-	    git config --global user.name "Robert Clark"
+	    git config --global user.email "roc60@pitt.edu"
+	    git config --global user.name "rhclark"
 
             echo -e "TRAVIS_BUILD_NUMBER = " $TRAVIS_BUILD_NUMBER
 
