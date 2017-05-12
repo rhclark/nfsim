@@ -10,7 +10,11 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
   if [ "$TRAVIS_PULL_REQUEST" = false ]; then
   	if [ -z "$TRAVIS_TAG" ]; then
 	    echo -e "Starting to tag commit.\n"
-
+            pwd
+	    
+	    git remote rm origin
+            git remote add origin https://rhclark:${GH_TOKEN}@github.com/rhclark/nfsim.git	    
+	    
 	    git config --global user.email "rhclark.pitt@gmail.com"
 	    git config --global user.name "Robert Clark"
 
