@@ -59,7 +59,7 @@ after_success:
 - source set_tags.sh
 
 before_deploy:
-- cd dist; python changeFilename.py; cd ..
+- cd dist; python changeFilename.py; cd .. ; pwd
 
 
 #
