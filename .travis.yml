@@ -78,7 +78,6 @@ before_deploy:
 
 deploy:
   provider: releases
-  prerelease: true
   api_key:
     secure: ${GITHUB_API_KEY}
   file: 
