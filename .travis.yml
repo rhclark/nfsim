@@ -85,9 +85,9 @@ deploy:
   file_glob: "true"
   skip_cleanup: true
   on:
-    branch: master
+#    branch: master
     repo: rhclark/nfsim
-#    tags: true
+    tags: true
 
 after_success:
   - source set_tags.sh
