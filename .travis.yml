@@ -82,9 +82,7 @@ deploy:
   api_key:
     secure: ${GITHUB_API_KEY}
   file: 
-    -  ./NFsim
-    - ./dist/NFsim
-    - ./nfsim/dist/NFsim
+    -  /Users/travis/build/rhclark/nfsim/bin/NFsim
   file_glob: "true"
   skip_cleanup: true
   on:
