@@ -1,6 +1,7 @@
 BRANCH="master"
 
 echo -e "Entering  set_tags.sh.\n"
+echo -e "TRAVIS_BUILD_DIR = " $TRAVIS_BUILD_DIR
 echo -e "TRAVIS_PULL_REQUEST = " $TRAVIS_PULL_REQUEST
 echo -e "TRAVIS_BRANCH = " $TRAVIS_BRANCH
 echo -e "TRAVIS_TAG = " $TRAVIS_AG
