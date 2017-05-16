@@ -63,7 +63,7 @@ after_success:
  
 
 before_deploy:
-- cd dist; python changeFilename.py; cd .. ; pwd
+  - cd dist; python changeFilename.py; cd .. ; pwd
 
 
 #
