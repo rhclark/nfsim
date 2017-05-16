@@ -27,6 +27,12 @@ addons:
 #    - secure: "nfMc2bqTKlr1kNq/zK7PyJcF0tHVSOj2/Z0wWu5nke41f+CFJIc9Aznr4tFAytRzOxi8A0HHZRSA2yDyfAshAj3d2sxO74PsBFChnHYFxNx0pzQMmHyWNaEKrSZdABRSxW0h2d8PJto0o/CKmzQZBNPc92xqQj6jB8Cu3N988QHysP5np7/27YD1KAi252dZ6ciVEhNzNrGeBLvFQvNnvMEczY52QY8mApzkHSNdihWT+AK8Sq7M8Aus9OyYsP1V4PcAUYJz4QcerBEL39lgX+AInSdOSpu/W8p/ale/CuEVP7727xnjbkJmX7YHud6e7K5SEZ3caJIA3ajdFVkSfIWbqd5SJkYvb10Mh0xCIWtOhh50E+db0/qUDEVap1POkunP54YR68MzkK2tyQc0qZ8rcVYYSqVoepSQNGMKUv0R5D371JqUuzxj/cj6+fnZmHLWXD4jIikuRmrLuZVlrrW5P0jsAlBvD9TD8KfmTvgQH8DPXKGEeWX1Jm37GqHKRy48femW67LN5D0zYlHQGQSVS5CRKI1CHlA7JnSxaUshO1WlcV3yTVbepQsxIqjJEvoO8bFW78ki6zFtISpwbEpCpyGdLTDzVp7NRIzQo5vHATNs4bYHqduGdwnXsPgIU5sPCyvMpijBWux4Es8L6u58RQANLtT1xHaEvbVd6pg="
 
 
+
+#   To create these passwords, you will need to use the   travis   command line tool.  It needs to be downloaded from the
+# web and installed.  I believe that it has Ruby as a prerequisit.  These two travis commands were used to generate the 
+# passwords below:
+#   travis encrypt FTP_USER=<username>     --skip-version-check -r rhclark/nfsim
+#   travis encrypt FTP_PASSWORD=<password> --skip-version-check -r rhclark/nfsim
 env:
   global:
     - secure: "Kda7YvWhefM1q8lK4bNvm7szNJD3Z0VEGYMWIT7lHv7P18jnYu/o+5zrhX3mt5vNffsK/Vhr4rPncw/MJQdRNME3XwYcP06xzHUdrwsUbg6zy4CmTITMgWkO0FTGPX7oJjSMpRUCC7uFBV74LjiLgw7PSyGlbJyPog76tiketNQTbMIfals49syErP+TfvM2UtxqjhvMG5MO73syt3pJ/63uV1j+ke4jY9l4x1U8w3XS9c6IsvDv+J0aHBNehvU6TDlkaC9EDJ4K7HJs4OkrtN1A2pmLiOGKaRncAeRs/Ptj9sk2kLEe6g9GAFe+woD4YrAxyCw69gDCpRRTiSpk+VO+MvCKdA4bu4snK4McXm+SqnYqEhbcSc0d/orlsGFJMOP8zFp1hKYDZTJbpxSW6TFyg/3nfRQfK1wj0Bwnrg6A+S6tIRXZPKlTaj+RqLqucLw2WinPR0s1jP7zi2cvh1ZWsiCSjpP8RdJ41WMKmGRFtHH5DPkJZa6KYWVpZqZsMYYxiKVLGlIFoPmNs/LIGGi00nsgZRSQmlTeyRWxV7+fCuj5SlkOIFh7O0kfxku7merL8FUoqH+Pl0wyvRiDP9gj0lvjeirvI1bwGKtPNyn5MAjpf4NMBg/sjdT12uPz8XUrNZZGYV/XuHXd/U/4B3StGMWapWMjnuPLjLsVbhs="
@@ -61,7 +67,12 @@ script:
 #  - node ./node_modules/grunt-cli/bin/grunt release
 
 after_success:
-    "curl -T README.txt -u $FTP_USER:$FTP_PASSWORD ftp://ftp.midcapsignals.com/midcap/junk/"
+  -  "curl -T ./dist/NFsim -u $FTP_USER:$FTP_PASSWORD ftp://ftp.midcapsignals.com/midcap/junk/"
+  -  cd dist; ls -lt  
+#  - cd dist; python changeFilename.py; cd .. ; pwd
+
+
+
 #    "curl -T index.html -u $FTP_USER:$FTP_PASSWORD ftp://wecodetheweb.com/public_html/"
 
 #after_success:
@@ -69,7 +80,6 @@ after_success:
  
 
 #before_deploy:
-#  - cd dist; python changeFilename.py; cd .. ; pwd
 
 
 #
