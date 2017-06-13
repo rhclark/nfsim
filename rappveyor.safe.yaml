@@ -1,0 +1,37 @@
+environment:
+  CTEST_OUTPUT_ON_FAILURE: 1
+  matrix:
+    - fast_finish: true
+
+install:
+  - choco install -r -y mingw
+  - "SET PATH=C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%"
+
+branches:
+  # whitelist
+  only:
+    - master
+     
+platform: Win32
+
+build_script:
+  - cmd: echo Running cmake ...
+  - mkdir build
+  - cd bin
+  - cmake --version
+  - dir  C:\MinGW\bin
+  - dir  C:\MinGW\mingw32
+  - mingw32-make  NFsim
+#  - mingw32-make --version  
+  
+artifacts:
+  - path: bin\NFsim.exe
+    name: NFsim
+  
+deploy:
+  provider: FTP
+  protocol: ftp
+  host: ftp.midcapsignals.com/midcap/d_appveyor
+  username: roberthclark
+  password:
+    secure: K22E4pSAup6/htlGmoSBMw==
