@@ -2,10 +2,10 @@ environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   matrix:
     - fast_finish: true
-         platform: x86
+         platform: 'x86'
 
     - fast_finish: true
-         platform: x64
+         platform: 'x64'
          
 install:
   - choco install -r -y mingw
