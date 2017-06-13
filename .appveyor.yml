@@ -4,24 +4,24 @@ environment:
     - fast_finish: true
 
 install:
-  - choco install -r -y mingw
-  - "SET PATH=C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%"
+  - choco install -r -y mingw-w64
+  - "SET PATH=C:\\MinGW-W64\\mingw64\\bin;C:\\MinGW-W64\\bin;%PATH%"
 
 branches:
   # whitelist
   only:
     - master
      
-platform: Win32
+platform: x64
 
 build_script:
   - cmd: echo Running cmake ...
   - mkdir build
   - cd bin
   - cmake --version
-  - dir  C:\MinGW\bin
-  - dir  C:\MinGW\mingw32
-  - mingw32-make  NFsim
+  - dir  C:\MinGW-W64\bin
+  - dir  C:\MinGW-W64\mingw32
+  - mingw64-make  NFsim
 #  - mingw32-make --version  
   
 artifacts:
