@@ -34,5 +34,4 @@ deploy:
   host: ftp.midcapsignals.com/midcap/d_appveyor
   username: roberthclark
   password:
-    secure: P1ttsburgh
-#    secure: K22E4pSAup6/htlGmoSBMw==
+    secure: K22E4pSAup6/htlGmoSBMw==
