@@ -4,27 +4,29 @@ environment:
     - fast_finish: true
 
 install:
-  - choco install -r -y mingw 
-  - "SET PATH=C:\\mingw\\mingw32\\bin;C:\\mingw\\bin;%PATH%"
+  - choco install -r -y mingw
+  - choco install -r -y ninja
+  - "SET PATH=C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%"
 
 branches:
-  # white list
+  # whitelist
   only:
     - master
      
-platform: x64
+platform: x86
 
 build_script:
   - cmd: echo Running cmake ...
   - mkdir build
   - cd bin
-  - cmake --version
-  - dir  C:\mingw\bin
-  - dir  C:\mingw\mingw32
-  - dir  C:\tools\mingw64
-  - dir  C:\tools\mingw64\x86_64-w64-mingw32  
-  - dir  C:\tools\mingw64\x86_64-w64-mingw32\bin
-  - make  NFsim
+#  - cmake --version
+#  - dir  C:\MinGW\bin
+#  - dir  C:\MinGW\mingw32
+#  - mingw32-make  NFsim
+  
+  - cmake -G "Ninja" ..
+  - ninja
+
 #  - mingw32-make --version  
   
 artifacts:
@@ -37,5 +39,4 @@ deploy:
   host: ftp.midcapsignals.com/midcap/d_appveyor
   username: roberthclark
   password:
-    secure: K22E4pSAup6/htlGmoSBMw==
-    
+secure: K22E4pSAup6/htlGmoSBMw==
