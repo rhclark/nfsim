@@ -17,7 +17,6 @@ branches:
   only:
     - master
      
-platform: x86
 
 build_script:
   - cmd: echo Running cmake ...
