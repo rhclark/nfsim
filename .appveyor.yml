@@ -23,7 +23,7 @@ build_script:
   - mkdir build
   - cd bin
   - cmake --version
-  - if "%platform%"=="x86" ( echo ' its x86' ; echo ' is x86' )
+  - if "%platform%"=="x86" ( mingw32-make   NFsim )
   - if "%platform%"=="x64" ( echo ' its x64' ; echo ' is x64' )
 #  - dir  C:\MinGW\bin
 #  - dir  C:\MinGW\mingw32
