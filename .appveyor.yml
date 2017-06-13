@@ -6,6 +6,8 @@ environment:
     
     - platform: x64
       fast_finish: true
+      generator: "Ninja"
+
              
 install:
   - choco install -r -y mingw
