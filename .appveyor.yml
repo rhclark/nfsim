@@ -21,7 +21,7 @@ build_script:
   - cmake --version
   - dir  C:\mingw\bin
   - dir  C:\mingw\mingw32
-  - mingw64-make  NFsim
+  - mingw-make  NFsim
 #  - mingw32-make --version  
   
 artifacts:
