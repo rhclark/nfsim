@@ -8,7 +8,7 @@ install:
   - "SET PATH=C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%"
 
 branches:
-  # white list
+  # whitelist
   only:
     - master
      
