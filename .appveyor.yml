@@ -28,7 +28,7 @@ build_script:
   - if "%platform%"=="x64" ( echo ' its x64' ; echo ' is x64' )
 #  - dir  C:\MinGW\bin
 #  - dir  C:\MinGW\mingw32
-#  - mingw32-make  NFsim
+#  - mingw32-make   NFsim
 
 #  - mingw32-make --version  
   
