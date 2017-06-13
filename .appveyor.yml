@@ -2,7 +2,11 @@ environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   matrix:
     - fast_finish: true
+         platform: x86
 
+    - fast_finish: true
+         platform: x64
+         
 install:
   - choco install -r -y mingw
   - choco install -r -y ninja
@@ -20,9 +24,11 @@ build_script:
   - mkdir build
   - cd bin
   - cmake --version
-  - dir  C:\MinGW\bin
-  - dir  C:\MinGW\mingw32
-  - mingw32-make  NFsim
+  - if "%platform%"=="x86" ( echo ' its x86' ; echo ' is x86' )
+  - if "%platform%"=="x64" ( echo ' its x64' ; echo ' is x64' )
+#  - dir  C:\MinGW\bin
+#  - dir  C:\MinGW\mingw32
+#  - mingw32-make  NFsim
 
 #  - mingw32-make --version  
   
@@ -30,10 +36,10 @@ artifacts:
   - path: bin\NFsim.exe
     name: NFsim
   
-deploy:
-  provider: FTP
-  protocol: ftp
-  host: ftp.midcapsignals.com/midcap/d_appveyor
-  username: roberthclark
-  password:
-  secure: K22E4pSAup6/htlGmoSBMw==
+#deploy:
+#  provider: FTP
+#  protocol: ftp
+#  host: ftp.midcapsignals.com/midcap/d_appveyor
+#  username: roberthclark
+#  password:
+#  secure: K22E4pSAup6/htlGmoSBMw==
