@@ -3,10 +3,10 @@ environment:
   matrix:
     - fast_finish: true
          platform: 'x86'
-
+    
     - fast_finish: true
          platform: 'x64'
-         
+             
 install:
   - choco install -r -y mingw
   - choco install -r -y ninja
