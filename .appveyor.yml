@@ -21,8 +21,6 @@ build_script:
   - cmake --version
   - dir  C:\mingw\bin
   - dir  C:\mingw\mingw32
-  - dir  C:\tools\mingw32
-  - dir  C:\tools\mingw64
   - make  NFsim
 #  - mingw32-make --version  
   
