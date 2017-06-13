@@ -4,7 +4,7 @@ environment:
     - fast_finish: true
 
 install:
-  - choco install -r -y mingw-w64
+  - choco install -r -y mingw64
   - "SET PATH=C:\\MinGW-W64\\mingw64\\bin;C:\\MinGW-W64\\bin;%PATH%"
 
 branches:
