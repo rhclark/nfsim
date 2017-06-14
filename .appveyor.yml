@@ -25,14 +25,17 @@ build_script:
   - cmd: echo Running cmake ...
   - mkdir build
   - cd bin
+  - pwd
 #  - cmake --version
   - if "%platform%"=="x86" ( SET "PATH=C:\\MinGW\\bin;%PATH%" )
   - if "%platform%"=="x86" ( SET "PATH=C:\\MinGW\\mingw32\\bin;%PATH%" )
   - if "%platform%"=="x86" ( mingw32-make   NFsim )
+  - if "%platform%"=="x86" ( mv NFsim.exe  NFsim.Win32.exe )
   
   - if "%platform%"=="x64" ( SET  "PATH=C:\\tools\\mingw64\\bin;%PATH%" )
   - if "%platform%"=="x64" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x64" ( ninja )
+  - if "%platform%"=="x64" ( mv NFsim.exe  NFsim.Win64.exe )
 #  - dir  C:\MinGW\bin
 #  - dir  C:\MinGW\mingw32
 #  - mingw32-make   NFsim
