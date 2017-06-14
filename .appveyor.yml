@@ -42,9 +42,9 @@ build_script:
 
 #  - mingw32-make --version  
   
-#artifacts:
-#  - path: bin\NFsim.exe
-#    name: NFsim
+artifacts:
+  - path: /bin\\NFsim.Win...exe/
+    name: NFsim
   
 deploy:
   provider: FTP
@@ -53,4 +53,4 @@ deploy:
   username: roberthclark
   password:
     secure: K22E4pSAup6/htlGmoSBMw==
-  artifact: /bin\\NFsim.Win...exe/      
+  artifact: NFsim 
