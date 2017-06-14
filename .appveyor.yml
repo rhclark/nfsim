@@ -43,10 +43,10 @@ artifacts:
   - path: bin\NFsim.exe
     name: NFsim
   
-#deploy:
-#  provider: FTP
-#  protocol: ftp
-#  host: ftp.midcapsignals.com/midcap/d_appveyor
-#  username: roberthclark
-#  password:
-#  secure: K22E4pSAup6/htlGmoSBMw==
+deploy:
+  provider: FTP
+  protocol: ftp
+  host: ftp.midcapsignals.com/midcap/d_appveyor
+  username: roberthclark
+  password:
+  secure: K22E4pSAup6/htlGmoSBMw==
