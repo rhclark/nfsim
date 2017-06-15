@@ -40,7 +40,7 @@ set(SUB_DIRS
 add_definitions(" -Wno-deprecated-declarations  ")
 
 
-if (NAME_WE STREQUAL tinyxml)
+if (NAME_WE STREQUAL tinyxml.cpp)
   set(TIXML_USE_STL)
 else() 
   add_definitions( -std=c++0x )
