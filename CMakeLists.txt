@@ -37,9 +37,14 @@ set(SUB_DIRS
     src/NFcore/moleculeLists 
 )
 
-set(TIXML_USE_STL)
 add_definitions(" -Wno-deprecated-declarations  ")
-add_definitions( -std=c++0x )
+
+
+if (NAME_WE STREQUAL tinyxml)
+  set(TIXML_USE_STL)
+else() 
+  add_definitions( -std=c++0x )
+endif()
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
