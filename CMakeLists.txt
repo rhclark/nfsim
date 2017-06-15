@@ -36,7 +36,7 @@ set(SUB_DIRS
     src/NFcore/reactionSelector 
     src/NFcore/moleculeLists 
 )
-add_definitions("  -Wno-deprecated-declarations  -std=c++11 ")
+add_definitions("  -Wno-deprecated-declarations  -std=c++0x ")
 set(TIXML_USE_STL CMAKE_CXX_FLAGS)
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
