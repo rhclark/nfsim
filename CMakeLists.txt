@@ -43,9 +43,20 @@ set(SUB_DIRS
 
 
 add_definitions(" -Wno-deprecated-declarations  ")
-
-
-  add_definitions(" -DTIXML_USE_STL  ")
+add_definitions(" -DTIXML_USE_STL  ")
+ 
+ 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
+PROJECT(CPO C)
+FILE(WRITE ${CMAKE_BINARY_DIR}/f.c "void f(void){}\n")
+ADD_LIBRARY(f SHARED f.c)
+SET_TARGET_PROPERTIES(f PROPERTIES RULE_LAUNCH_LINK
+    "${CMAKE_SOURCE_DIR}/cpo ${CMAKE_BINARY_DIR} <OBJECTS> --"
+)  
+  
+  
+  
+  
 #if (NAME_WE STREQUAL tinyxml)
 #  message(IF ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
 #else() 
