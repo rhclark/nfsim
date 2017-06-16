@@ -13,7 +13,7 @@ add_definitions(" -DTIXML_USE_STL  ")
 FILE(WRITE ${CMAKE_BINARY_DIR}/f.c "void f(void){}\n")
 ADD_LIBRARY(f STATIC f.c)
 SET_TARGET_PROPERTIES(f PROPERTIES RULE_LAUNCH_LINK
-    "${CMAKE_SOURCE_DIR}/cpo ${CMAKE_BINARY_DIR}   tinyxml.o  --"
+    "${CMAKE_SOURCE_DIR}/CPO ${CMAKE_BINARY_DIR}   tinyxml.o  --"
 )  
   
   
