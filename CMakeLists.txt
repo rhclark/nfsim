@@ -42,10 +42,10 @@ add_definitions(" -Wno-deprecated-declarations  ")
 
 if (NAME_WE STREQUAL tinyxml)
   add_definitions(" -DTIXML_USE_STL  ")
-  message(IF ${CMAKE_SYSTEM_NAME} ${NAME_WE}  --------------------------------------------------)
+  message(IF ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
 else() 
   add_definitions( -std=c++0x )
-  message(ELSE ${CMAKE_SYSTEM_NAME} ${NAME_WE}  --------------------------------------------------)
+  message(ELSE ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
 endif()
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
