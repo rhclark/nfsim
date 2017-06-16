@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 
-project(NFsim)
+# project(NFsim)
+project(tinyxml.o)
 
 #find_package(XMLRPC REQUIRED abyss-server c++2)
 
