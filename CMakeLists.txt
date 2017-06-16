@@ -39,6 +39,7 @@ set(SUB_DIRS
 add_definitions("-Wno-deprecated-declarations")
 set_source_files_properties( src/NFinput/TinyXML/tinyxml.h             PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
 set_source_files_properties( src/NFinput/TinyXML/tinyxml.cpp           PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
+set_source_files_properties( src/NFinput/TinyXML/tinyxmlparser.cpp     PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
 set_source_files_properties( src/NFreactions/reactions/DORreaction.cpp PROPERTIES  COMPILE_FLAGS  -std=c++11 )
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
