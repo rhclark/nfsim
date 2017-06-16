@@ -38,7 +38,7 @@ set(SUB_DIRS
 )
 add_definitions("-Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set_source_files_properties(tinyxml.cpp PROPERTIES COMPILE_FLAGS -Wno-c++11   -DTIXML_USE_STL )
+set_source_files_properties(tinyxml.cpp PROPERTIES  COMPILE_FLAGS -Wno-c++11   COMPILE_FLAGS -DTIXML_USE_STL )
 
 
 
