@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.9)
 
-# project(NFsim)
-project(tinyxml.o)
+project(NFsim)
 
 #find_package(XMLRPC REQUIRED abyss-server c++2)
 
@@ -12,42 +11,47 @@ project(tinyxml.o)
 
 set(CMAKE_BUILD_TYPE Release)
 
+#set(SUB_DIRS
+#    src/nauty24 
+#    src/NFutil 
+#    src/NFutil/MTrand 
+#    src/NFtest/transcription 
+#    src/NFtest/tlbr 
+#    src/NFtest/simple_system 
+#    src/NFtest/agentcell/cell 
+#    src/NFtest/agentcell 
+#    src/NFscheduler 
+#    src/NFreactions/transformations 
+#    src/NFreactions/reactions 
+#    src/NFreactions/reactantLists 
+#    src/NFreactions/mappings 
+#    src/NFreactions 
+#    src/NFoutput 
+#    src/NFinput 
+#    src/NFinput/json 
+#    src/NFfunction/muParser 
+#    src/NFfunction 
+#    src/NFcore 
+#    src/NFcore/reactionSelector 
+#    src/NFcore/moleculeLists 
+#)
+
+
 set(SUB_DIRS
-    src/nauty24 
-    src/NFutil 
-    src/NFutil/MTrand 
-    src/NFtest/transcription 
-    src/NFtest/tlbr 
-    src/NFtest/simple_system 
-    src/NFtest/agentcell/cell 
-    src/NFtest/agentcell 
-    src/NFscheduler 
-    src/NFreactions/transformations 
-    src/NFreactions/reactions 
-    src/NFreactions/reactantLists 
-    src/NFreactions/mappings 
-    src/NFreactions 
-    src/NFoutput 
-    src/NFinput 
     src/NFinput/TinyXML 
-    src/NFinput/json 
-    src/NFfunction/muParser 
-    src/NFfunction 
-    src/NFcore 
-    src/NFcore/reactionSelector 
-    src/NFcore/moleculeLists 
 )
+
 
 add_definitions(" -Wno-deprecated-declarations  ")
 
 
-if (NAME_WE STREQUAL tinyxml)
   add_definitions(" -DTIXML_USE_STL  ")
-  message(IF ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
-else() 
-  add_definitions( -std=c++0x )
-  message(ELSE ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
-endif()
+#if (NAME_WE STREQUAL tinyxml)
+#  message(IF ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
+#else() 
+#  add_definitions( -std=c++0x )
+#  message(ELSE ${CMAKE_SYSTEM_NAME} ${NAME_WE}  RHC--------------------------------------------------)
+#endif()
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
@@ -66,4 +70,4 @@ if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
-add_executable(${PROJECT_NAME} ${SRC_FILES} )
+#add_executable(${PROJECT_NAME} ${SRC_FILES} )
