@@ -37,7 +37,7 @@ set(SUB_DIRS
     src/NFcore/moleculeLists 
 )
 add_definitions("-Wno-deprecated-declarations")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set_source_files_properties(src/NFinput/TinyXML/tinyxml.cpp PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
 
 
