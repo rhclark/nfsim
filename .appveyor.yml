@@ -44,7 +44,6 @@ build_script:
 #  - dir  C:\MinGW\mingw32
 #  - mingw32-make   NFsim
 
-#  - mingw32-make --version  
   
 artifacts:
   - path: '.\build\NFsim.win*.exe'
