@@ -22,6 +22,8 @@ platform: x86
 
 build_script:
   - cmd: echo Running  cmake ...
+  - mv CMakeLists.txt      CMakeLists.x64.txt  
+  - mv CMakeLists.x86.txt  CMakeLists.txt    
   - mkdir build
   - cd build
   - cmake -G "Ninja" ..
