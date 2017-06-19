@@ -58,10 +58,10 @@ if ($platform eq "linux") {
   } else {
     if ($platform eq "x86") {
       $zip_type = ".zip";  $travis_os = "Win32";
-      system('mkdir ./dist');
+      system('copy  ./bin/NFsim.exe  ./bin/NFsim.x86.exe');
       my $archive_file = "./dist/NFsim-source-".$platform.$zip_type;
       print "\nCreating NFsim".$platform.".exe source archive:\n";
-      system("zip -r -q  ${archive_file}  bin doc models src test tools validate CMakeLists.txt LICENSE.txt README.txt makefile NFsim_manual_v1.12.pdf ");
+      system("zip -r -q  ${archive_file} doc models src test tools validate CMakeLists.txt LICENSE.txt README.txt makefile NFsim_manual_v1.12.pdf ");
     } else {
       print "Invalid platform: ".$platform."\n";
       exit;
