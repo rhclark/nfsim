@@ -35,7 +35,7 @@ build_script:
   - if "%platform%"=="x86" ( mv NFsim.exe  NFsim.win32.exe )
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl  --platform x86 )
-  - cmd: dir  ./build )
+  - cmd: dir  ./build 
   
   - if "%platform%"=="x64" ( SET  "PATH=C:\\tools\\mingw64\\bin;%PATH%" )
   - if "%platform%"=="x64" ( cd build )
