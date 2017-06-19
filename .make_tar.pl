@@ -60,7 +60,7 @@ if ($platform eq "linux") {
       system('copy  ./bin/NFsim.exe  ./bin/NFsim.x86.exe');
       my $archive_file = "./dist/NFsim-source-".$platform.$zip_type;
       print "\nCreating NFsim".$platform.".exe source archive:\n";
-      system("7z -r  ${archive_file} doc models src test tools validate CMakeLists.txt LICENSE.txt README.txt makefile NFsim_manual_v1.12.pdf ");
+      system("7z a  ${archive_file} doc models src test tools validate CMakeLists.txt LICENSE.txt README.txt makefile NFsim_manual_v1.12.pdf ");
     } else {
       print "Invalid platform: ".$platform."\n";
       exit;
