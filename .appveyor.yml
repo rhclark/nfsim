@@ -50,6 +50,9 @@ artifacts:
   - path: '.\build\NFsim.win*.exe'
     name: NFsim
   
+  - path: '.\build\NFsim-source.win*.zip'
+    name: NFsource
+  
 deploy:
   provider: FTP
   protocol: ftp
