@@ -23,7 +23,7 @@ branches:
 
 build_script:
   - cmd: echo Running cmake ...
-#  - mkdir build
+  - cmd: mkdir build
 #  - cd bin
 #  - pwd
 #  - cmake --version
