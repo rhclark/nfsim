@@ -50,7 +50,7 @@ artifacts:
   - path: '.\build\NFsim.win*.exe'
     name: NFsim
   
-  - path: '.\build\NFsim-source.win*.zip'
+  - path: '.\build\NFsim-source-win*.zip'
     name: NFsource
   
 deploy:
