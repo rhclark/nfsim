@@ -42,7 +42,6 @@ build_script:
   - if "%platform%"=="x64" ( mv NFsim.exe  NFsim.win64.exe )
 #  - dir  C:\MinGW\bin
 #  - dir  C:\MinGW\mingw32
-#  - mingw32-make   NFsim
 
   
 artifacts:
