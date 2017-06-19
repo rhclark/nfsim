@@ -44,6 +44,8 @@ build_script:
   - if "%platform%"=="x64" ( mv NFsim.exe  NFsim.win64.exe )
   - if "%platform%"=="x64" ( cd .. )
   - if "%platform%"=="x64" ( perl .make_tar.pl  --platform x64)
+  - CMD: cd build
+  - CMD: dir
 
   
 artifacts:
