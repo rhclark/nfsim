@@ -37,7 +37,6 @@ GetOptions( 'help|h'        => sub { display_help(); exit(0); },
 
 print "Platform: $platform\n";
 
-
 my $zip_type  = '';
 my $travis_os = '';
 if ($platform eq "linux") {
