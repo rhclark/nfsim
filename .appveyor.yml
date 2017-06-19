@@ -28,8 +28,8 @@ build_script:
   - pwd
 #  - cmake --version
   - if "%platform%"=="x86" ( SET "PATH=C:\\MinGW\\bin;%PATH%" )
-  - if "%platform%"=="x86" ( SET "PATH=C:\\MinGW\\mingw32\\bin;%PATH%" )
-  - if "%platform%"=="x86" ( mingw32-make   NFsim )
+  - if "%platform%"=="x64" ( cmake -G "Ninja" .. )
+  - if "%platform%"=="x64" ( ninja )
   - if "%platform%"=="x86" ( mv NFsim.exe  NFsim.win32.exe )
   
   - if "%platform%"=="x64" ( SET  "PATH=C:\\tools\\mingw64\\bin;%PATH%" )
