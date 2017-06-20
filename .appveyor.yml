@@ -9,15 +9,9 @@ environment:
       fast_finish: true
       generator: "Ninja"
 
-
-cache:
-  - C:\strawberry
-
 install:
   - choco install -r -y mingw
   - choco install -r -y ninja
-  - if not exist "C:\strawberry" cinst strawberryperl
-  - set PATH=C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;%path%
 #  - "SET PATH=C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%"
 
 branches:
@@ -45,7 +39,7 @@ build_script:
   - if "%platform%"=="x64" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x64" ( ninja )
   - if "%platform%"=="x64" ( mv NFsim.exe  NFsim.win64.exe )
-  - if "%platform%"=="x64" ( cd .. )
+  - if "%platform%"=="x64" ( cd ..                                      )
   - if "%platform%"=="x64" ( perl .make_tar.pl  --platform x64)
   - CMD: cd build
   - CMD: dir
