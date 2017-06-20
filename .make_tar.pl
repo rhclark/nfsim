@@ -55,6 +55,9 @@ if ($platform eq "linux") {
   system("ls -lt dist");
 
   } else {
+  
+    print " In perl  platform = ".$platform."\n";
+  
     if ($platform eq "x86") {
       $zip_type = ".zip";  $travis_os = "Win32";
       system('copy  ./bin/NFsim.exe  ./bin/NFsim.x86.exe');
