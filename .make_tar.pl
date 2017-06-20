@@ -60,11 +60,16 @@ if ($platform eq "linux") {
   
     if ($platform eq "Win32") {
       $zip_type = ".zip";  $travis_os = "Win32";
+      system("pwd");
+      system('dir build');
+      system("pwd");
+      system('dir bin');
+      system("pwd");
+      system('dir dist');
       system('copy  ./build/NFsim.exe  ./build/NFsim-Win32.exe');
       my $archive_file = "build/NFsim-source-Win32".$zip_type;
       print "\nCreating NFsim".$platform.".exe source archive:\n";
       system("7z a  ${archive_file} doc models src test tools validate CMakeLists.txt LICENSE.txt README.txt makefile NFsim_manual_v1.12.pdf ");
-      system("pwd");
       system("dir ${archive_file}");
     } else {
       if ($platform eq "Win64") {
