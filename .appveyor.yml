@@ -30,7 +30,7 @@ build_script:
   - if "%platform%"=="x86" ( cd build )
   - if "%platform%"=="x86" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x86" ( ninja )
-  - if "%platform%"=="x86" ( mv NFsim.exe  NFsim.win32.exe )
+  - if "%platform%"=="x86" ( mv NFsim.exe  NFsim.Win32.exe )
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl  --platform x86 )
   
@@ -38,7 +38,7 @@ build_script:
   - if "%platform%"=="x64" ( cd build )
   - if "%platform%"=="x64" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x64" ( ninja )
-  - if "%platform%"=="x64" ( mv NFsim.exe  NFsim.win64.exe )
+  - if "%platform%"=="x64" ( mv NFsim.exe  NFsim.Win64.exe )
   - if "%platform%"=="x64" ( cd ..                                      )
   - if "%platform%"=="x64" ( perl .make_tar.pl  --platform x64)
   - CMD: cd build
@@ -46,10 +46,10 @@ build_script:
 
   
 artifacts:
-  - path: './build/NFsim.win*.exe'
+  - path: './build/NFsim.Win*.exe'
     name: NFsim
   
-  - path: './build/NFsim-source-win*.zip'
+  - path: './build/NFsim-source-Win*.zip'
     name: NFsource
   
 deploy:
