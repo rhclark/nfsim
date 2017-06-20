@@ -64,6 +64,7 @@ if ($platform eq "linux") {
       my $archive_file = "./build/NFsim-source-".$platform.$zip_type;
       print "\nCreating NFsim".$platform.".exe source archive:\n";
       system("7z a  ${archive_file} doc models src test tools validate CMakeLists.txt LICENSE.txt README.txt makefile NFsim_manual_v1.12.pdf ");
+      system("pwd");
     } else {
       if ($platform eq "x64") {
         $zip_type = ".zip";  $travis_os = "Win64";
