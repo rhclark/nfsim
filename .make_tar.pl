@@ -58,7 +58,7 @@ if ($platform eq "linux") {
   
     print " In perl  platform = ".$platform."\n";
   
-    if ($platform eq "x86") {
+    if ($platform eq "Win32") {
       $zip_type = ".zip";  $travis_os = "Win32";
       system('copy  ./bin/NFsim.exe  ./bin/NFsim.x86.exe');
       my $archive_file = "build/NFsim-source-Win32".$zip_type;
@@ -67,7 +67,7 @@ if ($platform eq "linux") {
       system("pwd");
       system("dir ${archive_file}");
     } else {
-      if ($platform eq "x64") {
+      if ($platform eq "Win64") {
         $zip_type = ".zip";  $travis_os = "Win64";
         system('copy  ./bin/NFsim.exe  ./bin/NFsim.x64.exe');
         my $archive_file = "./build/NFsim-source-Win64".$zip_type;
