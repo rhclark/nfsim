@@ -41,6 +41,12 @@ build_script:
   - if "%platform%"=="x64" ( perl .make_tar.pl   --platform Win64 )
   - if "%platform%"=="x64" ( perl .make_html.pl  --platform Win64 )
 
+
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: Ee9fFcoV1ABKmTKowaok5sUiOlRSGzCpWtwNIBFC0PpauqK+/mEt9KjeUXWsb7J7uFcAb1CKo7y/FFhHEJH6pWGMn5oV283uVnqZAB8Chac=
+
   
 artifacts:
   - path: './build/NFsim-Win*.exe'
