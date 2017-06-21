@@ -46,6 +46,7 @@ notifications:
   - provider: Slack
     incoming_webhook:
       secure: Ee9fFcoV1ABKmTKowaok5sUiOlRSGzCpWtwNIBFC0PpauqK+/mEt9KjeUXWsb7J7uFcAb1CKo7y/FFhHEJH6pWGMn5oV283uVnqZAB8Chac=
+    template: "<{{buildUrl}}|Build {{projectName}} {{buildVersion}} {{status}}>Commit <{{commitUrl}}|{{commitId}}> by {{commitAuthor}} on {{commitDate}}:_{{commitMessage}}_"
 
   
 artifacts:
