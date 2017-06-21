@@ -46,8 +46,13 @@ notifications:
   - provider: Slack
     incoming_webhook:
       secure: Ee9fFcoV1ABKmTKowaok5sUiOlRSGzCpWtwNIBFC0PpauqK+/mEt9KjeUXWsb7J7uFcAb1CKo7y/FFhHEJH6pWGMn5oV283uVnqZAB8Chac=
-    template: "<{{buildUrl}}|Build {{projectName}} {{buildVersion}} {{status}}>
-              Commit <{{commitUrl}}|{{commitId}}> by {{commitAuthor}} on {{commitDate}}:_{{commitMessage}}_"
+    template: "<{{buildUrl}}|{{projectName}} build {{status}}>\n
+              Build: {{buildVersion}} (<{{commitUrl}}|{{commitId}}>)   Author: {{commitAuthor}}\n
+              On {{commitDate}}:_{{commitMessage}}_\n
+              Download Executable Here:\n
+              <http://www.midcapsignals.com/midcap/d_appveyor/build/NFsim-Windows.html|wrong>\n
+              Build Details:\n
+              <{{buildUrl}}|{{buildUrl}}>"
 
   
 artifacts:
