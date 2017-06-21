@@ -5,19 +5,18 @@ environment:
       fast_finish: true
       generator: "Ninja"
     
-#    - platform: x64
-#      fast_finish: true
-#      generator: "Ninja"
+    - platform: x64
+      fast_finish: true
+      generator: "Ninja"
 
 install:
   - choco install -r -y mingw
   - choco install -r -y ninja
 
 branches:
-  # whitelist
   only:
     - master
-     
+    - release     
 
 build_script:
   - cmd: echo Running cmake ...
