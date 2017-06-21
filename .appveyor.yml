@@ -48,7 +48,7 @@ notifications:
     template: "<{{buildUrl}}|{{projectName}} build {{status}}> on {{commitDate}}:_{{commitMessage}}_\n
               Build: {{buildVersion}} (<{{commitUrl}}|{{commitId}}>)   Author: {{commitAuthor}}\n              
               Download Executable Here:\n
-              <https://rawgit.com/rhclark/nfsim-rhclark/.NFsim_Beta.html|https://rawgit.com/rhclark/nfsim-rhclark/.NFsim_Beta.html>\n
+              <https://rawgit.com/rhclark/nfsim-rhclark/master/.NFsim_Beta.html|https://rawgit.com/rhclark/nfsim-rhclark/master/.NFsim_Beta.html>\n
               Build Details:\n
               <{{buildUrl}}|{{buildUrl}}>"
 
