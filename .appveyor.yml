@@ -26,7 +26,7 @@ build_script:
   - if "%platform%"=="x86" ( move CMakeLists.txt      CMakeLists.x64.txt )
   - if "%platform%"=="x86" ( move CMakeLists.x86.txt  CMakeLists.txt )
   - if "%platform%"=="x86" ( cd build )
-  - if "%platform%"=="x86" ( cmake -G "Ninja" .. )
+  - if "%platform%"=="x86" ( cmake -v -G "Ninja" .. )
   - if "%platform%"=="x86" ( ninja )
   - if "%platform%"=="x86" ( dir NFsim.exe )
   - if "%platform%"=="x86" ( NFsim )
