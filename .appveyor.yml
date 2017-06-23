@@ -28,7 +28,7 @@ build_script:
   - if "%platform%"=="x86" ( cd build )
   - if "%platform%"=="x86" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x86" ( ninja )
-  - if "%platform%"=="x86" ( dir NFsim )
+  - if "%platform%"=="x86" ( dir NFsim.exe )
   - if "%platform%"=="x86" ( NFsim )
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl   --platform Win32 )
