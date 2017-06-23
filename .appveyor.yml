@@ -30,6 +30,7 @@ build_script:
   - if "%platform%"=="x86" ( cmake .. )
 #  - if "%platform%"=="x86" ( ninja -v )
   - if "%platform%"=="x86" ( dir )
+  - if "%platform%"=="x86" ( dir CMakeFiles)
   - if "%platform%"=="x86" ( make )
   - if "%platform%"=="x86" ( NFsim )
   - if "%platform%"=="x86" ( cd .. )
