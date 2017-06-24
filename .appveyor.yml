@@ -32,7 +32,7 @@ build_script:
   - if "%platform%"=="x86" ( dir )
   - if "%platform%"=="x86" ( dir .. )
   - if "%platform%"=="x86" ( type ..\makefile )
-  - if "%platform%"=="x86" ( make )
+  - if "%platform%"=="x86" ( ming32-make )
   - if "%platform%"=="x86" ( NFsim )
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl   --platform Win32 )
