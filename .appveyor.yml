@@ -11,7 +11,7 @@ environment:
 
 install:
   - choco install -r -y mingw
-  - choco install -r -y ninja
+#  - choco install -r -y ninja
 
 branches:
   only:
