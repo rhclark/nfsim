@@ -61,9 +61,22 @@ set(SRC_FILES
     SET(STATIC_FLAGS " -static-libgcc -static-libstdc++")
 #endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 
-SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
+# SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
+# add_definitions(${CMAKE_EXE_LINKER_FLAGS})
 
-add_definitions(${CMAKE_EXE_LINKER_FLAGS})
+
+
+get_target_property(TEMP ${THE_TARGET} CMAKE_GCC_LINKER_FLAGS)
+if(TEMP STREQUAL "TEMP-NOTFOUND")
+  SET(TEMP "") # set to empty string
+else()
+  SET(TEMP "${TEMP} ") # a space to cleanly separate from existing content
+endif()
+# append our values
+SET(TEMP "${TEMP} ${STATIC_FLAGS}" )
+set_target_properties(${THE_TARGET} PROPERTIES CMAKE_GCC_LINKER_FLAGS ${TEMP} )
+
+
 
 #SET( CMAKE_GCC_LINKER_FLAGS  "${CMAKE_GCC_LINKER_FLAGS} -static-libgcc -static-libstdc++ ")
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
