@@ -66,9 +66,11 @@ set(SRC_FILES
 #SET( CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS}   -static-libgcc -static-libstdc++ ")
 #add_definitions(${CMAKE_STATIC_LINKER_FLAGS})
 
-SET_TARGET_PROPERTIES(C:\MinGW\bin\libgcc_s_dw2-1.a PROPERTIES LINK_FLAGS -Wl,-static)
+#SET_TARGET_PROPERTIES(C:\MinGW\bin\libgcc_s_dw2-1.a PROPERTIES LINK_FLAGS -Wl,-static)
 # SET_TARGET_PROPERTIES(NFsim PROPERTIES CMAKE_EXE_LINKER_FLAGS -Wl,-static)
 
 
 #SET( CMAKE_GCC_LINKER_FLAGS  "${CMAKE_GCC_LINKER_FLAGS} -static-libgcc -static-libstdc++ ")
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
+
+target_link_libraries(${PROJECT_NAME} C:\MinGW\bin\libgcc_s_dw2-1.a )
