@@ -66,7 +66,7 @@ set(SRC_FILES
 
 
 
-get_target_property(TEMP ${THE_TARGET} CMAKE_GCC_LINKER_FLAGS)
+get_target_property(TEMP ${THE_TARGET} CMAKE_EXE_LINKER_FLAGS)
 if(TEMP STREQUAL "TEMP-NOTFOUND")
   SET(TEMP "") # set to empty string
 else()
@@ -74,7 +74,7 @@ else()
 endif()
 # append our values
 SET(TEMP "${TEMP} ${STATIC_FLAGS}" )
-set_target_properties(${THE_TARGET} PROPERTIES CMAKE_GCC_LINKER_FLAGS ${TEMP} )
+set_target_properties(${THE_TARGET} PROPERTIES CMAKE_EXE_LINKER_FLAGS ${TEMP} )
 
 
 
