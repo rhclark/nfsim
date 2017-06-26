@@ -74,3 +74,4 @@ set(SRC_FILES
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
 
 target_link_libraries(${PROJECT_NAME} C:/MinGW/bin/libgcc_s_dw2-1.a )
+message(" Hi kids ");
