@@ -35,6 +35,7 @@ build_script:
   - if "%platform%"=="x86" ( dir CMakeFiles\CMakeTmp )
   - if "%platform%"=="x86" ( dir CMakeFiles\3.8.2 )
   - if "%platform%"=="x86" ( dir .. )
+  - if "%platform%"=="x86" ( type ..\CMakeFiles\CMakeOutput.log )
   - if "%platform%"=="x86" ( type ..\makefile )
   - if "%platform%"=="x86" ( type ..\bin\makefile )
   - if "%platform%"=="x86" ( type ..\bin\makefile.safe )
