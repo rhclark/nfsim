@@ -33,7 +33,7 @@ build_script:
   - if "%platform%"=="x86" ( dir .. )
   - if "%platform%"=="x86" ( type ..\makefile )
   - if "%platform%"=="x86" ( type ..\bin\makefile )
-  - if "%platform%"=="x86" ( type CMakeFiles\CMake.log )
+  - if "%platform%"=="x86" ( type "CMakeFiles\CMake*.log" )
   - if "%platform%"=="x86" ( cd ..\bin )
   - if "%platform%"=="x86" ( mingw32-make )
   - if "%platform%"=="x86" ( where libgcc_s_dw2-1.dll )
