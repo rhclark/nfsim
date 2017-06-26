@@ -74,4 +74,4 @@ SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${NFSIM_LINK_FLAGS}")
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
 
 target_link_libraries(${PROJECT_NAME} C:/MinGW/bin/libgcc_s_dw2-1.a )
-message(" Hi kids ${CMAKE_EXE_LINKER_FLAGS} done")
+message(" Hi kids ${LIBS} done")
