@@ -71,6 +71,11 @@ SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${NFSIM_LINK_FLAGS}")
 
 
 #SET( CMAKE_GCC_LINKER_FLAGS  "${CMAKE_GCC_LINKER_FLAGS} -static-libgcc -static-libstdc++ ")
+
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+SET(BUILD_SHARED_LIBRARIES OFF)
+SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
 
 target_link_libraries(${PROJECT_NAME} C:/MinGW/bin/libgcc_s_dw2-1.a )
