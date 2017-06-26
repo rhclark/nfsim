@@ -67,6 +67,7 @@ set(SRC_FILES
 #add_definitions(${CMAKE_STATIC_LINKER_FLAGS})
 
 # SET_TARGET_PROPERTIES(libgcc_s_dw2-1.dll PROPERTIES LINK_FLAGS -Wl,-static)
+SET_TARGET_PROPERTIES(NFsim PROPERTIES LINK_FLAGS -Wl,-static)
 
 
 #SET( CMAKE_GCC_LINKER_FLAGS  "${CMAKE_GCC_LINKER_FLAGS} -static-libgcc -static-libstdc++ ")
