@@ -27,7 +27,7 @@ build_script:
   - if "%platform%"=="x86" ( copy CMakeLists.x86.txt  .\build\CMakeLists.txt )
   - if "%platform%"=="x86" ( cd build )
 #  - if "%platform%"=="x86" ( cmake -G "Ninja" .. )
-  - if "%platform%"=="x86" ( cmake -G "Unix Makefiles" )
+  - if "%platform%"=="x86" ( cmake  )
 #  - if "%platform%"=="x86" ( ninja -v )
   - if "%platform%"=="x86" ( dir )
 #  - if "%platform%"=="x86" ( dir ..\bin )
