@@ -4,6 +4,9 @@ project(NFsim)
 
 #find_package(XMLRPC REQUIRED abyss-server c++2)
 
+SET(CMAKE_C_COMPILER   C:/MinGW/bin/gcc.exe)
+SET(CMAKE_CXX_COMPILER C:/MinGW/bin/g++.exe)
+
 
 #if (NOT XMLRPC_FOUND) 
 #  message (FATAL_ERROR "XMLRPC-C not found") 
