@@ -28,6 +28,8 @@ build_script:
   - if "%platform%"=="x86" ( cd build )
 
   - if "%platform%"=="x86" ( where libgcc_s_dw2-1.dll )
+  - if "%platform%"=="x86" ( where gcc )
+  - if "%platform%"=="x86" ( where g++ )
 
   - if "%platform%"=="x86" ( CC=gcc CXX=g++ cmake -G "Ninja" .. )
 #  - if "%platform%"=="x86" ( cmake -G"Unix Makefiles" .. )
