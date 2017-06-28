@@ -82,7 +82,7 @@ set_property(TARGET GCCDW2 PROPERTY IMPORTED_LOCATION  C:/MinGW/bin/libgcc_s_dw2
 #SET(CMAKE_EXE_LINKER_FLAGS "-static")
 #SET( CMAKE_GCC_LINKER_FLAGS  " ${CMAKE_GCC_LINKER_FLAGS} -static-libgcc -static-libstdc++  ")
 
-add_executable(${PROJECT_NAME} GCCDW2 ${SRC_FILES} )
+add_executable(${PROJECT_NAME} ${GCCDW2} ${SRC_FILES} )
 
 #target_link_libraries(${PROJECT_NAME} C:/MinGW/bin/libgcc_s_dw2-1.a )
 #message(" Hi kids ${LIBS} done")
