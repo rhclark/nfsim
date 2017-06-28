@@ -51,9 +51,16 @@ set(SRC_FILES
     ${src_files} 
     ${c_src_files} 
 )
-if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
-    SET(STATIC_FLAGS "-static -static-libgcc -static-libstdc++")
-endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
+#if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
+#    SET(STATIC_FLAGS "-static -static-libgcc -static-libstdc++")
+#endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 
-SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
+#SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
+
+
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+SET(BUILD_SHARED_LIBRARIES OFF)
+SET(CMAKE_EXE_LINKER_FLAGS "-static")
+
+
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
