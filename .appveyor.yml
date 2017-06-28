@@ -42,6 +42,7 @@ build_script:
 #  - if "%platform%"=="x86" ( type "CMakeFiles\CMake*.log" )
 #  - if "%platform%"=="x86" ( mingw32-make )
   - if "%platform%"=="x86" ( where libgcc_s_dw2-1.dll )
+  - if "%platform%"=="x86" ( where libgcc_s_dw2-1.a )
   - if "%platform%"=="x86" ( NFsim )
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl   --platform Win32 )
