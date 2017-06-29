@@ -1,16 +1,22 @@
+os: unstable
+
 environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   matrix:
-    - platform: x86
+    - builder: cygwin
+      platform: x86
       fast_finish: true
       generator: "Ninja"
-    
-    - platform: x64
-      fast_finish: true
-      generator: "Ninja"
+             
+#    - builder: cygwin 
+#      platform: x64
+#      fast_finish: true
+#      generator: "Ninja"
+
+
 
 install:
-  - choco install -r -y mingw
+#  - choco install -r -y mingw
   - choco install -r -y ninja
 
 branches:
@@ -18,11 +24,18 @@ branches:
     - master
     - release     
 
+install:
+  - if "%platform%"=="x86"  ( C:\cygwin\setup-x86.exe      -qnNdO -R C:/cygwin   -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup   -P openssl-devel -P libiodbc-devel -P libiodbc2 -P odbc-mysql -P odbc-pgsql -P odbc-sqlite3 -P libmysqlclient-devel -P libsqlite3-devel -P libcrypt-devel -P zip))
+  - if "%platform%"=="x64"  ( C:\cygwin64\setup-x86_64.exe -qnNdO -R C:/cygwin64 -s http://cygwin.mirror.constant.com -l C:/cygwin64/var/cache/setup -P openssl-devel -P libiodbc-devel -P libiodbc2 -P odbc-mysql -P odbc-pgsql -P odbc-sqlite3 -P libmysqlclient-devel -P libsqlite3-devel -P libcrypt-devel -P zip))
+  - if "%platform%"=="x86"  ( set "PATH=C:\cygwin\bin;%PATH%"   ; set "TRAVIS_OS_NAME=Win32" ))
+  - if "%platform%"=="x64"  ( set "PATH=C:\cygwin64\bin;%PATH%" ; set "TRAVIS_OS_NAME=Win64"  ))
+
+
 build_script:
   - cmd: echo Running cmake ...
   - cmd: mkdir build
 
-  - if "%platform%"=="x86" ( SET "PATH=C:\\tools\\mingw32\\bin;C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%")  
+#  - if "%platform%"=="x86" ( SET "PATH=C:\\tools\\mingw32\\bin;C:\\MinGW\\mingw32\\bin;C:\\MinGW\\bin;%PATH%")  
   - if "%platform%"=="x86" ( move CMakeLists.txt      CMakeLists.x64.txt )
   - if "%platform%"=="x86" ( copy CMakeLists.x86.txt  .\CMakeLists.txt )
   - if "%platform%"=="x86" ( cd build )
@@ -54,7 +67,7 @@ build_script:
 #  - if "%platform%"=="x86" ( dir C:\\MinGW\\bin\\libgcc_s_dw2-1.dll Win32-libgcc_s_dw2-1.dll )
   
   
-  - if "%platform%"=="x64" ( SET  "PATH=C:\\tools\\mingw64\\bin;%PATH%" )
+#  - if "%platform%"=="x64" ( SET  "PATH=C:\\tools\\mingw64\\bin;%PATH%" )
   - if "%platform%"=="x64" ( cd build )
   - if "%platform%"=="x64" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x64" ( ninja )
