@@ -50,6 +50,8 @@ build_script:
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl   --platform Win32 )
   - if "%platform%"=="x86" ( perl .make_html.pl  --platform Win32 )
+  - if "%platform%"=="x86" ( copy C:\\MinGW\\bin\\libgcc_s_dw2-1.dll Win32-libgcc_s_dw2-1.dll )
+  
   
   - if "%platform%"=="x64" ( SET  "PATH=C:\\tools\\mingw64\\bin;%PATH%" )
   - if "%platform%"=="x64" ( cd build )
@@ -76,7 +78,10 @@ notifications:
 artifacts:
   - path: './build/NFsim-Win*.exe'
     name: NFsim
-  
+
+  - path: './build/Win32-libgcc_s_dw2-1.dll'
+    name: NFsimdll
+
   - path: './build/NFsim-source-Win*.zip'
     name: NFsource
   
