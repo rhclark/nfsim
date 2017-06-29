@@ -61,7 +61,7 @@ build_script:
   - if "%platform%"=="x86" ( cd .. )
   - if "%platform%"=="x86" ( perl .make_tar.pl   --platform Win32 )
   - if "%platform%"=="x86" ( perl .make_html.pl  --platform Win32 )
-  - if "%platform%"=="x86" ( copy  C:\MinGW\bin\libgcc_s_dw2-1.dll  .\build\Win32-libgcc_s_dw2-1.dll )
+#  - if "%platform%"=="x86" ( copy  C:\MinGW\bin\libgcc_s_dw2-1.dll  .\build\Win32-libgcc_s_dw2-1.dll )
 #  - if "%platform%"=="x86" ( dir C:\\MinGW\\bin\\libgcc_s_dw2-1.dll Win32-libgcc_s_dw2-1.dll )
   
   
