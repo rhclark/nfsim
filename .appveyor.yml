@@ -42,9 +42,9 @@ build_script:
   - if "%platform%"=="x86" ( where gcc )
   - if "%platform%"=="x86" ( where g++ )
 
+  - if "%platform%"=="x86" ( copy C:\cygwin\bin\gcc.exe C:\cygwin\bin\cc.exe )
   - if "%platform%"=="x86" ( cmake -G "Ninja" .. )
 #  - if "%platform%"=="x86" ( cmake -G"Unix Makefiles" .. )
-  - if "%platform%"=="x86" ( ln -s C:\cygwin\bin\gcc.exe C:\cygwin\bin\cc.exe )
   - if "%platform%"=="x86" ( ninja -v  )
   - if "%platform%"=="x86" ( dir )
 #  - if "%platform%"=="x86" ( dir ..\bin )
