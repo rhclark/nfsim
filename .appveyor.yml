@@ -93,8 +93,8 @@ artifacts:
   - path: './build/NFsim-Win*.exe'
     name: NFsim
 
-  - path: './build/Win32-libgcc_s_dw2-1.dll'
-    name: NFsimdll
+#  - path: './build/Win32-libgcc_s_dw2-1.dll'
+#    name: NFsimdll
 
   - path: './build/NFsim-source-Win*.zip'
     name: NFsource
