@@ -60,6 +60,7 @@ if ($platform eq "linux") {
   
     if ($platform eq "Win32") {
       $zip_type = ".zip";  $travis_os = "Win32";
+      system('pwd');
       system('copy  .\build\NFsim.exe  .\build\NFsim-Win32.exe');
       my $archive_file = "build/NFsim-source-Win32".$zip_type;
       print "\nCreating NFsim".$platform.".exe source archive:\n";
