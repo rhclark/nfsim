@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
 			cout<<"Seeding random number generator with: "<<seed<<endl;
 		}
 
+		cout<<"Here 1 ..."<<endl;
 
 		//Handle the case of no parameters
 		if(argMap.empty()) {
@@ -236,6 +237,7 @@ int main(int argc, char *argv[])
 			parsed = true;
 		}
 
+		cout<<"Here 2 ..."<<endl;
 		//A built in AgentCell simulation (for demonstration purposes)
 		else if (argMap.find("agentcell")!=argMap.end())
 		{
@@ -255,6 +257,7 @@ int main(int argc, char *argv[])
 		}
 
 
+		cout<<"Here 2 ..."<<endl;
 		//Handle the case of running a predefined test
 		else if (argMap.find("test")!=argMap.end())
 		{
@@ -262,6 +265,7 @@ int main(int argc, char *argv[])
 			bool foundATest = false;
 			if(!test.empty())
 			{
+		cout<<"Here a ..."<<endl;
 				cout<<"running test: '"+test+"'"<<endl;
 				if(test=="simple_system") {
 					NFtest_ss::run();
