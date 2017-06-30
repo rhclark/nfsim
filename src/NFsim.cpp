@@ -195,6 +195,7 @@ int main(int argc, char *argv[])
 	double time;
 	start = clock();
 
+	cout<<"Starting ..."<<endl<<endl;
 
 	///////////////////////////////////////////////////////////
     // Begin Execution
