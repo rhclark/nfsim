@@ -190,12 +190,12 @@ int main(int argc, char *argv[])
 	//if (!schedulerInterpreter(&argc, &argv)) return 0;
 
 	string versionNumber = "1.12.1";
-	cout<<"starting NFsim v"+versionNumber+"..."<<endl<<endl;
+	cout<<"starting NFsim v"+versionNumber+"..."<<endl;
 	clock_t start,finish;
 	double time;
 	start = clock();
 
-	cout<<"Starting ..."<<endl<<endl;
+	cout<<"Starting ..."<<endl;
 
 	///////////////////////////////////////////////////////////
     // Begin Execution
