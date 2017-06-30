@@ -237,10 +237,10 @@ int main(int argc, char *argv[])
 			parsed = true;
 		}
 
-		cout<<"Here 2 ..."<<endl;
 		//A built in AgentCell simulation (for demonstration purposes)
 		else if (argMap.find("agentcell")!=argMap.end())
 		{
+		cout<<"Here 111 ..."<<endl;
 			runAgentCell(argMap,verbose);
 			parsed = true;
 		}
@@ -248,6 +248,7 @@ int main(int argc, char *argv[])
 		//  Main entry point for a basic XML file...
 		else if (argMap.find("xml")!=argMap.end())
 		{
+		cout<<"Here 11 ..."<<endl;
 			System *s = initSystemFromFlags(argMap, verbose);
 			if(s!=NULL) {
 				runFromArgs(s,argMap,verbose);
@@ -257,10 +258,10 @@ int main(int argc, char *argv[])
 		}
 
 
-		cout<<"Here 2 ..."<<endl;
 		//Handle the case of running a predefined test
 		else if (argMap.find("test")!=argMap.end())
 		{
+		cout<<"Here 2 ..."<<endl;
 			string test = argMap.find("test")->second;
 			bool foundATest = false;
 			if(!test.empty())
