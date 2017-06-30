@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 			cout<<"Seeding random number generator with: "<<seed<<endl;
 		}
 
-		cout<<"Here 1 ..."<<endl;
+		cout<<"Here 1 ..."<<endl<<endl;
 
 		//Handle the case of no parameters
 		if(argMap.empty()) {
