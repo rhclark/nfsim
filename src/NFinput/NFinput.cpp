@@ -55,6 +55,8 @@ System * NFinput::initializeFromXML(
 	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
 
 
+	cout<<" iXML 1 "<<endl<<endl;
+	
 	TiXmlDocument doc(filename.c_str());
 	bool loadOkay = doc.LoadFile();
 	if (loadOkay)
@@ -63,12 +65,14 @@ System * NFinput::initializeFromXML(
 
 		//First declare our system
 		System *s;
+	cout<<" iXML 2 "<<endl<<endl;
 
 		//Read in the root node, which should give us the system's name
 		TiXmlHandle hDoc(&doc);
 		TiXmlElement *pModel = hDoc.FirstChildElement().Node()->FirstChildElement("model");
 		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
 
+	cout<<" iXML 3 "<<endl<<endl;
 		//Make sure the basics are there
 		string modelName;
 		if(!pModel->Attribute("id"))  {
@@ -84,6 +88,7 @@ System * NFinput::initializeFromXML(
 			if(verbose) cout<<"\tCreating system: "<<s->getName()<<endl;
 		}
 
+	cout<<" iXML 4 "<<endl<<endl;
 		// set evaluation of complex-scoped local functions (true or false)
 		s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
 
@@ -101,6 +106,7 @@ System * NFinput::initializeFromXML(
 		TiXmlElement *pListOfObservables = pListOfReactionRules->NextSiblingElement("ListOfObservables");
 		if(!pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; delete s; return NULL; }
 
+	cout<<" iXML 5 "<<endl<<endl;
 
 		//Now retrieve the parameters, so they are easy to look up in the future
 		//and save the parameters in a map we call parameter
@@ -114,6 +120,7 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
+	cout<<" iXML 6 "<<endl<<endl;
 		if(!verbose) cout<<"-";
 		else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
 		map<string,int> allowedStates;
@@ -124,6 +131,7 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
+	cout<<" iXML 7 "<<endl<<endl;
 
 		if(!verbose) cout<<"-";
 		else cout<<"\n\tReading list of Species..."<<endl;
@@ -134,6 +142,7 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
+	cout<<" iXML 8 "<<endl<<endl;
 
 		if(!verbose) cout<<"-";
 		else cout<<"\n\tReading list of Observables..."<<endl;
@@ -144,6 +153,7 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
+	cout<<" iXML 9 "<<endl<<endl;
 
 
 		if(!verbose) cout<<"-";
@@ -158,6 +168,7 @@ System * NFinput::initializeFromXML(
 		}
 
 
+	cout<<" iXML 10 "<<endl<<endl;
 
 		//We have to read reactionRules AFTER observables because sometimes reactions
 		//might depend on some observable...
@@ -171,6 +182,8 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
+	cout<<" iXML 11 "<<endl<<endl;
+		
 		/////////////////////////////////////////
 		// Parse is finally over!  Now we just have to take care of some final details.
 
