@@ -250,8 +250,11 @@ int main(int argc, char *argv[])
 		{
 		cout<<"Here 11 ..."<<endl;
 			System *s = initSystemFromFlags(argMap, verbose);
+		cout<<"Here 11a ..."<<endl;
 			if(s!=NULL) {
+		cout<<"Here 11b ..."<<endl;
 				runFromArgs(s,argMap,verbose);
+		cout<<"Here 11c ..."<<endl;
 			}
 			parsed = true;
 			delete s;
