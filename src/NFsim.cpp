@@ -362,6 +362,9 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 		string filename = argMap.find("xml")->second;
 		if(!filename.empty())
 		{
+			
+			cout<<" XML 1 ... "<< endl;
+
 			//Create the system from the XML file
 			// flag for blocking same complex binding.  If given,
 			// then a molecule is blocked from binding another if
@@ -373,6 +376,8 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 				blockSameComplexBinding = true;
 			}
 
+			cout<<" XML 2 ... "<< endl;
+
 			bool turnOnComplexBookkeeping = false;
 			if (argMap.find("cb")!=argMap.end())
 				turnOnComplexBookkeeping = true;
@@ -381,6 +386,8 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 			bool evaluateComplexScopedLocalFunctions = true;
 			if (argMap.find("nocslf")!=argMap.end())
 				evaluateComplexScopedLocalFunctions = false;
+			
+			cout<<" XML 3 ... "<< endl;
 
 			int globalMoleculeLimit = 200000;
 			if (argMap.find("gml")!=argMap.end()) {
@@ -395,16 +402,20 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 													suggestedTraveralLimit,evaluateComplexScopedLocalFunctions);
 
 
+			cout<<" XML 4 ... "<< endl;
+			
 			if(s!=NULL)
 			{
 				if(verbose) {cout<<endl;}
 
+			cout<<" XML 5 ... "<< endl;
 				//If requested, be sure to output the values of global functions
 				if (argMap.find("ogf")!=argMap.end()) {
 					s->turnOnGlobalFuncOut();
 					if(verbose) cout<<"\tGlobal function output (-ogf) flag detected."<<endl<<endl;
 				}
 
+			cout<<" XML 6 ... "<< endl;
 				// Also set the dumper to output at specified time intervals
 				if (argMap.find("dump")!=argMap.end()) {
 					if(!NFinput::createSystemDumper(argMap.find("dump")->second, s, verbose)) {
@@ -414,6 +425,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 					}
 				}
 
+			cout<<" XML 7 ... "<< endl;
 				// Set the universal traversal limit
 				if (argMap.find("utl")!=argMap.end()) {
 					int utl = -1;
@@ -425,6 +437,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 					if(verbose) cout<<"\tUniversal Traversal Limit (UTL) set automatically to: "<<suggestedTraveralLimit<<endl<<endl;
 				}
 
+			cout<<" XML 8 ... "<< endl;
 				if (verbose){
 					// report status of complex-scoped local functions
 					if ( s->getEvaluateComplexScopedLocalFunctions() ) {
@@ -437,12 +450,14 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 
 
 
+			cout<<" XML 9 ... "<< endl;
 				// turn on the event counter, if need be
 				if (argMap.find("oec")!=argMap.end()) {
 					s->turnOnOutputEventCounter();
 					if(verbose) cout<<"\tEvent counter output (-oec) flag detected."<<endl<<endl;
 				}
 
+			cout<<" XML 10 ... "<< endl;
 				// set the output to binary
 				if (argMap.find("b")!=argMap.end()) {
 					s->setOutputToBinary();
@@ -450,11 +465,13 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 				}
 
 
+			cout<<" XML 11 ... "<< endl;
 				if(argMap.find("csv")!=argMap.end()) {
 					s->turnOnCSVformat();
 				}
 
 
+			cout<<" XML 12 ... "<< endl;
 				// tag any reactions that were tagged
 				if (argMap.find("rtag")!=argMap.end()) {
 					vector <int> sequence;
@@ -470,6 +487,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 				}
 
 
+			cout<<" XML 13 ... "<< endl;
 				//Register the output file location, if given
 				if (argMap.find("o")!=argMap.end()) {
 					string outputFileName = argMap.find("o")->second;
@@ -487,6 +505,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 					}
 				}
 
+			cout<<" XML 14 ... "<< endl;
 				//turn off on the fly calculation of observables
 				if(argMap.find("notf")!=argMap.end()) {
 					s->turnOff_OnTheFlyObs();
@@ -495,6 +514,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 
 
 
+			cout<<" XML 15 ... "<< endl;
 
 
 				//Finally, return the system if we made it here without problems
@@ -510,6 +530,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 	} else {
 		cout<<"Couldn't create a system from your XML file.  No -xml [filename] flag given."<<endl;
 	}
+			cout<<" XML 16 ... "<< endl;
 	return 0;
 }
 
