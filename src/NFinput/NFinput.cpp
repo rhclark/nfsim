@@ -107,6 +107,7 @@ System * NFinput::initializeFromXML(
 		TiXmlElement *pListOfObservables = pListOfReactionRules->NextSiblingElement("ListOfObservables");
 		if(!pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; delete s; return NULL; }
 
+	/* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 5 "<<endl<<endl;
 
 		//Now retrieve the parameters, so they are easy to look up in the future
@@ -121,7 +122,6 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
-	/* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 6 "<<endl<<endl;
 		if(!verbose) cout<<"-";
 		else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
