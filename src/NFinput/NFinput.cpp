@@ -88,6 +88,7 @@ System * NFinput::initializeFromXML(
 			if(verbose) cout<<"\tCreating system: "<<s->getName()<<endl;
 		}
 
+	/* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 4 "<<endl<<endl;
 		// set evaluation of complex-scoped local functions (true or false)
 		s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
@@ -106,7 +107,6 @@ System * NFinput::initializeFromXML(
 		TiXmlElement *pListOfObservables = pListOfReactionRules->NextSiblingElement("ListOfObservables");
 		if(!pListOfObservables) { cout<<"\tNo 'ListOfObservables' tag found.  Quitting."; delete s; return NULL; }
 
-	/* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 5 "<<endl<<endl;
 
 		//Now retrieve the parameters, so they are easy to look up in the future
