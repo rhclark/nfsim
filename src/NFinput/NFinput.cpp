@@ -1,7 +1,6 @@
 #include "NFinput.hh"
 
 
-
 #include <algorithm>
 
 
