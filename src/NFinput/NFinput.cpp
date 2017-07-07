@@ -121,6 +121,7 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
+	/* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 6 "<<endl<<endl;
 		if(!verbose) cout<<"-";
 		else cout<<"\n\tReading list of MoleculeTypes..."<<endl;
@@ -132,7 +133,6 @@ System * NFinput::initializeFromXML(
 			return NULL;
 		}
 
-	/* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 7 "<<endl<<endl;
 
 		if(!verbose) cout<<"-";
