@@ -105,8 +105,8 @@ artifacts:
 deploy:
   provider: FTP
   protocol: ftp
-  host: ftp.midcapsignals.com/midcap/d_appveyor
-  username: roberthclark
+  host: ftp.drivehq.com/d_data/d_appveyor/build
+  username: 15260
   password:
-    secure: K22E4pSAup6/htlGmoSBMw==
-#  artifact: NFsim NFsource
+    secure: 5HWWiZz7E6Bos+E8fcfO5g==
+
