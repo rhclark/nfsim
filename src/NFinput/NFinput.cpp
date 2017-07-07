@@ -191,6 +191,8 @@ System * NFinput::initializeFromXML(
 		//Finish up the output message
 		if(!verbose) cout<<"-]\n";
 
+		if(verbose) cout<<"\tOur system is still: "<<s->getName()<<endl;
+		
 		//We no longer prepare the simulation here!  You have to do it yourself
 
 		return s;
