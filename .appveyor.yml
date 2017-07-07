@@ -105,7 +105,7 @@ artifacts:
 deploy:
   provider: FTP
   protocol: ftp
-  host: ftp.drivehq.com/d_data/d_appveyor/build
+  host: ftp.drivehq.com/d_data/d_appveyor
   username: 15260
   password:
     secure: 5HWWiZz7E6Bos+E8fcfO5g==
