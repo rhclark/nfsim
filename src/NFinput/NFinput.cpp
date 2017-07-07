@@ -51,7 +51,7 @@ System * NFinput::initializeFromXML(
 		int &suggestedTraversalLimit,
 		bool evaluateComplexScopedLocalFunctions )
 {
-	verbose = false;
+	verbose = true;
 	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
 	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
 
