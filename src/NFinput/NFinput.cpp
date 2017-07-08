@@ -65,6 +65,10 @@ System * NFinput::initializeFromXML(
 
 		//First declare our system
 		System *s;
+		
+		System *robby;		
+		robby = null;
+		
 	cout<<" iXML 2 "<<endl<<endl;
 
 		//Read in the root node, which should give us the system's name
@@ -88,7 +92,7 @@ System * NFinput::initializeFromXML(
 			if(verbose) cout<<"\tCreating system: "<<s->getName()<<endl;
 		}
 
-	/* Should not be here */	return s; /* Should not be here */
+	/* Should not be here */	return robby; /* Should not be here */
 	cout<<" iXML 4 "<<endl<<endl;
 		// set evaluation of complex-scoped local functions (true or false)
 		s->setEvaluateComplexScopedLocalFunctions(evaluateComplexScopedLocalFunctions);
