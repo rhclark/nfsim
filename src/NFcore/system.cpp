@@ -72,6 +72,10 @@ System::System(string name, bool useComplex)
 System::System(string name, bool useComplex, int globalMoleculeLimit)
 {
 	this->name = name;
+	
+	out << " name is " << name << endl;
+	
+	
 	this->a_tot = 0;
 	current_time = 0;
 	nextReaction = 0;
