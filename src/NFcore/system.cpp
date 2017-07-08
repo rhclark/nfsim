@@ -73,7 +73,7 @@ System::System(string name, bool useComplex, int globalMoleculeLimit)
 {
 	this->name = name;
 	
-	out << " name is " << name << endl;
+	cout << " name is " << name << endl;
 	
 	
 	this->a_tot = 0;
