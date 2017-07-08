@@ -250,7 +250,8 @@ int main(int argc, char *argv[])
 		else if (argMap.find("xml")!=argMap.end())
 		{
 		cout<<"Here 11 ..."<<endl;
-			System *s = initSystemFromFlags(argMap, verbose);
+			System *s;
+			s = initSystemFromFlags(argMap, verbose);
 		cout<<"Here 11a ..."<<endl;
 			if(s!=NULL) {
 		cout<<"Here 11b ..."<<endl;
