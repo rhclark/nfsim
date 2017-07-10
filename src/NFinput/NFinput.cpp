@@ -66,8 +66,8 @@ System * NFinput::initializeFromXML(
 		//First declare our system
 		System *s;
 		
-		System *robby;		
-		robby = NULL;
+		// System *robby;		
+		// robby = NULL;
 		
 	cout<<" iXML 2 "<<endl<<endl;
 
@@ -76,9 +76,8 @@ System * NFinput::initializeFromXML(
 		TiXmlElement *pModel = hDoc.FirstChildElement().Node()->FirstChildElement("model");
 		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
 
-	cout<<" Finished Instantiation "<<endl<<endl;
-		robby = NULL;
-	/* Should not be here */	return robby; /* Should not be here */
+		// robby = NULL;
+	/* Should not be here */	// return robby; 
 	cout<<" iXML 3 "<<endl<<endl;
 		//Make sure the basics are there
 		string modelName;
@@ -94,6 +93,7 @@ System * NFinput::initializeFromXML(
 			else s=new System(modelName,true,globalMoleculeLimit);
 			if(verbose) cout<<"\tCreating system: "<<s->getName()<<endl;
 		}
+	cout<<" Finished Instantiation "<<endl<<endl;
 
 	cout<<" iXML 4 "<<endl<<endl;
 		// set evaluation of complex-scoped local functions (true or false)
