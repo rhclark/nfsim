@@ -400,7 +400,7 @@ System *initSystemFromFlags(map<string,string> argMap, bool verbose)
 			if(turnOnComplexBookkeeping || blockSameComplexBinding) cb=true;
 			int suggestedTraveralLimit = ReactionClass::NO_LIMIT;
 			System *s = NFinput::initializeFromXML(filename,cb,globalMoleculeLimit,verbose,
-													suggestedTraveralLimit,evaluateComplexScopedLocalFunctions);
+													&suggestedTraveralLimit,evaluateComplexScopedLocalFunctions);
 
 
 			cout<<" XML 4 ... "<< endl;
