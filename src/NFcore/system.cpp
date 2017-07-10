@@ -96,6 +96,9 @@ System::System(string name, bool useComplex, int globalMoleculeLimit)
 	ds=0;
 	selector = 0;
 	csvFormat = false;
+	
+	cout << " Last line in constructor " << name << endl;
+	
 }
 
 
