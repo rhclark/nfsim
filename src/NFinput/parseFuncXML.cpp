@@ -433,6 +433,9 @@ bool NFinput::initFunctions(
 		vector <string> refNamesSorted;
 		vector <string> refTypesSorted;
 
+		
+		cout<<" initFunctions try "<<endl<<endl;
+		
 		//Loop through the Function tags...
 		TiXmlElement *pFunction;
 		for ( pFunction = pListOfFunctions->FirstChildElement("Function"); pFunction != 0; pFunction = pFunction->NextSiblingElement("Function"))
