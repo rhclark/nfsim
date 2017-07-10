@@ -174,7 +174,6 @@ System * NFinput::initializeFromXML(
 			}
 		}
 
-       /* Should not be here */	return s; /* Should not be here */
 	cout<<" iXML 10 "<<endl<<endl;
 
 		//We have to read reactionRules AFTER observables because sometimes reactions
@@ -201,6 +200,7 @@ System * NFinput::initializeFromXML(
 		
 		//We no longer prepare the simulation here!  You have to do it yourself
 
+		cout << "Just about to return" <<endl<<endl;
 		return s;
 	}
 	else
