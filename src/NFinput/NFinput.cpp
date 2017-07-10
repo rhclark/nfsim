@@ -92,6 +92,7 @@ System * NFinput::initializeFromXML(
 			if(verbose) cout<<"\tCreating system: "<<s->getName()<<endl;
 		}
 
+	cout<<" Finished Instantiation "<<endl<<endl;
 		robby = NULL;
 	/* Should not be here */	return robby; /* Should not be here */
 	cout<<" iXML 4 "<<endl<<endl;
