@@ -67,7 +67,7 @@ System * NFinput::initializeFromXML(
 		System *s;
 		
 		System *robby;		
-		robby = null;
+		robby = NULL;
 		
 	cout<<" iXML 2 "<<endl<<endl;
 
