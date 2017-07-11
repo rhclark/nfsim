@@ -78,7 +78,7 @@ System * NFinput::initializeFromXML(
 
 		//Read in the root node, which should give us the system's name
 		TiXmlHandle hDoc(&doc);
-		TiXmlElement *pModel = &(hDoc.FirstChildElement().Node()->FirstChildElement("model"));
+		TiXmlElement *pModel = hDoc.FirstChildElement().Node()->FirstChildElement("model");
 	return s;
 		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
 
