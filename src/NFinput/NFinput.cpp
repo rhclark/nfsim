@@ -54,12 +54,12 @@ System * NFinput::initializeFromXML(
 	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
 	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
 
-	/* Should not be here */	 return NULL; 
 
 	cout<<" iXML 1 "<<endl<<endl;
 	
 	TiXmlDocument doc(filename.c_str());
 	bool loadOkay = doc.LoadFile();
+	/* Should not be here */	 return NULL; 
 	if (loadOkay)
 	{
 		if(verbose) cout<<"\t\tread was successful... beginning parse..."<<endl<<endl;
