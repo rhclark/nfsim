@@ -77,7 +77,7 @@ System * NFinput::initializeFromXML(
 		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
 
 		// robby = NULL;
-	/* Should not be here */	// return robby; 
+	/* Should not be here */	 return NULL; 
 	cout<<" iXML 3 "<<endl<<endl;
 		//Make sure the basics are there
 		string modelName;
