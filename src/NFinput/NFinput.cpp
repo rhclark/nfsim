@@ -54,6 +54,7 @@ System * NFinput::initializeFromXML(
 	if(!verbose) cout<<"reading xml file ("+filename+")  \n\t[";
 	if(verbose) cout<<"\tTrying to read xml model specification file: \t\n'"<<filename<<"'"<<endl;
 
+	/* Should not be here */	 return NULL; 
 
 	cout<<" iXML 1 "<<endl<<endl;
 	
@@ -77,7 +78,6 @@ System * NFinput::initializeFromXML(
 		if(!pModel) { cout<<"\tNo 'model' tag found.  Quitting."; return NULL; }
 
 		// robby = NULL;
-	/* Should not be here */	 return NULL; 
 	cout<<" iXML 3 "<<endl<<endl;
 		//Make sure the basics are there
 		string modelName;
