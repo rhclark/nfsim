@@ -4,9 +4,9 @@ environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   matrix:
 #    - builder: cygwin
-#    - platform: x86
-#      fast_finish: true
-#      generator: "Ninja"
+    - platform: x86
+      fast_finish: true
+      generator: "Ninja"
              
 #    - builder: cygwin 
     - platform: x64
