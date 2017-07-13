@@ -40,15 +40,8 @@ set(SUB_DIRS
     src/NFcore/moleculeLists 
 )
 add_definitions("-Wno-deprecated-declarations")
-#set_source_files_properties( src/NFinput/TinyXML/tinyxml.h             PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
-#set_source_files_properties( src/NFinput/TinyXML/tinyxml.cpp           PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
-#set_source_files_properties( src/NFinput/TinyXML/tinyxmlparser.cpp     PROPERTIES  COMPILE_FLAGS  -DTIXML_USE_STL )
-
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11    -DTIXML_USE_STL  ")
 
-
-#include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
 
 
@@ -60,37 +53,6 @@ set(SRC_FILES
     ${src_files} 
     ${c_src_files} 
 )
-#if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
-#    SET(STATIC_FLAGS "-static -static-libgcc -static-libstdc++")
-#    SET(STATIC_FLAGS " -static-libgcc -static-libstdc++")
-#    SET(NFSIM_LINK_FLAGS " -static-libgcc -static-libstdc++")
-#endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
-
-#SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${NFSIM_LINK_FLAGS}")
-#SET( CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS}   -static-libgcc -static-libstdc++ ")
-#add_definitions(${CMAKE_STATIC_LINKER_FLAGS})
-
-#SET_TARGET_PROPERTIES(C:\MinGW\bin\libgcc_s_dw2-1.a PROPERTIES LINK_FLAGS -Wl,-static)
-#SET_TARGET_PROPERTIES(NFsim PROPERTIES CMAKE_EXE_LINKER_FLAGS -Wl,-static)
-
-#add_library(GCCDW2 STATIC IMPORTED)
-#set_property(TARGET GCCDW2 PROPERTY IMPORTED_LOCATION  C:/MinGW/bin/libgcc_s_dw2-1.a  )
-
-#SET( CMAKE_STATIC_LINKER_FLAGS  "${CMAKE_STATIC_LINKER_FLAGS}   -static-libgcc -static-libstdc++ ")
-#SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS}   -static ")
-#add_definitions(CMAKE_EXE_LINKER_FLAGS)
-
-#SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#SET(BUILD_SHARED_LIBRARIES OFF)
-#SET(CMAKE_EXE_LINKER_FLAGS "-static")
-#SET( CMAKE_GCC_LINKER_FLAGS  " ${CMAKE_GCC_LINKER_FLAGS} -static-libgcc -static-libstdc++  ")
 
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
-#SET( CMAKE_EXE_LINKER_FLAGS  " ${CMAKE_EXE_LINKER_FLAGS} -static ")
-#SET( CMAKE_EXE_LINKER_FLAGS  " ${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++  ")
-
-#target_link_libraries(${PROJECT_NAME} GCCDW2)
-#message(" Statically linked library: GCCDW2 done")
-
-#target_link_libraries(${PROJECT_NAME} C:/MinGW/bin/libgcc_s_dw2-1.a )
