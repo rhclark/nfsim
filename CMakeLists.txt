@@ -6,7 +6,7 @@ project(NFsim)
 
 
 #if (NOT XMLRPC_FOUND) 
-  message (FATAL_ERROR "XMLRPC-C not found") 
+#  message (FATAL_ERROR "XMLRPC-C not found") 
 #endif (NOT XMLRPC_FOUND) 
 
 set(CMAKE_BUILD_TYPE Release)
@@ -37,7 +37,12 @@ set(SUB_DIRS
     src/NFcore/moleculeLists 
 )
 add_definitions("-Wno-deprecated-declarations")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+# Needed for UNIX not needed for windows
+set_source_files_properties( src/NFreactions/reactions/DORreaction.cpp PROPERTIES  COMPILE_FLAGS  -std=c++11 )
+# Needed for windows not needed for UNIX
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} include ${SUB_DIRS})
@@ -51,6 +56,8 @@ set(SRC_FILES
     ${src_files} 
     ${c_src_files} 
 )
+
+
 #if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 #    SET(STATIC_FLAGS "-static -static-libgcc -static-libstdc++")
 #endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
@@ -58,10 +65,8 @@ set(SRC_FILES
 #SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
 
 
-message (CMAKE_SYSTEM_NAME  "Operating System") 
 
-
-
+# Needed for windows
 # SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 # SET(BUILD_SHARED_LIBRARIES OFF)
 # SET(CMAKE_EXE_LINKER_FLAGS "-static")
