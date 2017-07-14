@@ -57,7 +57,7 @@ set(SRC_FILES
     ${c_src_files} 
 )
 
-message("CMAKE_SYSTEM" CMAKE_SYSTEM "CMAKE_SYSTEM")
+message("CMAKE_SYSTEM  " ${CMAKE_SYSTEM} "  CMAKE_SYSTEM")
 
 #if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 #    SET(STATIC_FLAGS "-static -static-libgcc -static-libstdc++")
