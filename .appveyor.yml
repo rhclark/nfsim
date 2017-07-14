@@ -52,6 +52,7 @@ build_script:
 #  - if "%platform%"=="x86" ( copy C:\cygwin\bin\gcc.exe C:\cygwin\bin\cc.exe )
   - if "%platform%"=="x64" ( cmake -G "Ninja" .. )
   - if "%platform%"=="x64" ( ninja )
+  - if "%platform%"=="x64" ( type C:/projects/nfsim/build/CMakeFiles/CMakeOutput.log )
   - if "%platform%"=="x64" ( cd .. )
   - if "%platform%"=="x64" ( perl .make_tar.pl   --platform Win64 )
 
