@@ -38,10 +38,15 @@ set(SUB_DIRS
 )
 add_definitions("-Wno-deprecated-declarations")
 
-# Needed for UNIX not needed for windows
-set_source_files_properties( src/NFreactions/reactions/DORreaction.cpp PROPERTIES  COMPILE_FLAGS  -std=c++11 )
-# Needed for windows not needed for UNIX
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+IF(CMAKE_SYSTEM_NAME  MATCHES "Windows")
+   set_source_files_properties( src/NFreactions/reactions/DORreaction.cpp PROPERTIES  COMPILE_FLAGS  -std=c++11 )
+ELSE(CMAKE_SYSTEM_NAME  MATCHES "Windows")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+   SET(BUILD_SHARED_LIBRARIES OFF)
+   SET(CMAKE_EXE_LINKER_FLAGS "-static")
+ENDIF(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 
 
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${XMLRPC_INCLUDE_DIRS} ${SUB_DIRS})
@@ -66,11 +71,10 @@ message("CMAKE_SYSTEM  " ${CMAKE_SYSTEM} "  CMAKE_SYSTEM")
 #SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
 
 
-
-# Needed for windows
-# SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-# SET(BUILD_SHARED_LIBRARIES OFF)
-# SET(CMAKE_EXE_LINKER_FLAGS "-static")
-
+#if(CMAKE_SYSTEM_NAME  MATCHES "Windows")
+#   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#   SET(BUILD_SHARED_LIBRARIES OFF)
+#   SET(CMAKE_EXE_LINKER_FLAGS "-static")
+#endif(CMAKE_SYSTEM_NAME  MATCHES "Windows")
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} )
