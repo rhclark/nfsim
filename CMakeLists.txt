@@ -58,7 +58,7 @@ set(SRC_FILES
 #SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS}")
 
 
-message (CMAKE_SYSTEM_NAME) 
+message (CMAKE_SYSTEM_NAME  "Operating System") 
 
 
 
