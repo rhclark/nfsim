@@ -6,7 +6,7 @@ project(NFsim)
 
 
 #if (NOT XMLRPC_FOUND) 
-#  message (FATAL_ERROR "XMLRPC-C not found") 
+  message (FATAL_ERROR "XMLRPC-C not found") 
 #endif (NOT XMLRPC_FOUND) 
 
 set(CMAKE_BUILD_TYPE Release)
