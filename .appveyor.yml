@@ -7,10 +7,12 @@ environment:
       fast_finish: true
       generator: "Ninja"
       builder: cygwin
+      ftp_user: 15262      
              
     - platform: x64
       fast_finish: true
       generator: "Ninja"
+      ftp_user: 15263      
 #      builder: cygwin 
 
 
@@ -82,6 +84,6 @@ deploy:
   provider: FTP
   protocol: ftp
   host: ftp.drivehq.com/d_data/d_appveyor
-  username: 15260
+  username: $ftp_user
   password:
     secure: aeh68ucxtH3lcVxawmcx8g==
