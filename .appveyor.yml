@@ -3,17 +3,17 @@ os: unstable
 environment:
   CTEST_OUTPUT_ON_FAILURE: 1
   matrix:
-    - platform: x86
-      fast_finish: true
-      generator: "Ninja"
-      builder: cygwin
-      ftp_user: 15262      
+#    - platform: x86
+#      fast_finish: true
+#      generator: "Ninja"
+#      builder: cygwin
+#      ftp_user: 15262      
              
     - platform: x64
       fast_finish: true
       generator: "Ninja"
       ftp_user: 15263      
-#      builder: cygwin 
+      builder: cygwin 
 
 
 
